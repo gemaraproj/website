@@ -63,14 +63,6 @@ jobs:
           echo "Building against gemara spec ref: $ref"
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
 
-      - name: Checkout Gemara spec
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          repository: gemaraproj/gemara
-          ref: ${{ steps.spec.outputs.ref }}
-          path: .gemara-spec
-          persist-credentials: false
-
       - name: Setup Pages
         if: github.event_name != 'pull_request'
         id: pages
@@ -87,8 +79,30 @@ jobs:
         with:
           go-version: '1.25'
 
+      - name: Fetch spec OpenAPI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF: ${{ steps.spec.outputs.ref }}
+        run: |
+          mkdir -p generated
+          # Releases publish openapi.yaml as an asset; fall back to
+          # generating it from a spec checkout for refs that predate the
+          # asset (or when building against a branch like main).
+          if [ "$REF" != "main" ] && gh release download "$REF" \
+              --repo gemaraproj/gemara \
+              --pattern openapi.yaml \
+              --output generated/openapi.yaml 2>/dev/null; then
+            echo "Downloaded openapi.yaml from release $REF"
+          else
+            echo "::warning::No openapi.yaml release asset for $REF; generating from a spec checkout"
+            git clone --depth 1 --branch "$REF" https://github.com/gemaraproj/gemara .gemara-spec
+            (cd .gemara-spec/cmd && go run . cue2openapi \
+              --schema .. \
+              --output "$GITHUB_WORKSPACE/generated/openapi.yaml")
+          fi
+
       - name: Generate documentation
-        run: make gendocs GEMARA_DIR=.gemara-spec
+        run: make gendocs
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1.0.13

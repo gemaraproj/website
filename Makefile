@@ -2,27 +2,28 @@
 #
 # The site content lives at the repository root. Schema reference pages,
 # the definitions table, and term cross-links are GENERATED from the Gemara
-# specification repo (github.com/gemaraproj/gemara), which provides both the
-# CUE schemas and the `gemara-docs` CLI under cmd/.
+# specification's OpenAPI projection (openapi.yaml), which the spec repo
+# (github.com/gemaraproj/gemara) publishes as a release asset. The markdown
+# tooling that renders it lives in this repo under tools/.
 #
-# GEMARA_DIR points at a checkout of the spec repo. By default it is a
-# shallow clone under .gemara-spec/ at GEMARA_REF; set GEMARA_DIR=../gemara
-# to build against a local sibling checkout instead.
+# openapi.yaml acquisition, in order of precedence:
+#   GEMARA_OPENAPI=/path/to/openapi.yaml   use a pre-generated file
+#   GEMARA_DIR=../gemara                   generate from a local spec checkout
+#                                          (runs its cue2openapi command)
+#   GEMARA_REF=v1.2.3 (default: latest)    download the release asset
 
 GEMARA_REPO ?= https://github.com/gemaraproj/gemara
-GEMARA_REF  ?= main
-GEMARA_DIR  ?= .gemara-spec
+GEMARA_REF  ?= latest
 
-SPEC_ABS      := $(abspath $(GEMARA_DIR))
 SITE_ABS      := $(abspath .)
+TOOLS_DIR     := tools
 GENERATED_DIR := generated
 OPENAPI_YAML  := $(GENERATED_DIR)/openapi.yaml
-MANIFEST_JSON := $(GENERATED_DIR)/schema-manifest.json
 SPEC_MD_DIR   := $(GENERATED_DIR)/spec
 SCHEMA_DIR    := schema
 SCHEMA_NAV    := schema-nav.yml
 
-.PHONY: all fetch-spec genopenapi genmd gendocs serve build test-links cleanup cleanup-links check-jekyll deps
+.PHONY: all fetch-openapi genmd gendocs serve build test-links cleanup cleanup-links check-jekyll deps
 
 all: gendocs test-links cleanup
 
@@ -36,27 +37,40 @@ check-jekyll:
 		exit 1; \
 	fi
 
-fetch-spec:
-	@if [ ! -d "$(GEMARA_DIR)" ]; then \
-		echo "  >  Cloning Gemara spec ($(GEMARA_REF)) into $(GEMARA_DIR)..."; \
-		git clone --depth 1 --branch "$(GEMARA_REF)" "$(GEMARA_REPO)" "$(GEMARA_DIR)"; \
+# File target: if generated/openapi.yaml already exists (e.g. CI downloaded
+# or generated it beforehand), acquisition is skipped entirely.
+$(OPENAPI_YAML):
+	@mkdir -p $(GENERATED_DIR)
+	@if [ -n "$(GEMARA_OPENAPI)" ]; then \
+		echo "  >  Using local OpenAPI file $(GEMARA_OPENAPI) ..."; \
+		cp "$(GEMARA_OPENAPI)" "$(OPENAPI_YAML)"; \
+	elif [ -n "$(GEMARA_DIR)" ]; then \
+		echo "  >  Generating OpenAPI from local spec checkout $(GEMARA_DIR) ..."; \
+		cd "$(abspath $(GEMARA_DIR))/cmd" && go run . cue2openapi \
+			--schema .. \
+			--output $(SITE_ABS)/$(OPENAPI_YAML); \
 	else \
-		echo "  >  Using existing spec checkout at $(GEMARA_DIR)"; \
+		if [ "$(GEMARA_REF)" = "latest" ]; then \
+			url="$(GEMARA_REPO)/releases/latest/download/openapi.yaml"; \
+		else \
+			url="$(GEMARA_REPO)/releases/download/$(GEMARA_REF)/openapi.yaml"; \
+		fi; \
+		echo "  >  Downloading $$url ..."; \
+		curl --fail --silent --show-error --location "$$url" --output "$(OPENAPI_YAML)" || { \
+			rm -f "$(OPENAPI_YAML)"; \
+			echo "ERROR: could not download openapi.yaml for spec ref '$(GEMARA_REF)'."; \
+			echo "Releases before the asset existed can be built from a checkout instead:"; \
+			echo "  make gendocs GEMARA_DIR=/path/to/gemara"; \
+			exit 1; \
+		}; \
 	fi
 
-genopenapi: fetch-spec
-	@echo "  >  Converting CUE schema to OpenAPI ..."
-	@mkdir -p $(GENERATED_DIR)
-	@cd $(SPEC_ABS)/cmd && go run . cue2openapi \
-		--schema $(SPEC_ABS) \
-		--output $(SITE_ABS)/$(OPENAPI_YAML) \
-		--manifest $(SITE_ABS)/$(MANIFEST_JSON)
-	@echo "  >  OpenAPI schema generation complete!"
+fetch-openapi: $(OPENAPI_YAML)
 
-genmd: genopenapi
+genmd: fetch-openapi
 	@echo "  >  Generating markdown from OpenAPI ..."
 	@mkdir -p $(SPEC_MD_DIR)
-	@cd $(SPEC_ABS)/cmd && go run . openapi2md \
+	@cd $(TOOLS_DIR) && go run . openapi2md \
 		--input $(SITE_ABS)/$(OPENAPI_YAML) \
 		--output $(SITE_ABS)/$(SPEC_MD_DIR) \
 		--nav $(SITE_ABS)/$(SCHEMA_NAV)
@@ -65,7 +79,7 @@ genmd: genopenapi
 gendocs: genmd
 	@echo "  >  Copying schema pages to $(SCHEMA_DIR)/ for website ..."
 	@mkdir -p $(SCHEMA_DIR)
-	@sh "$(SPEC_ABS)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+	@sh "$(TOOLS_DIR)/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
 		if [ -f "$(SPEC_MD_DIR)/$$filename.md" ]; then \
 			{ \
 				echo "---"; \
@@ -80,7 +94,7 @@ gendocs: genmd
 	@echo "  >  Updating schema list in $(SCHEMA_DIR)/index.md ..."
 	@if [ -f "$(SCHEMA_DIR)/index.md" ]; then \
 		schema_list_file="$(SCHEMA_DIR)/index.md.schema_list.tmp"; \
-		sh "$(SPEC_ABS)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+		sh "$(TOOLS_DIR)/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
 			[ -f "$(SCHEMA_DIR)/$$filename.md" ] && echo "- [$$title]($$filename.html)"; \
 		done > "$$schema_list_file"; \
 		awk -v list_file="$$schema_list_file" ' \
@@ -108,11 +122,11 @@ gendocs: genmd
 	@if [ -f "model/02-definitions.md.template" ]; then \
 		cp "model/02-definitions.md.template" "model/02-definitions.md"; \
 	fi
-	@cd $(SPEC_ABS)/cmd && go run . lexicon2md \
+	@cd $(TOOLS_DIR) && go run . lexicon2md \
 		--lexicon $(SITE_ABS)/lexicon.yaml \
 		--output $(SITE_ABS)/model/02-definitions.md
 	@echo "  >  Linking defined terms across documentation ..."
-	@cd $(SPEC_ABS)/cmd && go run . termlinker \
+	@cd $(TOOLS_DIR) && go run . termlinker \
 		--lexicon $(SITE_ABS)/lexicon.yaml \
 		--docs $(SITE_ABS)
 	@echo "  >  Documentation generation complete!"
@@ -137,7 +151,7 @@ test-links:
 
 cleanup-links:
 	@echo "  >  Removing termlinker-generated links from documentation ..."
-	@cd $(SPEC_ABS)/cmd && go run . termlinker \
+	@cd $(TOOLS_DIR) && go run . termlinker \
 		--lexicon $(SITE_ABS)/lexicon.yaml \
 		--docs $(SITE_ABS) \
 		--cleanup
@@ -145,7 +159,7 @@ cleanup-links:
 
 cleanup: cleanup-links
 	@echo "  >  Removing generated documentation files and links..."
-	@sh "$(SPEC_ABS)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+	@sh "$(TOOLS_DIR)/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
 		rm -f "$(SCHEMA_DIR)/$$filename.md"; \
 	done
 	@rm -f model/02-definitions.md
