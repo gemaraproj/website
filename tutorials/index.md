@@ -51,6 +51,10 @@ Create a policy document that translates risk appetite into mandatory rules — 
 
 When you need a structured inventory of organizational or system risks—**risk categories** (appetite, optional max-severity), per-risk **severity**, optional **`rank`** for ordering within the catalog, optional RACI **owner** and **impact**, and optional **threats** links backed by `metadata.mapping-references`—so policies can reference mitigated or accepted risks → [Risk Catalog Guide](policy/risk-catalog-guide) (Layer 3).
 
+### Working with Gemara CUE types
+
+Specialize Gemara types using CUE tooling — start with [Extending vs Constraining Gemara](capabilities/extending-vs-constraining) to choose between adding fields (extend) and restricting values (constrain), then follow the [Capability Extensions Guide](capabilities/capability-extensions-guide) for the full embedding walkthrough, including Go consumption.
+
 ## What You'll Build
 
 | Layer | Artifact | Guide |
@@ -60,6 +64,7 @@ When you need a structured inventory of organizational or system risks—**risk 
 | **Layer 3** — Policy   | Policy Document (scope, imports, adherence)                  | [Policy Guide](policy/policy-guide) |
 | **Layer 3** — Risks    | Risk Catalog (risk categories, appetite, risks, optional rank and threat mappings) | [Risk Catalog Guide](policy/risk-catalog-guide) |
 | **Cross-artifact**     | Mapping Document (typed `source`/`target` references, `targets` per mapping, relationship types; entry types per schema include guidelines, controls, Principle, threats, risks, and others) | [Mapping Document Guide](mapping/mapping-document-guide) |
+| **Community pattern**  | Capability Extension (domain-specific extension of `#Capability` via CUE embedding; superset of the base catalog, read by base and extension-aware tooling alike) | [Extending vs Constraining](capabilities/extending-vs-constraining), [Capability Extensions Guide](capabilities/capability-extensions-guide) |
 
 ## What You'll Need
 

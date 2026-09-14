@@ -1,0 +1,55 @@
+# Example CapabilityCatalog extended with a community Kubernetes extension.
+# See capability-extensions-guide.md. Validates against #KubernetesCapabilityCatalog
+# only (your extension module) — does NOT validate against base #CapabilityCatalog.
+
+title: Acme Kubernetes Capability Catalog
+
+metadata:
+  id: ACME-K8S
+  type: CapabilityCatalog
+  gemara-version: "1.2.0"
+  description: Kubernetes workload capabilities for the Acme platform.
+  version: 0.1.0
+  author:
+    id: acme-platform
+    name: Acme Platform Team
+    type: Human
+
+groups:
+  - id: workloads
+    title: Workloads
+    description: |
+      Capabilities related to pod and deployment management.
+  - id: secrets
+    title: Secrets
+    description: |
+      Capabilities related to secret and config management.
+
+capabilities:
+  - id: CAP-K8S-001
+    title: Create deployments
+    description: |
+      The cluster can create deployment resources in application namespaces.
+    group: workloads
+    api-group: apps
+    api-resource: deployments
+    verb: create
+    namespaced: true
+  - id: CAP-K8S-002
+    title: List pods
+    description: |
+      The cluster can list running pods across namespaces.
+    group: workloads
+    api-group: ""
+    api-resource: pods
+    verb: list
+    namespaced: true
+  - id: CAP-K8S-003
+    title: Read secrets
+    description: |
+      The cluster can read secret values in application namespaces.
+    group: secrets
+    api-group: ""
+    api-resource: secrets
+    verb: get
+    namespaced: true
