@@ -21,3 +21,8 @@ assets/css/*.css.map
 schema/*.md
 !schema/index.md
 model/02-definitions.md
+
+# IDE
+.vscode
+.idea
+

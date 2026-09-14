@@ -13,5 +13,8 @@
   url: /roadmap
 - title: Tutorials
   url: /tutorials/
+- title: FAQ
+  url: /faq/
 - title: ADRs
   url: /adrs/
+
