@@ -1,0 +1,109 @@
+openapi: 3.0.3
+info:
+  title: allOf fixtures
+  version: test
+components:
+  schemas:
+    Base:
+      type: object
+      properties:
+        base:
+          type: string
+      required: [base]
+    Middle:
+      allOf:
+        - $ref: '#/components/schemas/Base'
+      type: object
+      properties:
+        middle:
+          type: boolean
+      required: [middle]
+    Derived:
+      allOf:
+        - $ref: '#/components/schemas/Middle'
+      type: object
+      properties:
+        base:
+          type: integer
+        own:
+          type: string
+      required: [own]
+    Metadata:
+      type: string
+    Wrapped:
+      type: object
+      properties:
+        metadata:
+          description: metadata description
+          allOf:
+            - $ref: '#/components/schemas/Metadata'
+    StatusBase:
+      type: object
+      properties:
+        name:
+          type: string
+    StatusDerived:
+      allOf:
+        - $ref: '#/components/schemas/StatusBase'
+      type: object
+      x-status: experimental
+    ItemTarget:
+      type: object
+      properties:
+        id:
+          type: string
+      required: [id]
+    ItemsAllOfArray:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ItemTarget'
+              - required:
+                  - id
+            properties:
+              extra:
+                type: string
+            type: object
+    CUENoteSchema:
+      type: object
+      description: |-
+        items is a list
+
+        (Enforced by the CUE schema; not by this OpenAPI projection.)
+      properties:
+        name:
+          type: string
+          description: |-
+            name of the item
+
+            (Enforced by the CUE schema; not by this OpenAPI projection.)
+    RefTarget:
+      type: object
+      properties:
+        entry-id:
+          type: string
+      required: [entry-id]
+    PropRefAllOf:
+      type: object
+      properties:
+        log:
+          description: log maps to the entry
+          allOf:
+            - $ref: '#/components/schemas/RefTarget'
+    CycleA:
+      allOf:
+        - $ref: '#/components/schemas/CycleB'
+      type: object
+      properties:
+        a:
+          type: string
+    CycleB:
+      allOf:
+        - $ref: '#/components/schemas/CycleA'
+      type: object
+      properties:
+        b:
+          type: string

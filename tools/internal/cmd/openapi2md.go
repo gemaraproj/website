@@ -20,6 +20,7 @@ type Schema struct {
 	Description string                 `yaml:"description"`
 	Properties  map[string]interface{} `yaml:"properties"`
 	Required    []string               `yaml:"required"`
+	AllOf       []interface{}          `yaml:"allOf"`
 	Pattern     string                 `yaml:"pattern"`
 	Format      string                 `yaml:"format"`
 	Items       interface{}            `yaml:"items"`
@@ -178,16 +179,14 @@ func convertFromNav(inputFile, outputDir, navPath string) error {
 		// For each schema name listed in the page's schemas array
 		for _, schemaName := range page.Schemas {
 			// Look up schema in spec.Components.Schemas
-			schemaData, ok := spec.Components.Schemas[schemaName]
+			_, ok := spec.Components.Schemas[schemaName]
 			if !ok {
 				return fmt.Errorf("schema %q not found in OpenAPI spec (referenced in page %q)", schemaName, page.Title)
 			}
 
-			// Parse schema data into Schema struct
-			schemaBytes, _ := yaml.Marshal(schemaData)
-			var schema Schema
-			if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
-				return fmt.Errorf("failed to parse schema %q: %w", schemaName, err)
+			schema, err := resolveSchemaByName(schemaName, spec, make(map[string]bool))
+			if err != nil {
+				return fmt.Errorf("failed to resolve schema %q: %w", schemaName, err)
 			}
 
 			// Use isAlias() to determine schema type
@@ -252,14 +251,13 @@ func convertPerFile(inputFile, outputDir, manifestPath string) error {
 		var buf strings.Builder
 
 		for _, name := range schemaNames {
-			schemaData, ok := spec.Components.Schemas[name]
+			_, ok := spec.Components.Schemas[name]
 			if !ok {
 				continue
 			}
-			schemaBytes, _ := yaml.Marshal(schemaData)
-			var schema Schema
-			if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
-				continue
+			schema, err := resolveSchemaByName(name, spec, make(map[string]bool))
+			if err != nil {
+				return fmt.Errorf("failed to resolve schema %q: %w", name, err)
 			}
 			if isAlias(schema) {
 				buf.WriteString(generateAliasBlock(name, schema, false))
@@ -284,8 +282,8 @@ func generateAliasBlock(name string, schema Schema, subheading bool) string {
 		level = "###"
 	}
 	buf.WriteString(fmt.Sprintf("%s `%s`\n\n", level, name))
-	if schema.Description != "" {
-		buf.WriteString(schema.Description + "\n\n")
+	if description := stripCUEProjectionNotes(schema.Description); description != "" {
+		buf.WriteString(description + "\n\n")
 	}
 	buf.WriteString(fmt.Sprintf("- **Type**: `%s`\n", schema.Type))
 	if schema.Format != "" {
@@ -321,13 +319,12 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 	// Resolve root schemas and fail if any are missing
 	rootSchemas := make(map[string]Schema)
 	for _, name := range roots {
-		data, exists := spec.Components.Schemas[name]
+		_, exists := spec.Components.Schemas[name]
 		if !exists {
 			return fmt.Errorf("root schema %q not found in OpenAPI spec", name)
 		}
-		var s Schema
-		bytes, _ := yaml.Marshal(data)
-		if err := yaml.Unmarshal(bytes, &s); err != nil {
+		s, err := resolveSchemaByName(name, spec, make(map[string]bool))
+		if err != nil {
 			return fmt.Errorf("failed to parse root schema %q: %w", name, err)
 		}
 		rootSchemas[name] = s
@@ -335,13 +332,12 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 
 	// Collect aliases (exclude all roots)
 	var aliasTypes []string
-	for schemaName, schemaData := range spec.Components.Schemas {
+	for schemaName := range spec.Components.Schemas {
 		if rootSet[schemaName] {
 			continue
 		}
-		schemaBytes, _ := yaml.Marshal(schemaData)
-		var schema Schema
-		if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
+		schema, err := resolveSchemaByName(schemaName, spec, make(map[string]bool))
+		if err != nil {
 			continue
 		}
 		if isAlias(schema) {
@@ -387,9 +383,8 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 		buf.WriteString("The following aliases are used throughout the schema for consistency.\n\n")
 
 		for _, name := range aliasTypes {
-			schemaBytes, _ := yaml.Marshal(spec.Components.Schemas[name])
-			var schema Schema
-			if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
+			schema, err := resolveSchemaByName(name, spec, make(map[string]bool))
+			if err != nil {
 				continue
 			}
 			buf.WriteString(generateAliasBlock(name, schema, true))
@@ -410,23 +405,116 @@ func isAlias(schema Schema) bool {
 	return schema.Properties == nil
 }
 
+func parseSchema(data interface{}) (Schema, error) {
+	schemaBytes, err := yaml.Marshal(data)
+	if err != nil {
+		return Schema{}, err
+	}
+	var schema Schema
+	if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
+		return Schema{}, err
+	}
+	return schema, nil
+}
+
+func resolveSchemaByName(name string, spec OpenAPISpec, active map[string]bool) (Schema, error) {
+	if active[name] {
+		return Schema{}, nil
+	}
+	data, exists := spec.Components.Schemas[name]
+	if !exists {
+		return Schema{}, fmt.Errorf("schema not found: %s", name)
+	}
+	active[name] = true
+	defer delete(active, name)
+	schema, err := parseSchema(data)
+	if err != nil {
+		return Schema{}, fmt.Errorf("failed to parse schema %s: %w", name, err)
+	}
+	return resolveSchemaComposition(schema, spec, active)
+}
+
+func resolveSchemaComposition(schema Schema, spec OpenAPISpec, active map[string]bool) (Schema, error) {
+	resolved := Schema{}
+	for _, item := range schema.AllOf {
+		part, err := parseSchema(item)
+		if err != nil {
+			return Schema{}, fmt.Errorf("failed to parse allOf schema: %w", err)
+		}
+		if part.Ref != "" {
+			if !strings.HasPrefix(part.Ref, "#/components/schemas/") {
+				return Schema{}, fmt.Errorf("invalid ref format: %s", part.Ref)
+			}
+			name := strings.TrimPrefix(part.Ref, "#/components/schemas/")
+			part, err = resolveSchemaByName(name, spec, active)
+			if err != nil {
+				return Schema{}, err
+			}
+		} else {
+			part, err = resolveSchemaComposition(part, spec, active)
+			if err != nil {
+				return Schema{}, err
+			}
+		}
+		mergeSchemas(&resolved, part)
+	}
+	mergeSchemas(&resolved, schema)
+	resolved.AllOf = nil
+	return resolved, nil
+}
+
+func mergeSchemas(target *Schema, source Schema) {
+	if source.Type != "" {
+		target.Type = source.Type
+	}
+	if source.Description != "" {
+		target.Description = source.Description
+	}
+	if source.Pattern != "" {
+		target.Pattern = source.Pattern
+	}
+	if source.Format != "" {
+		target.Format = source.Format
+	}
+	if source.Ref != "" {
+		target.Ref = source.Ref
+	}
+	if source.Items != nil {
+		target.Items = source.Items
+	}
+	if source.XStatus != "" {
+		target.XStatus = source.XStatus
+	}
+	if source.Properties != nil {
+		if target.Properties == nil {
+			target.Properties = make(map[string]interface{})
+		}
+		for name, property := range source.Properties {
+			target.Properties[name] = property
+		}
+	}
+	seen := make(map[string]bool, len(target.Required))
+	for _, name := range target.Required {
+		seen[name] = true
+	}
+	for _, name := range source.Required {
+		if !seen[name] {
+			target.Required = append(target.Required, name)
+			seen[name] = true
+		}
+	}
+}
+
 func resolveSchemaRef(ref string, spec OpenAPISpec) (*Schema, error) {
 	if !strings.HasPrefix(ref, "#/components/schemas/") {
 		return nil, fmt.Errorf("invalid ref format: %s", ref)
 	}
 
 	schemaName := strings.TrimPrefix(ref, "#/components/schemas/")
-	schemaData, exists := spec.Components.Schemas[schemaName]
-	if !exists {
-		return nil, fmt.Errorf("schema not found: %s", schemaName)
+	schema, err := resolveSchemaByName(schemaName, spec, make(map[string]bool))
+	if err != nil {
+		return nil, err
 	}
-
-	schemaBytes, _ := yaml.Marshal(schemaData)
-	var schema Schema
-	if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
-		return nil, fmt.Errorf("failed to parse schema %s: %v", schemaName, err)
-	}
-
 	return &schema, nil
 }
 
@@ -487,7 +575,12 @@ func formatFieldInline(fieldName string, fieldSchema Schema, spec OpenAPISpec, p
 		}
 	}
 
-	return fieldLine, description
+	return fieldLine, stripCUEProjectionNotes(description)
+}
+
+func stripCUEProjectionNotes(description string) string {
+	const marker = "(Enforced by the CUE schema; not by this OpenAPI projection.)"
+	return strings.TrimSpace(strings.ReplaceAll(description, marker, ""))
 }
 
 // formatFieldType returns the type string for a field with markdown links for custom types
@@ -512,6 +605,16 @@ func formatFieldType(fieldSchema Schema, spec OpenAPISpec, schemaToFile map[stri
 			itemsBytes, _ := yaml.Marshal(fieldSchema.Items)
 			var itemsSchema Schema
 			if err := yaml.Unmarshal(itemsBytes, &itemsSchema); err == nil {
+				if len(itemsSchema.AllOf) > 0 {
+					firstPart, _ := parseSchema(itemsSchema.AllOf[0])
+					resolvedItems, resolveErr := resolveSchemaComposition(itemsSchema, spec, make(map[string]bool))
+					if resolveErr == nil {
+						if firstPart.Ref != "" {
+							resolvedItems.Ref = firstPart.Ref
+						}
+						itemsSchema = resolvedItems
+					}
+				}
 				var itemType string
 				var itemTypeLink string
 				if itemsSchema.Ref != "" {
@@ -557,8 +660,8 @@ func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, schem
 	if status := getSchemaStatus(schema); status != "" {
 		buf.WriteString(formatStatusBadge(status) + "\n\n")
 	}
-	if schema.Description != "" {
-		buf.WriteString(schema.Description + "\n\n")
+	if description := stripCUEProjectionNotes(schema.Description); description != "" {
+		buf.WriteString(description + "\n\n")
 	}
 
 	if schema.Properties != nil {
@@ -592,6 +695,20 @@ func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, schem
 			if err := yaml.Unmarshal(propBytes, &prop); err != nil {
 				continue
 			}
+			resolvedProp, err := resolveSchemaComposition(prop, spec, make(map[string]bool))
+			if err != nil {
+				continue
+			}
+			// Preserve the first allOf $ref for type display so
+			// fields like AssessmentFinding.log render as the
+			// linked type name rather than bare "object".
+			if len(prop.AllOf) > 0 && resolvedProp.Ref == "" {
+				firstPart, _ := parseSchema(prop.AllOf[0])
+				if firstPart.Ref != "" {
+					resolvedProp.Ref = firstPart.Ref
+				}
+			}
+			prop = resolvedProp
 			fields = append(fields, fieldInfo{
 				name:     propName,
 				schema:   prop,
