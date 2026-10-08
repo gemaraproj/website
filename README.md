@@ -170,20 +170,10 @@ Normal builds use the **latest published spec release**, not the spec's `main` b
 
 ## Contributing
 
-Pull requests are welcome.
-
-- Sign your commits: `git commit -s` (DCO is required)
-- Use [Conventional Commits](https://www.conventionalcommits.org/) for PR titles,
-  for example `docs: fix typo on the model page`
-- Run `make cleanup` before committing
-
-Come talk to us first if you're planning something large:
-
-- **Slack:** [#gemara](https://openssf.slack.com/archives/C09A9PP765Q) on OpenSSF Slack
-- **Meetings:** every other Thursday — see the
-  [OpenSSF calendar](https://calendar.google.com/calendar/u/0?cid=czYzdm9lZmhwNWk5cGZsdGI1cTY3bmdwZXNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ)
-
-Maintainers are listed in `_data/maintainers.yml`.
+Pull requests are welcome. See the
+[Contributing guide](https://gemara.openssf.org/community/contributing) on the
+site for the full guidelines, including sign-off requirements and AI
+attribution expectations.
 
 ---
 

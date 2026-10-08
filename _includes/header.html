@@ -38,7 +38,18 @@
 
       <div class="trigger">
         {%- for item in site.data.navigation -%}
+          {%- if item.children -%}
+          <details class="nav-dropdown">
+            <summary class="page-link">{{ item.title | escape }}</summary>
+            <div class="nav-dropdown-menu">
+              {%- for child in item.children -%}
+                <a class="page-link" href="{{ child.url | relative_url }}">{{ child.title | escape }}</a>
+              {%- endfor -%}
+            </div>
+          </details>
+          {%- else -%}
           <a class="page-link" href="{{ item.url | relative_url }}">{{ item.title | escape }}</a>
+          {%- endif -%}
         {%- endfor -%}
       </div>
     </nav>

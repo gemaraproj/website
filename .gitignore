@@ -26,3 +26,5 @@ model/02-definitions.md
 .vscode
 .idea
 
+# OpenSpec change artifacts are local planning files.
+openspec/changes/

@@ -2,6 +2,13 @@
   url: /
 - title: Community
   url: /community/
+  children:
+    - title: Overview
+      url: /community/
+    - title: Contributing
+      url: /community/contributing
+    - title: Maintainers
+      url: /community/maintainers
 - title: Roadmap
   url: /roadmap
 - title: Tutorials
