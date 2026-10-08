@@ -354,6 +354,7 @@ func processLine(line string, termInfos []TermInfo, defPath string) string {
 	// Find all existing markdown links, inline code, and HTML tags to skip
 	linkPattern := regexp.MustCompile(`\[([^\]]+)\]\([^\)]+\)`)
 	inlineCodePattern := regexp.MustCompile("`[^`]+`")
+	liquidPattern := regexp.MustCompile(`\{\{.*?\}\}|\{%.*?%\}`)
 	// Match HTML tags: <tag>, </tag>, <tag/>, <tag attr="value">, etc.
 	// This regex matches opening tags, closing tags, and self-closing tags
 	htmlTagPattern := regexp.MustCompile(`<[^>]+>`)
@@ -537,6 +538,7 @@ func processLine(line string, termInfos []TermInfo, defPath string) string {
 		// Rebuild skip ranges after each replacement
 		linkRanges := linkPattern.FindAllStringIndex(result, -1)
 		codeRanges := inlineCodePattern.FindAllStringIndex(result, -1)
+		liquidRanges := liquidPattern.FindAllStringIndex(result, -1)
 		htmlRanges := htmlTagPattern.FindAllStringIndex(result, -1)
 
 		// Find HTML tag pairs (opening and closing tags) to skip ALL content between them
@@ -548,6 +550,9 @@ func processLine(line string, termInfos []TermInfo, defPath string) string {
 			skipRanges = append(skipRanges, rangeInfo{start: r[0], end: r[1]})
 		}
 		for _, r := range codeRanges {
+			skipRanges = append(skipRanges, rangeInfo{start: r[0], end: r[1]})
+		}
+		for _, r := range liquidRanges {
 			skipRanges = append(skipRanges, rangeInfo{start: r[0], end: r[1]})
 		}
 		// Add HTML tags themselves
