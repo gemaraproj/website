@@ -22,5 +22,9 @@ schema/*.md
 !schema/index.md
 model/02-definitions.md
 
+# IDE
+.vscode
+.idea
+
 # OpenSpec change artifacts are local planning files.
 openspec/changes/
