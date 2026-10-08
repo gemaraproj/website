@@ -8,7 +8,15 @@ Gemara is maintained by a group of contributors across the community. These
 folks review contributions, guide the project's direction, and are happy to
 help you get started.
 
+## Active Maintainers
+
 {% for maintainer in site.data.maintainers.maintainers %}
+- {{ maintainer.name }}, {{ maintainer.organization }} (@{{ maintainer.github }})
+{% endfor %}
+
+## Emeritus Maintainers
+
+{% for maintainer in site.data.maintainers.emeritus %}
 - {{ maintainer.name }}, {{ maintainer.organization }} (@{{ maintainer.github }})
 {% endfor %}
 
