@@ -8,7 +8,11 @@ maintainers:
   - name: Eddie Knight
     organization: Sonatype
     github: eddie-knight
+  - name: Jason Meridth
+    organization: Chainguard
+    github: jmeridth
+
+emeritus:
   - name: Travis Truman
     organization: CVS Health
     github: trumant
-
