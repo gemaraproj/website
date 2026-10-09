@@ -8,9 +8,9 @@ maintainers:
   - name: Eddie Knight
     organization: Sonatype
     github: eddie-knight
-  - name: Jason Meridith
+  - name: Jason Meridth
     organization: Chainguard
-    github: jmeridith
+    github: jmeridth
 
 emeritus:
   - name: Travis Truman
