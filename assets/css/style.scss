@@ -718,6 +718,12 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
   max-width: none;
 }
 
+.faq-project-flow {
+  width: 460px;
+  max-width: 100%;
+  height: auto;
+}
+
 .home,
 .page {
   max-width: 100%;

@@ -39,47 +39,7 @@ If you use an AI code assistant, Gemara provides MCP tools to help your agent va
 
 This walkthrough follows a single scenario, securing an open source project hosted in Git, through every Gemara layer.
 
-```mermaid
-graph LR
-    subgraph L1["Layer 1: Guidance & Vectors"]
-        NIST["NIST SSDF<br/>Guidance Catalog<br/><i>How software should be made</i>"]
-        MITRE["MITRE ATT&CK<br/>Vector Catalog<br/><i>How attackers target supply chains</i>"]
-    end
-
-    subgraph L2["Layer 2: Controls & Threats"]
-        OSPS["OSPS Baseline<br/>Control Catalog<br/><i>Testable controls for open source projects</i>"]
-        THREATS["Threat Catalog<br/><i>What specifically can go wrong in open source projects</i>"]
-    end
-
-    subgraph L3["Layer 3: Policy"]
-        POLICY["Organizational Policy<br/><i>Our projects must comply with OSPS Baseline</i><br/>Scope: all public repos · Frequency: weekly"]
-    end
-
-    subgraph L4["Layer 4: Your Project"]
-        PROJECT["Git repo + CI/CD + infrastructure<br/><i>Existing tooling — Gemara doesn't schema this</i>"]
-    end
-
-    subgraph L5["Layer 5: Evaluation"]
-        EVAL["Evaluation Log<br/>Scanner checks repo against policy controls<br/>Result: branch protection missing ✗"]
-    end
-
-    subgraph L6["Layer 6: Enforcement"]
-        ENFORCE["Enforcement Log<br/>Tooling enables branch protection automatically<br/>Action: remediated ✓"]
-    end
-
-    subgraph L7["Layer 7: Audit"]
-        AUDIT["Audit Log<br/>Auditor reviews: policy existed, evaluation<br/>found gap, enforcement remediated, passing since"]
-    end
-
-    NIST -->|informs| OSPS
-    MITRE -->|maps to| THREATS
-    THREATS -->|informs| OSPS
-    OSPS -->|imported by| POLICY
-    POLICY -->|applied to| PROJECT
-    PROJECT -->|evaluated by| EVAL
-    EVAL -->|triggers| ENFORCE
-    ENFORCE -->|reviewed by| AUDIT
-```
+<img class="faq-project-flow" src="{{ '/assets/diagrams/faq-open-source-project-flow.svg' | relative_url }}" alt="Diagram showing the seven Gemara layers: guidance and vectors inform controls and threats; controls are imported into policy; policy applies to a project; the project is evaluated, enforcement remediates findings, and an audit reviews the chain.">
 
 Who does what in this scenario:
 

@@ -1,0 +1,96 @@
+# Regenerate with: d2 --layout elk --elk-nodeNodeBetweenLayers 10 --elk-edgeNodeBetweenLayers 10 --elk-padding "[top=15,left=15,bottom=15,right=15]" --pad 20 assets/diagrams/faq-open-source-project-flow.d2 assets/diagrams/faq-open-source-project-flow.svg
+direction: down
+
+classes: {
+  layer: {
+    style: {
+      fill: "#F6F8FA"
+      stroke: "#6E7781"
+      stroke-width: 2
+      border-radius: 8
+    }
+  }
+  artifact: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#45208C"
+      stroke-width: 2
+      border-radius: 6
+    }
+  }
+}
+
+guidance: {
+  label: ""
+  direction: right
+  heading: "Layer 1: Guidance & Vectors" {shape: text}
+  nist: "NIST SSDF\nGuidance Catalog\nHow software should be made" {class: artifact}
+  mitre: "MITRE ATT&CK\nVector Catalog\nHow attackers target supply chains" {class: artifact}
+  heading -> nist: {style.opacity: 0}
+  nist -> mitre: {style.opacity: 0}
+  class: layer
+}
+
+controls: {
+  label: ""
+  direction: right
+  heading: "Layer 2: Controls & Threats" {shape: text}
+  osps: "OSPS Baseline\nControl Catalog\nTestable controls for open source projects" {class: artifact}
+  threats: "Threat Catalog\nWhat specifically can go wrong in open source projects" {class: artifact}
+  heading -> osps: {style.opacity: 0}
+  osps -> threats: {style.opacity: 0}
+  class: layer
+}
+
+policy: {
+  label: ""
+  direction: right
+  heading: "Layer 3: Policy" {shape: text}
+  organizational_policy: "Organizational Policy\nOur projects must comply with OSPS Baseline\nScope: all public repos · Frequency: weekly" {class: artifact}
+  heading -> organizational_policy: {style.opacity: 0}
+  class: layer
+}
+
+project_layer: {
+  label: ""
+  direction: right
+  heading: "Layer 4: Your Project" {shape: text}
+  project: "Git repo + CI/CD + infrastructure\nExisting tooling — Gemara doesn't schema this" {class: artifact}
+  heading -> project: {style.opacity: 0}
+  class: layer
+}
+
+evaluation: {
+  label: ""
+  direction: right
+  heading: "Layer 5: Evaluation" {shape: text}
+  evaluation_log: "Evaluation Log\nScanner checks repo against policy controls\nResult: branch protection missing ✗" {class: artifact}
+  heading -> evaluation_log: {style.opacity: 0}
+  class: layer
+}
+
+enforcement: {
+  label: ""
+  direction: right
+  heading: "Layer 6: Enforcement" {shape: text}
+  enforcement_log: "Enforcement Log\nTooling enables branch protection automatically\nAction: remediated ✓" {class: artifact}
+  heading -> enforcement_log: {style.opacity: 0}
+  class: layer
+}
+
+audit: {
+  label: ""
+  direction: right
+  heading: "Layer 7: Audit" {shape: text}
+  audit_log: "Audit Log\nAuditor reviews: policy existed, evaluation\nfound gap, enforcement remediated, passing since" {class: artifact}
+  heading -> audit_log: {style.opacity: 0}
+  class: layer
+}
+
+controls.threats -> controls.osps: "informs" {style.stroke-dash: 3}
+guidance -> controls: "NIST informs OSPS; MITRE maps to threats"
+controls -> policy: "OSPS imported by policy"
+policy -> project_layer: "policy applied to project"
+project_layer -> evaluation: "project evaluated against policy"
+evaluation -> enforcement: "findings trigger enforcement"
+enforcement -> audit: "audit reviews the chain"
