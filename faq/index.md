@@ -90,7 +90,7 @@ Some controls are procedural, so those logs can be human-authored. Audit Logs ar
 
 ### How does Gemara relate to OSCAL?
 
-OSCAL is a mature standard for machine-readable compliance documents, adopted in programs like FedRAMP. Gemara builds on lessons from the OSCAL community and optimizes for a specific workflow: lean YAML authoring, machine-generated artifacts at scale, and first-class threat-to-control traceability. The Gemara SDK exports to OSCAL formats, so organizations can use Gemara for authoring and automation while producing OSCAL artifacts for exchange and regulatory submission.
+OSCAL is a mature standard for machine-readable compliance documents, adopted in programs like FedRAMP. Gemara builds on lessons from the OSCAL community and optimizes for a specific workflow: lean YAML authoring, machine-generated artifacts at scale, and first-class threat-to-control traceability. The Gemara SDK converts Gemara artifacts to OSCAL, starting with Control Catalogs and Guidance Catalogs, so organizations can use Gemara for authoring and automation while producing OSCAL artifacts for exchange.
 
 ### When should I use OSCAL vs Gemara?
 
@@ -98,7 +98,8 @@ There is real overlap. Both handle catalogs, assessment data, and policy. The di
 
 | **Gemara optimizes for** | **OSCAL optimizes for** |
 |:--|:--|
-| Lean YAML authoring with minimal boilerplate | Comprehensive, self-contained documents |
+| Lean YAML authoring with minimal boilerplate | Comprehensive documents that carry derived values alongside authored intent |
+| A fixed structure that organizations adapt through content | A structure that organizations can extend with their own properties |
 | Threat-to-control traceability as a first-class schema concept | First-class system and component modeling (SSP, component definitions) |
 | Tool-to-tool data flow (scanner results, enforcement actions) | Aggregating compliance posture across system components |
 | Each artifact validates independently | Enforced artifact chain (catalog, profile, SSP, assessment plan, results) |
@@ -109,11 +110,13 @@ If you're exchanging compliance data between organizations or submitting to a re
 
 ### How do I get from Gemara to OSCAL?
 
-The SDK maps Gemara artifacts to their OSCAL equivalents and handles OSCAL-specific requirements like UUID generation. Your source YAML stays lean; the SDK produces the OSCAL output.
+The SDK converts Control Catalogs and Guidance Catalogs to their OSCAL equivalents and handles OSCAL-specific requirements like UUID generation. Your source YAML stays lean; the SDK produces the OSCAL output.
 
 ```go
 oscalCatalog, _ := gemaraconv.ControlCatalog(catalog).ToOSCAL()
 ```
+
+Conversions for other artifact types are tracked in [go-gemara#29](https://github.com/gemaraproj/go-gemara/issues/29).
 
 ## Adopting Gemara
 
