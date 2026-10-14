@@ -110,7 +110,7 @@ If you're exchanging compliance data between organizations or submitting to a re
 
 ### How do I get from Gemara to OSCAL?
 
-The SDK converts Control Catalogs and Guidance Catalogs to their OSCAL equivalents and handles OSCAL-specific requirements like UUID generation. Your source YAML stays lean; the SDK produces the OSCAL output.
+The SDK converts Control Catalogs and Guidance Catalogs to their OSCAL equivalents, and Evaluation Logs to OSCAL Assessment Results. It handles OSCAL-specific requirements like UUID generation. Your source YAML stays lean; the SDK produces the OSCAL output.
 
 ```go
 oscalCatalog, _ := gemaraconv.ControlCatalog(catalog).ToOSCAL()
