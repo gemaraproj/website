@@ -1,0 +1,58 @@
+# Gemara
+
+> GRC Engineering Model for Automated Risk Assessment. Gemara provides a logical model describing categories of compliance activities, how they interact, and schemas enabling automated interoperability between GRC tools. Part of the OpenSSF ecosystem.
+
+Gemara delivers three components: the Model (seven-layer conceptual framework), the Schemas (CUE format for validation and interoperability), and SDKs (language-specific libraries for working with Gemara documents).
+
+The model is organized into Definition layers (1–3) and Measurement layers (5–7), with Layer 4 as the pivot point representing Sensitive Activities.
+
+The full content version is at [llms-full.txt](https://gemara.openssf.org/llms-full.txt).
+
+## The Model
+
+- [Scope](https://gemara.openssf.org/model/01-scope): Purpose and scope of the Gemara model
+- [Foundational Concepts](https://gemara.openssf.org/model/03-foundational-concepts): Layered approach inspired by the OSI model; prior art including OSCAL, SCAP, ISO standards
+- [The Model](https://gemara.openssf.org/model/04-the-model): Overview of all seven layers and the logical flow between definition and measurement activities
+- [Layer 1: Vectors & Guidance](https://gemara.openssf.org/model/05.1-Layer-1): Generic risk assessment; Vectors document attack opportunities; Guidance catalogs provide high-level recommendations (e.g. NIST CSF, OWASP Top 10, HIPAA, GDPR)
+- [Layer 2: Threats & Controls](https://gemara.openssf.org/model/05.2-Layer-2): Technology-specific threat-informed controls with assessment requirements (e.g. CIS Benchmarks, FINOS CCC, OSPS Baseline)
+- [Layer 3: Risk & Policy](https://gemara.openssf.org/model/05.3-Layer-3): Organizational risk catalogs and policies tailored to risk appetite; bridges hypothetical controls with operational reality
+- [Layer 4: Sensitive Activities](https://gemara.openssf.org/model/06-sensitive-activities): Pivot point; any action introducing organizational risk (e.g. software development, infrastructure provisioning)
+- [Layer 5: Evaluation](https://gemara.openssf.org/model/07.2-Layer-5): Intent and behavior evaluations producing compliance opinions; includes configuration scanning, penetration testing
+- [Layer 6: Enforcement](https://gemara.openssf.org/model/07.3-Layer-6): Preventive enforcement (deployment gates) and remediative enforcement (corrective action post-detection)
+- [Layer 7: Audit & Continuous Monitoring](https://gemara.openssf.org/model/07.4-Layer-7): Formal audit of policies and posture; continuous compliance monitoring (CCM) of deployed assets
+
+## Schemas
+
+- [Schema Reference](https://gemara.openssf.org/schema/): CUE schemas for all layers; browse by artifact type
+- [Guidance Catalog schema](https://gemara.openssf.org/schema/guidancecatalog): Layer 1
+- [Vector Catalog schema](https://gemara.openssf.org/schema/vectorcatalog): Layer 1
+- [Principle Catalog schema](https://gemara.openssf.org/schema/principlecatalog): Layer 1
+- [Control Catalog schema](https://gemara.openssf.org/schema/controlcatalog): Layer 2
+- [Capability Catalog schema](https://gemara.openssf.org/schema/capabilitycatalog): Layer 2
+- [Threat Catalog schema](https://gemara.openssf.org/schema/threatcatalog): Layer 2
+- [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog): Layer 3
+- [Policy schema](https://gemara.openssf.org/schema/policy): Layer 3
+- [Evaluation Log schema](https://gemara.openssf.org/schema/evaluationlog): Layer 5
+- [Enforcement Log schema](https://gemara.openssf.org/schema/enforcementlog): Layer 6
+- [Audit Log schema](https://gemara.openssf.org/schema/auditlog): Layer 7
+- [Mapping Document schema](https://gemara.openssf.org/schema/mappingdocument): Cross-layer artifact mappings between frameworks
+- [Lexicon schema](https://gemara.openssf.org/schema/lexicon): Controlled vocabulary for Gemara terms
+- [Aliases & Base Types](https://gemara.openssf.org/schema/base): Shared type definitions used across schemas
+- [Mapping Primitives](https://gemara.openssf.org/schema/mapping-inline): Inline mapping structures for cross-referencing
+- [CUE Central Registry](https://registry.cue.works/docs/github.com/gemaraproj/gemara@latest): Browse all schemas
+
+## SDK
+
+- [SDK Overview](https://gemara.openssf.org/sdk/): Language-specific libraries; types generated from CUE schemas
+- [Go SDK](https://gemara.openssf.org/sdk/go-sdk): Type-safe Go APIs for reading, writing, and manipulating Gemara documents
+
+## Tutorials
+
+- [Tutorials](https://gemara.openssf.org/tutorials/): Hands-on walkthroughs for working with Gemara artifacts
+
+## Optional
+
+- [Community](https://gemara.openssf.org/community/): Meetings, Slack (#gemara on OpenSSF Slack), maintainers
+- [Architecture Decision Records](https://gemara.openssf.org/adrs/): Significant design decisions for schemas and tooling
+- [GitHub: gemaraproj/gemara](https://github.com/gemaraproj/gemara): CUE schemas and gemara-docs CLI (source of truth for schemas)
+- [GitHub: gemaraproj/gemara-mcp](https://github.com/gemaraproj/gemara-mcp): MCP server for AI assistant integration
