@@ -3,7 +3,7 @@ layout: page
 title: Python SDK
 ---
 
-The Python SDK (`gemara-python`) provides generated Pydantic v2 models for Gemara v1 documents. It enables loading, validating, manipulating, and inspecting Gemara JSON and YAML files with full static type hints and runtime validation. Types are generated from CUE schemas (Schema v1.5.0), ensuring consistency with the Gemara core specification.
+The Python SDK (`gemara-python`) provides generated Pydantic v2 models for Gemara v1 documents. It enables loading, validating, manipulating, and inspecting Gemara JSON and YAML files with full static type hints and runtime validation. Types are generated from CUE schemas, ensuring consistency with the Gemara core specification.
 
 **[Python Repository →](https://github.com/gemaraproj/gemara-python)** &nbsp;|&nbsp; **[PyPI Package →](https://pypi.org/project/gemara-python/)** &nbsp;|&nbsp; **[Issue Tracker →](https://github.com/gemaraproj/gemara-python/issues)**
 
@@ -88,7 +88,7 @@ elif isinstance(doc, Log):
 
 ## Error Handling
 
-All custom exceptions raised by `gemara-python` inherit from `GemaraError`:
+All custom exceptions defined by the SDK inherit from `GemaraError`. Note that schema validation failures raise Pydantic's `ValidationError`, and filesystem issues raise standard `OSError` (neither is a `GemaraError` subclass), so catch them explicitly as shown below:
 
 ```python
 from gemara.v1 import GemaraError, UnknownDocumentTypeError, load
@@ -112,8 +112,8 @@ except OSError as e:
 
 ## Schema Compatibility & Limitations
 
-- **Additive Changes:** Within Gemara v1, changes are backwards compatible. The models read any v1.x document. Unrecognized properties are accepted and ignored.
-- **Structural Validation vs. CUE:** `gemara-python` performs structural schema validation (required fields, enums, regex patterns, length bounds). For deep cross-field relational validation (such as referential integrity or uniqueness enforced via CUE comprehensions), validate using `cue vet` alongside the core Gemara CUE schemas.
+- **Additive Changes:** Within Gemara v1, changes are backwards compatible. The models read any v1.x document. Unrecognized properties are accepted and ignored. Note that misspelled field names (e.g. `contrls` instead of `controls`) will load without an error and be dropped silently.
+- **Structural Validation vs. CUE:** `gemara-python` performs structural schema validation (required fields, enums, regex patterns, length bounds). For deep cross-field relational validation, rejection of unrecognized or misspelled properties, or referential integrity enforced via CUE comprehensions, validate using `cue vet` alongside the core Gemara CUE schemas.
 
 ## Useful Exports
 
