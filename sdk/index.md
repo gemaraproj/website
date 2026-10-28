@@ -8,6 +8,7 @@ Language-specific SDKs provide programmatic access to Gemara documents. SDK type
 ## Available SDKs
 
 - [Go SDK](./go-sdk.html) — Type-safe Go APIs for reading, writing, and manipulating Gemara documents
+- [Python SDK](./python-sdk.html) — Typed Pydantic v2 models and loader utilities for Gemara documents
 
 ## Versioning and Maintenance
 
