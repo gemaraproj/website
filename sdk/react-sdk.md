@@ -3,7 +3,7 @@ layout: page
 title: React SDK
 ---
 
-The React SDK (`@gemara/react`) provides headless React renderers and TypeScript components for Gemara GRC artifacts. Built to be server-component-clean by default, it renders Gemara documents in modern React frameworks (such as Next.js App Router, Remix, or Astro) with full static typing and zero unnecessary client JavaScript.
+The React SDK (`@gemara/react`) provides headless React renderers and TypeScript components for Gemara GRC artifacts. Built to be server-component-clean by default, it renders Gemara documents in React Server Component (RSC) and static site environments (such as Astro) with full static typing and zero unnecessary client JavaScript.
 
 **[React Repository →](https://github.com/gemaraproj/gemara-react)** &nbsp;|&nbsp; **[npm Package →](https://www.npmjs.com/package/@gemara/react)** &nbsp;|&nbsp; **[Issue Tracker →](https://github.com/gemaraproj/gemara-react/issues)**
 
@@ -36,23 +36,28 @@ yarn add @gemara/react
 
 Pass your parsed Gemara JSON/YAML document object directly to the corresponding renderer component.
 
-### Server Component Example (Next.js App Router)
+### Server Component Example
 
 ```tsx
-import { ControlCatalog } from '@gemara/react/control-catalog';
+import { ControlCatalog, isControlCatalog } from '@gemara/react/control-catalog';
 import fs from 'node:fs/promises';
-import yaml from 'js-yaml';
+import YAML from 'yaml';
 
 export default async function CatalogPage() {
-  // Read and parse your Gemara YAML/JSON artifact on the server
+  // Read and parse your Gemara YAML/JSON artifact
   const fileContents = await fs.readFile('./controls.yaml', 'utf8');
-  const catalogData = yaml.load(fileContents);
+  const parsed = YAML.parse(fileContents);
+
+  // Type-guard narrowing to ControlCatalogData
+  if (!isControlCatalog(parsed)) {
+    throw new Error('Invalid ControlCatalog document');
+  }
 
   return (
     <main className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Security Controls</h1>
       {/* Server-component-clean renderer */}
-      <ControlCatalog data={catalogData} />
+      <ControlCatalog data={parsed} />
     </main>
   );
 }
@@ -66,7 +71,8 @@ Because `@gemara/react` is headless, internal sub-components and elements emit s
 
 - `data-gemara-part="references"` — Wrapping cross-document references and mappings.
 - `data-gemara-part="contact-affiliation"` / `"contact-email"` — Author and contact metadata.
-- `data-gemara-part="values"` / `"non-compliance"` — Metric thresholds, evidence values, and compliance logs.
+- `data-gemara-part="accepted-values"` — Parameter and policy accepted values.
+- `data-gemara-part="non-compliance"` — Policy statement non-compliance guidance sections.
 - `data-gemara-part="document-references"` — External links and framework cross-references.
 
 ### CSS Example
@@ -79,12 +85,12 @@ Because `@gemara/react` is headless, internal sub-components and elements emit s
   margin-top: 0.5rem;
 }
 
-/* Style compliance status badges */
+/* Style Policy non-compliance guidance section */
 [data-gemara-part="non-compliance"] {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
+  background-color: #fef2f2;
+  border-left: 3px solid #ef4444;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
 }
 ```
 
@@ -100,7 +106,7 @@ import { ControlCatalog } from '@gemara/react/control-catalog';
 
 export default function InteractiveCatalog({ catalogData }) {
   return (
-    <CollapsibleGroup defaultExpanded={false}>
+    <CollapsibleGroup label="Controls" defaultOpen={false}>
       <ControlCatalog data={catalogData} />
     </CollapsibleGroup>
   );
@@ -109,14 +115,13 @@ export default function InteractiveCatalog({ catalogData }) {
 
 ## Supported Renderers
 
-`@gemara/react` provides renderers for Gemara document types, including:
+`@gemara/react` provides tree-shakeable subpath renderers for all 13 Gemara v1 document types:
 
-- **Control Catalogs (`ControlCatalog`):** Controls, parameters, objectives, and implementation guidance.
-- **Guidance Catalogs (`GuidanceCatalog`):** Best practices, procedures, and implementation steps.
-- **Risk Catalogs (`RiskCatalog`):** Risk definitions, severity vectors, and threat associations.
-- **Threat Catalogs (`ThreatCatalog`):** Threat agents, attack vectors, and exploit scenarios.
-- **Mapping Documents (`MappingDocument`):** Cross-framework mappings between controls and requirements.
-- **Evaluation Logs (`EvaluationLog`):** Automated assessment results, test outcomes, and audit trails.
+- **Catalogs:** `CapabilityCatalog`, `ControlCatalog`, `GuidanceCatalog`, `PrincipleCatalog`, `RiskCatalog`, `ThreatCatalog`, `VectorCatalog`
+- **Logs:** `AuditLog`, `EnforcementLog`, `EvaluationLog`
+- **Core Documents:** `Lexicon`, `MappingDocument`, `Policy`
+
+Each renderer is available under its own subpath export (e.g. `@gemara/react/control-catalog`, `@gemara/react/policy`, etc.). See the [`gemara-react` README](https://github.com/gemaraproj/gemara-react#readme) for the full matrix of subpath exports and types.
 
 ## Relationship to Other Components
 
