@@ -21,7 +21,7 @@ This terminology split increases cognitive load and invites inconsistent modelin
 
 - Readers must learn whether a given artifact uses “family” vs “category” despite the same structural role (an in-document grouping keyed by `id`).
 - Tooling must special-case field names for what is effectively the same relationship (“entry belongs to a group defined in the same artifact”).
-- ADR-0018’s rejection feedback reinforced that these organizational groupings should generally live **within the documents that use them**, rather than as standalone catalogs (see [ADR 0018](./0018-promote-nested-concepts-to-catalogs.md)).
+- ADR-0018’s rejection feedback reinforced that these organizational groupings should generally live **within the documents that use them**, rather than as standalone catalogs (see [ADR 0018](./0018-promote-nested-concepts-to-catalogs.html)).
 
 ## Decision
 
