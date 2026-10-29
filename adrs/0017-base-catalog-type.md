@@ -11,7 +11,7 @@ title: Base Catalog Type
 
 [ADR-0012](./0012-schema-types) established "Catalog" as the term for artifacts containing multiple definitions. Historically, each catalog-like artifact in the schema was represented with its **own standalone struct**, re-declaring the same core fields across multiple types and files.
 
-[ADR-0016](./0016-base-log-type.md) establishes a common CUE type for all "Log" type artifacts.
+[ADR-0016](./0016-base-log-type.html) establishes a common CUE type for all "Log" type artifacts.
 
 ## Decision
 

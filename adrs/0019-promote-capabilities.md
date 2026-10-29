@@ -17,7 +17,7 @@ Historically, capabilities were treated as nested/ad hoc lists inside other docu
 - Extend/import and version as shared domain content
 - Maintain as their own area of ownership (distinct from threats/controls)
 
-During review of [ADR 0018](./0018-promote-nested-concepts-to-catalogs.md), we agreed that **Capabilities should stand alone** as domain content, while organizational groupings (e.g., families) should generally live in the documents that use them.
+During review of [ADR 0018](./0018-promote-nested-concepts-to-catalogs.html), we agreed that **Capabilities should stand alone** as domain content, while organizational groupings (e.g., families) should generally live in the documents that use them.
 
 ## Decision
 
