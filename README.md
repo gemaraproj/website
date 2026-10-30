@@ -159,7 +159,7 @@ Deployment is automatic. You don't need to run anything.
 
 `.github/workflows/deploy.yml` handles it:
 
-- **Pull request** → builds the site and checks links. No deploy.
+- **Pull request** → builds the site, checks links, and deploys a temporary staging preview to GitHub Pages.
 - **Push to `main`** → builds and deploys to GitHub Pages.
 - **New spec release** → the spec repo pings this repo, which rebuilds against the new release.
 - **Manual run** → you can trigger a build against any spec ref from the Actions tab.
