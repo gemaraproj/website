@@ -1,12 +1,12 @@
 # Information Security Policy for Cloud and Web Applications (Layer 3)
-# Conforms to Gemara #Policy (policy.cue). Validate: cue vet -c -d '#Policy' github.com/gemaraproj/gemara@v1 this-file.yaml
-# Aligned to threat-assessment-guide scope (SEC.SLAM.CM) and policy guide.
+# Conforms to Gemara #Policy (policy.cue). Validate: cue vet -c -d '#Policy' github.com/gemaraproj/gemara@v1.2.0 this-file.yaml
+# Aligned to threat-assessment-guide scope (SEC.SLAM.CM), the Risk Catalog example, and policy guide.
 title: "Information Security Policy for Cloud and Web Applications"
 metadata:
   id: "org-policy-001"
   type: Policy
   gemara-version: "1.2.0"
-  description: "Policy for cloud and web application security; references control catalogs."
+  description: "Policy for cloud and web application security; references a control catalog and Risk Catalog."
   version: "1.0.0"
   author:
     id: security-team
@@ -17,6 +17,11 @@ metadata:
       title: "Container Management Tool Security Control Catalog"
       version: "1.0.0"
       description: "Control catalog for container management tool security."
+    - id: "org-risk-catalog-001"
+      title: "Organization Risk Catalog for Cloud and Container Workloads"
+      version: "1.0.0"
+      url: "https://github.com/gemaraproj/website/blob/main/tutorials/policy/risk-catalog-example.yaml"
+      description: "Risk catalog for cloud and container workload policy decisions."
 
 contacts:
   responsible:
@@ -62,6 +67,27 @@ implementation-plan:
     start: "2025-06-01T00:00:00Z"
     notes: "Enforcement begins after evaluation baseline is established."
 
+risks:
+  mitigated:
+    - id: "mitigate-r01-container-image-integrity"
+      risk:
+        reference-id: "org-risk-catalog-001"
+        entry-id: "R01"
+  accepted:
+    - id: "accept-r01-residual-exposure"
+      target-id: "mitigate-r01-container-image-integrity"
+      risk:
+        reference-id: "org-risk-catalog-001"
+        entry-id: "R01"
+      justification: >
+        R01 is High severity and the infrastructure group appetite is Low.
+        We accept this residual exposure only for emergency updates while a
+        newly built and verified image replaces the affected image. The CISO
+        must approve the scoped exception and review it before the next release.
+      scope:
+        in:
+          technologies:
+            - "Cloud Computing"
 adherence:
   evaluation-methods:
     - id: "EV-AUTO-01"

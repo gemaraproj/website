@@ -15,13 +15,13 @@ Terms to know:
 * **[Risks](../../model/02-definitions.html#risk)**: Which risks are mitigated vs accepted (with justification for accepted risks).
 * **Adherence**: How compliance is evaluated and enforced (evaluation methods, assessment plans, enforcement methods, non-compliance handling).
 
-This exercise produces a policy document that captures scope, imported controls and guidance, and how adherence is evaluated and enforced.
+This exercise produces a policy document that captures scope, imported controls and guidance, decisions for risks from a Risk Catalog, and how adherence is evaluated and enforced.
 
 ## Walkthrough
 
 ### Step 0: Metadata and mapping-references
 
-Set `title` and `metadata` (see [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue) for the standard metadata fields). Include `mapping-references` for every external catalog, guidance document, or policy you reference in `imports` (by `reference-id`). Key fields (see [`policy.cue`](https://github.com/gemaraproj/gemara/blob/main/policy.cue) and [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue):
+Set `title` and `metadata` (see [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue) for the standard metadata fields). Include `mapping-references` for every external catalog, guidance document, or policy referenced by `imports` and every Risk Catalog referenced by a `risks` entry. The `reference-id` in a risk mapping must match the catalog `id` here. Key fields (see [`policy.cue`](https://github.com/gemaraproj/gemara/blob/main/policy.cue) and [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue):
 
 | Field                         | What It Is                                                                 | Why                                                                 |
 |-------------------------------|----------------------------------------------------------------------------|---------------------------------------------------------------------|
@@ -32,9 +32,9 @@ Set `title` and `metadata` (see [metadata.cue](https://github.com/gemaraproj/gem
 | `metadata.description`        | High-level summary of the policy's purpose and scope                       | Required by schema; clarifies intent                                |
 | `metadata.author`             | Actor (id, name, type) primarily responsible for this policy              | Required by schema; identifies the author                            |
 | `metadata.version`            | Version identifier (e.g. `"1.0.0"`)                                       | Optional; supports versioning and references                         |
-| `metadata.mapping-references` | Pointers to external catalogs, guidance, or policies referenced in imports                   | Required for `imports`; each `reference-id` must match an entry here |
+| `metadata.mapping-references` | Pointers to external catalogs, guidance, policies, and Risk Catalogs     | Required when `imports` or `risks` reference an artifact; `reference-id` must match an `id` here |
 
-> **Note:** Include a `mapping-references` entry for every external catalog, guidance document, or policy you reference in `imports` (by `reference-id`).
+> **Note:** Include a `mapping-references` entry for every external artifact referenced by `imports` or by a risk mapping. The risk mapping `reference-id` points to the mapping-reference `id`.
 
 **Example (YAML):**
 
@@ -55,6 +55,11 @@ metadata:
       title: "Container Management Tool Security Control Catalog"
       version: "1.0.0"
       description: "Control catalog for container management tool security."
+    - id: "org-risk-catalog-001"
+      title: "Organization Risk Catalog for Cloud and Container Workloads"
+      version: "1.0.0"
+      url: "https://github.com/gemaraproj/website/blob/main/tutorials/policy/risk-catalog-example.yaml"
+      description: "Risk catalog for cloud and container workload policy decisions."
 ```
 
 
@@ -143,7 +148,41 @@ imports:
 
 ```
 
-### Step 4: Implementation plan (optional)
+### Step 4: Risk decisions
+
+Use the Risk Catalog Guide [worked example](risk-catalog-example) as the source for stable risk IDs. Add the catalog `metadata.id` to `metadata.mapping-references` as shown in Step 0. Each `risks.mitigated` or `risks.accepted` item has a policy-local `id` and a `risk` mapping whose `reference-id` selects that catalog and whose `entry-id` selects a risk such as `R01`.
+
+A mitigated entry records the risk addressed by the policy. An accepted entry needs a `justification` and can include a `scope` to limit where the decision applies. For residual risk after partial mitigation, set `target-id` to the policy-local `id` of the corresponding mitigated entry.
+
+**Example (YAML):**
+
+```yaml
+risks:
+  mitigated:
+    - id: "mitigate-r01-container-image-integrity"
+      risk:
+        reference-id: "org-risk-catalog-001"
+        entry-id: "R01"
+  accepted:
+    - id: "accept-r01-residual-exposure"
+      target-id: "mitigate-r01-container-image-integrity"
+      risk:
+        reference-id: "org-risk-catalog-001"
+        entry-id: "R01"
+      justification: >
+        R01 is High severity and the infrastructure group appetite is Low.
+        Mitigation remains the default. This narrow exception covers only
+        emergency updates while a newly built and verified image replaces the
+        affected image; the CISO must approve and review it before the next release.
+      scope:
+        in:
+          technologies:
+            - "Cloud Computing"
+```
+
+In the referenced catalog, R01 has **High** severity and belongs to a group with **Low** appetite. The appetite should guide the decision: prefer mitigation, and treat acceptance as a documented, scoped exception with an accountable review. The group `max-severity: High` is a ceiling, not a target or approval to accept every High risk.
+
+### Step 5: Implementation plan (optional)
 
 Add `implementation-plan` with `evaluation-timeline` and `enforcement-timeline`. Each has `start`, optional `end`, and `notes`. Optionally add `notification-process` (string).
 
@@ -161,7 +200,7 @@ implementation-plan:
     notes: "Enforcement begins after evaluation baseline is established."
 ```
 
-### Step 5: Adherence
+### Step 6: Adherence
 
 Define `adherence` with at least one of the following:
 
@@ -205,7 +244,7 @@ adherence:
   non-compliance: "Non-compliance is reported to responsible contacts and tracked in issue tracker; critical failures block deployment."
 ```
 
-## Step 6: Validation
+## Step 7: Validation
 
 The policy must conform to the Policy Definition defined in the CUE module. Validate with CUE:
 
@@ -215,14 +254,14 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#Policy' github.com/gemaraproj/gemara@v1 your-policy.yaml
+cue vet -c -d '#Policy' github.com/gemaraproj/gemara@v1.2.0 your-policy.yaml
 ```
 
 Fix any errors (e.g. missing required fields, invalid reference-ids, or type mismatches) so the policy is schema-valid.
 
 ## Minimal Full Example
 
-A complete, schema-valid copy of this policy is in [policy-example.yaml](policy-example.yaml) in this directory. The following combines the snippets above into a single policy document. Omit optional sections (e.g. implementation-plan, risks) if not needed. 
+A complete, schema-valid copy of this policy is in [policy-example.yaml](policy-example.yaml) in this directory. The following combines the snippets above into a single policy document. Omit optional sections when they are not needed; keep the Risk Catalog mapping reference whenever you include a `risks` entry. 
 
 ```yaml
 title: "Information Security Policy for Cloud and Web Applications"
@@ -241,6 +280,11 @@ metadata:
       title: "Container Management Tool Security Control Catalog"
       version: "1.0.0"
       description: "Control catalog for container management tool security."
+    - id: "org-risk-catalog-001"
+      title: "Organization Risk Catalog for Cloud and Container Workloads"
+      version: "1.0.0"
+      url: "https://github.com/gemaraproj/website/blob/main/tutorials/policy/risk-catalog-example.yaml"
+      description: "Risk catalog for cloud and container workload policy decisions."
 
 contacts:
   responsible:
@@ -276,6 +320,23 @@ imports:
           modification-rationale: "Require VPN or trusted path on untrusted networks for registry traffic in this org."
           text: "On untrusted networks, the system or deployment pipeline MUST use a VPN or other trusted path for registry traffic, or MUST restrict image pulls to environments where the network is trusted."
 
+risks:
+  mitigated:
+    - id: "mitigate-r01-container-image-integrity"
+      risk:
+        reference-id: "org-risk-catalog-001"
+        entry-id: "R01"
+  accepted:
+    - id: "accept-r01-residual-exposure"
+      target-id: "mitigate-r01-container-image-integrity"
+      risk:
+        reference-id: "org-risk-catalog-001"
+        entry-id: "R01"
+      justification: "High-severity R01 exceeds the infrastructure group low appetite; this temporary residual-risk exception requires CISO approval and review before the next release."
+      scope:
+        in:
+          technologies:
+            - "Cloud Computing"
 adherence:
   evaluation-methods:
     - id: "EV-AUTO-01"
