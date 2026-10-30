@@ -39,7 +39,12 @@ If you use an AI code assistant, Gemara provides MCP tools to help your agent va
 
 This walkthrough follows a single scenario, securing an open source project hosted in Git, through every Gemara layer.
 
-<img class="faq-project-flow" src="{{ '/assets/diagrams/faq-open-source-project-flow.svg' | relative_url }}" alt="Diagram showing the seven Gemara layers: guidance and vectors inform controls and threats; controls are imported into policy; policy applies to a project; the project is evaluated, enforcement remediates findings, and an audit reviews the chain.">
+{% include themed-image.html
+  light="/assets/diagrams/faq-open-source-project-flow.svg"
+  dark="/assets/diagrams/faq-open-source-project-flow-dark.svg"
+  alt="Diagram showing the seven Gemara layers: guidance and vectors inform controls and threats; controls are imported into policy; policy applies to a project; the project is evaluated, enforcement remediates findings, and an audit reviews the chain."
+  class="faq-project-flow"
+%}
 
 Who does what in this scenario:
 
