@@ -1,0 +1,249 @@
+# Cloud storage security example demonstrating control inheritance
+# Conforms to Gemara schema specifications (CapabilityCatalog, ControlCatalog, Policy)
+
+title: Cloud Platform Storage Capabilities
+metadata:
+  id: cloud-platform-storage-caps
+  type: CapabilityCatalog
+  gemara-version: "1.2.0"
+  description: Capabilities provided natively by the cloud storage platform.
+  version: "1.0.0"
+  author:
+    id: cloud-provider
+    name: Cloud Service Provider
+    type: Software
+
+groups:
+  - id: encryption-services
+    title: Encryption Services
+    description: Cryptographic and key management capabilities provided by the platform.
+  - id: access-control
+    title: Access Control & Network Boundaries
+    description: Identity, bucket policy, and network routing capabilities.
+
+capabilities:
+  - id: CAP-DEFAULT-ENCRYPTION
+    title: Default Server-Side Encryption
+    description: Platform transparently encrypts all stored objects at rest using provider-managed keys.
+    group: encryption-services
+  - id: CAP-CMEK
+    title: Customer-Managed Encryption Keys
+    description: Platform supports integration with Key Management Service for customer-owned keys.
+    group: encryption-services
+  - id: CAP-PUBLIC-ACCESS-BLOCK
+    title: Centralized Public Access Block
+    description: Account-wide and bucket-level enforcement to prevent accidental public exposure.
+    group: access-control
+
+---
+title: Cloud Storage Security Control Catalog
+metadata:
+  id: org-cloud-storage-controls
+  type: ControlCatalog
+  gemara-version: "1.2.0"
+  description: Storage security controls expressing multi-party responsibility using resp:* conventions.
+  version: "1.0.0"
+  author:
+    id: infosec-team
+    name: Information Security Team
+    type: Human
+  mapping-references:
+    - id: cloud-platform-storage-caps
+      title: Cloud Platform Storage Capabilities
+      version: "1.0.0"
+      url: https://example.com/catalogs/cloud-platform-storage-caps.yaml
+      description: Upstream platform capabilities inherited by this catalog.
+  applicability-groups:
+    - id: resp:native
+      title: Native Responsibility
+      description: Met out-of-the-box by component defaults without user configuration.
+    - id: resp:configurable
+      title: Configurable Responsibility
+      description: Supported by the component, but requires explicit consumer configuration.
+    - id: resp:inherited
+      title: Inherited Responsibility
+      description: Functionality provided entirely by an upstream platform or provider.
+    - id: resp:shared
+      title: Shared Responsibility
+      description: Provided upstream, but requires consumer configuration on the consuming side.
+    - id: resp:custom
+      title: Custom Responsibility
+      description: Not provided by the platform; requires external controls or risk acceptance.
+    - id: production
+      title: Production Environments
+      description: Workloads and storage buckets handling production application data.
+
+groups:
+  - id: storage-data-protection
+    title: Storage Data Protection
+    description: Controls ensuring confidentiality and integrity of stored objects.
+  - id: storage-auditability
+    title: Storage Auditability
+    description: Controls ensuring logging and traceability for object access.
+
+controls:
+  # Inherited control from upstream cloud provider
+  - id: CTRL-STORAGE-ENCRYPT-DEFAULT
+    title: Default Server-Side Storage Encryption
+    objective: Ensure all stored objects are encrypted at rest via inherited provider capability.
+    group: storage-data-protection
+    state: Active
+    assessment-requirements:
+      - id: CTRL-STORAGE-ENCRYPT-DEFAULT-AR1
+        text: The cloud provider MUST provide default server-side encryption for all objects at rest.
+        applicability: ["resp:inherited", "production"]
+        state: Active
+
+  # Shared configurable control requiring consumer key configuration
+  - id: CTRL-STORAGE-CMEK-CONFIG
+    title: Customer-Managed Encryption Key Configuration
+    objective: Ensure customer-managed keys meet organizational strength requirements.
+    group: storage-data-protection
+    state: Active
+    assessment-requirements:
+      - id: CTRL-STORAGE-CMEK-CONFIG-AR1
+        text: Storage buckets holding sensitive data MUST configure CMEK with AES-256 or higher.
+        applicability: ["resp:shared", "production"]
+        state: Active
+
+  # Native control met out-of-the-box by platform defaults
+  - id: CTRL-STORAGE-BLOCK-PUBLIC
+    title: Restrict Public Storage Exposure
+    objective: Ensure storage resources disallow anonymous public read access by default.
+    group: storage-data-protection
+    state: Active
+    assessment-requirements:
+      - id: CTRL-STORAGE-BLOCK-PUBLIC-AR1
+        text: Storage buckets MUST block public access configurations by default.
+        applicability: ["resp:native", "production"]
+        state: Active
+
+  # Custom control not supported natively by storage API
+  - id: CTRL-STORAGE-APP-AUDIT
+    title: Application-Layer Data Access Auditing
+    objective: Maintain application-specific transaction logs for object access.
+    group: storage-auditability
+    state: Active
+    assessment-requirements:
+      - id: CTRL-STORAGE-APP-AUDIT-AR1
+        text: Application data access events MUST be captured in an external immutable log repository.
+        applicability: ["resp:custom", "production"]
+        state: Active
+
+---
+title: Cloud Storage Security Policy
+metadata:
+  id: org-cloud-storage-policy
+  type: Policy
+  gemara-version: "1.2.0"
+  description: Policy establishing decoupled validation methods across responsibility tiers.
+  version: "1.0.0"
+  author:
+    id: security-compliance
+    name: Security & Compliance Office
+    type: Human
+  mapping-references:
+    - id: org-cloud-storage-controls
+      title: Cloud Storage Security Control Catalog
+      version: "1.0.0"
+      description: Base controls imported for cloud storage security.
+
+contacts:
+  accountable:
+    - name: Chief Information Security Officer
+      email: ciso@example.com
+  responsible:
+    - name: Cloud Platform Engineering Team
+      email: platform-eng@example.com
+
+scope:
+  in:
+    technologies:
+      - Cloud Storage
+      - Object Storage
+    geopolitical:
+      - Global
+
+imports:
+  catalogs:
+    - reference-id: org-cloud-storage-controls
+
+adherence:
+  assessment-plans:
+    # Inherited: verified via annual third-party vendor audit report
+    - id: plan-inherited-default-encryption
+      requirement-id: CTRL-STORAGE-ENCRYPT-DEFAULT-AR1
+      frequency: annual
+      evidence-requirements: "Cloud Provider SOC 2 Type II report confirming server-side encryption"
+      evaluation-methods:
+        - id: em-vendor-attestation
+          type: Intent
+          mode: Manual
+          required: true
+          description: Compliance analyst reviews annual provider SOC 2 report.
+          executor:
+            id: compliance-analyst
+            name: Senior Compliance Analyst
+            type: Human
+
+    # Shared/Configurable: verified via automated CI/CD check on IaC
+    - id: plan-shared-cmek-configuration
+      requirement-id: CTRL-STORAGE-CMEK-CONFIG-AR1
+      frequency: continuous
+      evidence-requirements: "Automated scan output verifying Terraform bucket encryption arguments"
+      evaluation-methods:
+        - id: em-automated-iac-check
+          type: Behavioral
+          mode: Automated
+          required: true
+          description: Automated CI pipeline check validates minimum encryption strength in IaC.
+          executor:
+            id: terraform-policy-scanner
+            name: Terraform Policy Scanner
+            type: Software
+          parameters:
+            - id: min-key-length
+              label: Minimum Key Length
+              description: Required encryption standard
+              accepted-values: ["AES-256"]
+
+    # Native: verified via automated baseline drift detection
+    - id: plan-native-public-block
+      requirement-id: CTRL-STORAGE-BLOCK-PUBLIC-AR1
+      frequency: continuous
+      evidence-requirements: "Continuous CSPM configuration status log"
+      evaluation-methods:
+        - id: em-cspm-drift-check
+          type: Behavioral
+          mode: Automated
+          required: true
+          description: Automated cloud posture monitor confirms public access remains disabled.
+          executor:
+            id: cloud-security-scanner
+            name: CSPM Scanner
+            type: Software
+
+  enforcement-methods:
+    - id: gate-block-unencrypted-deployments
+      type: Gate
+      mode: Automated
+      required: true
+      description: Block pull requests and infrastructure deployments that fail CMEK configuration checks.
+
+  non-compliance: >
+    Violations of configurable controls automatically block deployment pipelines.
+    Inherited control attestation lapses trigger formal vendor risk reviews.
+
+# Custom: residual risk acceptance for missing platform feature
+risks:
+  accepted:
+    - id: risk-accept-app-audit-logging
+      risk:
+        entry-id: RISK-DATA-TRACEABILITY-1
+      justification: >
+        Native cloud storage does not support tenant-level custom business context logging.
+        Compensating logging implemented via external application middleware sidecar.
+        Residual traceability risk formally reviewed and accepted per annual risk register.
+      scope:
+        in:
+          technologies: ["Cloud Storage"]
