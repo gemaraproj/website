@@ -724,6 +724,16 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
   height: auto;
 }
 
+.theme-image.faq-project-flow {
+  margin: var(--spacing-lg) 0;
+
+  .theme-image__img {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
 .home,
 .page {
   max-width: 100%;
