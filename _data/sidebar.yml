@@ -6,6 +6,9 @@
   url: /sdk/
 - title: Specifications
   url: /specifications/
+  children:
+    - title: Requirements Resolution
+      url: /specifications/requirements-resolution
 - title: Tutorials
   url: /tutorials/
   children:

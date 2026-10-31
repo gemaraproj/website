@@ -10,9 +10,9 @@ Gemara specifications define normative operational behavior for tools, libraries
 
 To ensure that independent implementations, such as the [Go SDK](../sdk/go-sdk.html), [Python SDK](../sdk/python-sdk.html), policy engines, CI/CD gates, and compliance platforms, produce identical, reproducible outcomes when processing the same inputs, Gemara publishes normative specifications for tool authors.
 
-## Planned Specifications
+## Specifications
 
-* **Requirements Resolution:** Defines how a Gemara Policy deterministically resolves its imported Guidance and Control Catalogs, applies assessment-requirement modifications (`Add`, `Modify`, `Remove`, `Replace`, `Override`), and generates a derived Effective Requirements set.
+* **[Requirements Resolution](./requirements-resolution.html):** Defines how a Gemara Policy deterministically resolves its imported Guidance and Control Catalogs, applies assessment-requirement modifications (`Add`, `Modify`, `Remove`, `Replace`, `Override`), and generates a derived Effective Requirements set.
 
 ## Conformance & Implementations
 

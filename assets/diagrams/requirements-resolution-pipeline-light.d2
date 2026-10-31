@@ -1,0 +1,34 @@
+direction: down
+
+classes: {
+  step: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#45208C"
+      stroke-width: 2
+      font-size: 15
+      font-color: "#170D34"
+      border-radius: 6
+    }
+  }
+}
+
+s1: "Step 1: Acquire Catalog\nLoad catalog referenced by policy.imports.catalogs" {class: step}
+s2: "Step 2: Apply Exclusions\nRemove excluded controls and requirements" {class: step}
+s3: "Step 3: Apply Constraints\nVerify minimum versions and baseline criteria" {class: step}
+s4: "Step 4: Apply Modifications\nProcess Add, Modify, Remove, Replace, and Override" {class: step}
+out: "Effective Requirements Set\nDerived controls and requirements ready for evaluation" {
+  style: {
+    fill: "#F0F9FF"
+    stroke: "#0284C7"
+    stroke-width: 2
+    font-size: 15
+    font-color: "#0369A1"
+    border-radius: 6
+  }
+}
+
+s1 -> s2: "candidate set"
+s2 -> s3: "filtered base"
+s3 -> s4: "validated baseline"
+s4 -> out: "resolved requirements"
