@@ -4,7 +4,7 @@ title: Tool Specifications
 nav-title: Specifications
 ---
 
-Gemara specifications define normative operational behavior for tools, libraries, and SDKs implementing the Gemara framework. While the [Model](../model/) provides foundational conceptual definitions and the [Schemas](../schema/) provide syntactic data validation rules, **Tool Specifications** define how implementations must deterministically ingest, resolve, execute, and exchange Gemara artifacts.
+Gemara specifications define normative operational behavior for tools, libraries, and SDKs implementing the Gemara model. While the [Model](../model/) provides foundational conceptual definitions and the [Schemas](../schema/) provide syntactic data validation rules, **Tool Specifications** define how implementations must deterministically ingest, resolve, execute, and exchange Gemara artifacts.
 
 ## Purpose
 
