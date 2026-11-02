@@ -6,6 +6,9 @@
   url: /sdk/
 - title: Specifications
   url: /specifications/
+  children:
+    - title: OCI Bundle Distribution
+      url: /specifications/oci-bundle-distribution
 - title: Tutorials
   url: /tutorials/
   children:
