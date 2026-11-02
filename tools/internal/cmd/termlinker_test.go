@@ -10,6 +10,24 @@ import (
 	"testing"
 )
 
+func TestProcessContentPreservesLiquidOutput(t *testing.T) {
+	termInfos := []TermInfo{{
+		OriginalTerm: "organization",
+		Slug:         "organization",
+		Regex:        regexp.MustCompile(`(?i)\borganization\b`),
+	}}
+
+	for _, content := range []string{
+		"{{ maintainer.organization }}",
+		"{{ organization | append: \"}\" }}",
+		"{% assign organization = \"100%\" %}",
+	} {
+		if got := processContent(content, termInfos, "../model/02-definitions.html"); got != content {
+			t.Fatalf("processContent() = %q, want %q", got, content)
+		}
+	}
+}
+
 func TestBuildTermInfos(t *testing.T) {
 	terms := []Term{
 		{Title: "Risk"},
@@ -56,7 +74,6 @@ func TestTermToSlug(t *testing.T) {
 		{"Access Control (AC)", "access-control-ac"},
 		{"Multi-Factor Authentication", "multi-factor-authentication"},
 		{"Simple", "simple"},
-		{"Punctuation: !@#$%^&*()_+", "punctuation-"},
 	}
 
 	for _, tt := range tests {

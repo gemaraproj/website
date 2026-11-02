@@ -182,7 +182,6 @@ func contains(values []string, want string) bool {
 	return false
 }
 
-
 func TestSplitRoots(t *testing.T) {
 	tests := []struct {
 		input string
