@@ -13,6 +13,7 @@ The behavior defined here reflects the Gemara schemas (`policy.cue`, `controlcat
 > * **Guidance Imports (`imports.guidance[]`):** Guidance imports accept exclusions and constraints, but do not support requirement modifications. Their resolution will be detailed in a follow-up specification.
 > * **Policy Imports (`imports.policies[]`):** A policy can import another policy as an inheritance model. An importing policy brings in the referenced policy's resolved requirements wholesale and cannot alter them. A modifier of any type targeting an inherited policy requirement is a resolution error.
 > * **Static Resolution and Policy Scope:** Static resolution does not filter requirements based on the policy's `scope`. Policy `scope` defines macro organizational boundaries, while requirement `applicability` governs evaluation-time check activation (tracked in `gemaraproj/gemara#548`).
+> * **Applicability Namespacing & Collisions:** Prefixing applicability groups with the source catalog's `metadata.id` (e.g., `SEC.SLAM.CM:all_deployments`) and handling collisions across multiple imports are deferred to the multi-catalog resolution specification. In this single-catalog baseline specification, applicability identifiers remain in their local catalog-scoped form.
 
 ---
 
@@ -99,6 +100,7 @@ Gemara defines five modification types for assessment requirements:
 ### Applicability Rule
 * When a modification supplies `applicability`, it **replaces** the target requirement's applicability list.
 * When the modification omits `applicability`, the target requirement's original applicability list is **preserved**.
+* In a single catalog import, applicability identifiers remain in their local form (e.g., `all_deployments`). Namespacing (`<catalog-id>:<group-name>`) and collision handling across multiple imports are deferred to the multi-catalog specification.
 
 ---
 
