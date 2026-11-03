@@ -13,11 +13,11 @@ classes: {
   }
 }
 
-s1: "Step 1: Acquire Catalog\nLoad catalog referenced by policy.imports.catalogs" {class: step}
+s1: "Step 1: Acquire Catalog\nMatch reference-id and version against metadata" {class: step}
 s2: "Step 2: Apply Exclusions\nRemove excluded controls and requirements" {class: step}
-s3: "Step 3: Apply Constraints\nVerify minimum versions and baseline criteria" {class: step}
+s3: "Step 3: Apply Constraints\nAttach prescriptive constraint text to target controls" {class: step}
 s4: "Step 4: Apply Modifications\nProcess Add, Modify, Remove, Replace, and Override" {class: step}
-out: "Effective Requirements Set\nDerived controls and requirements ready for evaluation" {
+out: "Effective Requirements Set\nDerived ControlCatalog ready for evaluation" {
   style: {
     fill: "#1E293B"
     stroke: "#38BDF8"
