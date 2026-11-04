@@ -66,13 +66,13 @@ Modifications declared under `assessment-requirement-modifications` are evaluate
 
 Gemara defines five modification types for assessment requirements:
 
-| Type | Target Requirement | Resolver Text Rule | Description / Effect |
-| :--- | :--- | :--- | :--- |
-| **`Add`** | MUST NOT exist | Required | Appends a brand-new assessment requirement to the target control. |
-| **`Modify`** | MUST exist | Optional | Partially updates specified fields (`text`, `applicability`, `recommendation`); untouched fields retain baseline values. |
-| **`Remove`** | MUST exist | N/A | Excises or deactivates the requirement from the effective set. |
-| **`Replace`** | MUST exist | Required | Completely substitutes the requirement definition; unmentioned optional fields (`recommendation`) are cleared. |
-| **`Override`** | MUST exist | Required | Enforces an authoritative organizational policy mandate superseding the baseline requirement. |
+| Type | Target Requirement | Description / Effect |
+| :--- | :--- | :--- |
+| **`Add`** | MUST NOT exist | Appends a brand-new assessment requirement to the target control. |
+| **`Modify`** | MUST exist | Partially updates specified fields (`text`, `applicability`, `recommendation`); untouched fields retain baseline values. |
+| **`Remove`** | MUST exist | Excises or deactivates the requirement from the effective set. |
+| **`Replace`** | MUST exist | Completely substitutes the requirement definition with the fields provided in the modifier. |
+| **`Override`** | MUST exist | Enforces an authoritative organizational policy mandate superseding the baseline requirement. |
 
 {% include themed-image.html
    light="/assets/diagrams/requirements-modification-decision-tree-light.svg"
@@ -82,32 +82,27 @@ Gemara defines five modification types for assessment requirements:
    class="spec-diagram-decision"
 %}
 
-### Resolver Validation & Schema Rules
+### Schema Rules & Open Design Questions
 
-1. **Modification Rationale:** The schema requires `modification-rationale` on every modifier (`#AssessmentRequirementModifier`). Resolvers MUST reject any modification entry missing a rationale.
-2. **Text Field Validation:** In the CUE schema, `text` is optional (`text?: string`), but conforming resolvers enforce operational validation rules:
-   * `Add`, `Replace`, and `Override` MUST provide `text`.
-   * `Modify` MAY omit `text` if only patching `applicability` or `recommendation`.
-   * `Remove` ignores `text`.
-3. **Recommendation Handling:**
-   * `Modify` updates `recommendation` if specified, or preserves the baseline value if omitted.
-   * `Replace` and `Override` clear any existing `recommendation` unless explicitly provided in the modifier.
-4. **`Override` vs. `Replace`:** While both substitute requirement text, `Replace` represents local adaptation within the existing governance framework, whereas `Override` represents an explicit policy mandate that supersedes the source standard (flagged for audit review).
-5. **Parent Control Association for `Add` (Open Question):**
-   * `#AssessmentRequirementModifier` defines `target-id` as the ID of the requirement. The schema does not currently define a dedicated `control-id` field on the modifier (tracked in `gemaraproj/gemara#492`).
-   * By convention, resolvers associate an `Add` requirement with its parent control based on hierarchical ID prefix matching (e.g., `SEC.SLAM.CM.CTL02.AR04` matches control `SEC.SLAM.CM.CTL02`).
+1. **Modification Rationale:** The schema requires `modification-rationale` on every modifier (`#AssessmentRequirementModifier`). Conforming policies MUST provide a non-empty rationale for each modification.
+2. **Cardinality:** A policy MUST declare at most one modifier per target requirement. Multiple modifiers targeting the same requirement ID are a resolution error.
+3. **Applicability Replacement Rule:** When a modifier supplies `applicability`, it replaces the target requirement's applicability list. When omitted, the baseline applicability is preserved.
+4. **Single-Catalog Baseline Identifiers:** In single catalog imports, applicability identifiers remain in their local form (e.g., `all_deployments`). Cross-catalog namespacing (`<catalog-id>:<group-name>`) is deferred to multi-catalog resolution.
 
-### Applicability Rule
-* When a modification supplies `applicability`, it **replaces** the target requirement's applicability list.
-* When the modification omits `applicability`, the target requirement's original applicability list is **preserved**.
-* In a single catalog import, applicability identifiers remain in their local form (e.g., `all_deployments`). Namespacing (`<catalog-id>:<group-name>`) and collision handling across multiple imports are deferred to the multi-catalog specification.
-* **Open Question (Applicability Definition Source):** The schema currently accepts strings for `applicability` without validating whether values must resolve against the imported catalog's groups or the importing policy's declared `applicability-groups`. Formalizing the provenance and selection mechanism for policy-level applicability groups remains an open design question for schema stabilization.
+#### Open Questions (for Schema Stabilization)
+
+As the experimental Policy schema progresses toward stabilization, the following operational questions are under active maintainer review:
+
+* **Text and Field Requirements:** In `policy.cue`, `text` and `recommendation` are optional on `#AssessmentRequirementModifier`. Whether resolvers should enforce that `Add`, `Replace`, and `Override` provide `text`, or whether `Replace`/`Override` should implicitly clear unmentioned optional fields like `recommendation`, remains an open design decision.
+* **`Override` vs. `Replace` Output Semantics:** Currently, `Replace` and `Override` can produce identical resolved document outputs. Whether the schema should distinguish them structurally (such as emitting an audit or policy-mandate flag) or consolidate them into fewer modifier options is under evaluation.
+* **Parent Control Association for `Add` ([gemaraproj/gemara#492](https://github.com/gemaraproj/gemara/issues/492)):** `#AssessmentRequirementModifier` specifies only `target-id`. Resolvers currently associate added requirements with parent controls using ID prefix matching (e.g., `SEC.SLAM.CM.CTL02.AR04` $\rightarrow$ `SEC.SLAM.CM.CTL02`). Whether to add an explicit `control-id` to the schema is tracked in #492.
+* **Applicability Provenance & Undeclared Groups ([gemaraproj/gemara#548](https://github.com/gemaraproj/gemara/issues/548)):** `ControlCatalog` requires all requirement `applicability` values to be defined in `metadata.applicability-groups`. When a policy modifier introduces an applicability tag (e.g. `edge_gateways`), whether those groups must be pre-declared in the source catalog, inherited from policy-level `applicability-groups`, or rejected as a validation error is an open question.
 
 ---
 
 ## 4. Worked Example & Test Vectors
 
-The following example demonstrates resolving a single catalog import.
+The following example demonstrates resolving a single catalog import. All fixtures conform to the Gemara schemas.
 
 ### 4.1 Input: Base Control Catalog (`SEC.SLAM.CM`)
 
@@ -118,11 +113,35 @@ metadata:
   type: "ControlCatalog"
   gemara-version: "1.2.0"
   version: "1.0.0"
+  description: "Control catalog for container management security."
+  author:
+    id: "example-author"
+    name: "Security Engineering"
+    type: "Human"
+  applicability-groups:
+    - id: "all_deployments"
+      title: "All Deployments"
+      description: "Requirements that apply to all deployments."
+    - id: "untrusted_networks"
+      title: "Untrusted Networks"
+      description: "Applies when communication traverses untrusted networks."
+    - id: "production"
+      title: "Production"
+      description: "Applies to live production workloads."
+    - id: "edge_gateways"
+      title: "Edge Gateways"
+      description: "Applies to perimeter and edge gateway deployments."
+
+groups:
+  - id: "SEC.SLAM.CM.FAM01"
+    title: "Network and Image Transport Security"
+    description: "Controls governing network transport and image integrity."
 
 controls:
   - id: "SEC.SLAM.CM.CTL02"
     title: "Require TLS/SSL with Certificate Pinning"
     objective: "Protect registry traffic and verify artifact integrity."
+    group: "SEC.SLAM.CM.FAM01"
     assessment-requirements:
       - id: "SEC.SLAM.CM.CTL02.AR01"
         text: "The system MUST use TLS/SSL for all registry communication."
@@ -143,10 +162,35 @@ metadata:
   id: "org-policy-001"
   type: "Policy"
   gemara-version: "1.2.0"
+  version: "1.0.0"
+  description: "Organizational policy establishing container transport requirements."
+  author:
+    id: "security-team"
+    name: "Security Team"
+    type: "Human"
   mapping-references:
     - id: "SEC.SLAM.CM"
       title: "Container Management Security Controls"
       version: "1.0.0"
+      description: "Base container control catalog."
+
+contacts:
+  responsible:
+    - name: "Platform Engineering"
+      affiliation: "Engineering"
+      email: "platform@example.com"
+  accountable:
+    - name: "CISO"
+      affiliation: "Security"
+      email: "ciso@example.com"
+
+scope:
+  in:
+    technologies:
+      - "Cloud Infrastructure"
+      - "Container Runtimes"
+    geopolitical:
+      - "Global"
 
 imports:
   catalogs:
@@ -174,6 +218,14 @@ imports:
           modification-rationale: "Enforce Sigstore cosign cryptographic verification."
           text: "The system MUST verify signatures using the organizational Sigstore keyless cosign root."
           applicability: ["production"]
+
+adherence:
+  evaluation-methods:
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
+      required: true
+      description: "Automated CI/CD policy verification checks."
 ```
 
 ### 4.3 Output: Resolved Effective Control Catalog
@@ -187,11 +239,35 @@ metadata:
   type: "ControlCatalog"
   gemara-version: "1.2.0"
   version: "1.0.0"
+  description: "Control catalog for container management security."
+  author:
+    id: "example-author"
+    name: "Security Engineering"
+    type: "Human"
+  applicability-groups:
+    - id: "all_deployments"
+      title: "All Deployments"
+      description: "Requirements that apply to all deployments."
+    - id: "untrusted_networks"
+      title: "Untrusted Networks"
+      description: "Applies when communication traverses untrusted networks."
+    - id: "production"
+      title: "Production"
+      description: "Applies to live production workloads."
+    - id: "edge_gateways"
+      title: "Edge Gateways"
+      description: "Applies to perimeter and edge gateway deployments."
+
+groups:
+  - id: "SEC.SLAM.CM.FAM01"
+    title: "Network and Image Transport Security"
+    description: "Controls governing network transport and image integrity."
 
 controls:
   - id: "SEC.SLAM.CM.CTL02"
     title: "Require TLS/SSL with Certificate Pinning"
     objective: "Protect registry traffic and verify artifact integrity."
+    group: "SEC.SLAM.CM.FAM01"
     assessment-requirements:
       # AR01: Overridden (text updated, applicability replaced)
       - id: "SEC.SLAM.CM.CTL02.AR01"
