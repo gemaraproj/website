@@ -70,7 +70,7 @@ Gemara defines five modification types for assessment requirements:
 | :--- | :--- | :--- |
 | **`Add`** | MUST NOT exist | Appends a brand-new assessment requirement to the target control. |
 | **`Modify`** | MUST exist | Partially updates specified fields (`text`, `applicability`, `recommendation`); untouched fields retain baseline values. |
-| **`Remove`** | MUST exist | Excises or deactivates the requirement from the effective set. |
+| **`Remove`** | MUST exist | Excises (drops) the target requirement completely from the resolved control's assessment requirements. |
 | **`Replace`** | MUST exist | Completely substitutes the requirement definition with the fields provided in the modifier. |
 | **`Override`** | MUST exist | Enforces an authoritative organizational policy mandate superseding the baseline requirement. |
 
@@ -96,6 +96,8 @@ As the experimental Policy schema progresses toward stabilization, the following
 * **Text and Field Requirements:** In `policy.cue`, `text` and `recommendation` are optional on `#AssessmentRequirementModifier`. Whether resolvers should enforce that `Add`, `Replace`, and `Override` provide `text`, or whether `Replace`/`Override` should implicitly clear unmentioned optional fields like `recommendation`, remains an open design decision.
 * **`Override` vs. `Replace` Output Semantics:** Currently, `Replace` and `Override` can produce identical resolved document outputs. Whether the schema should distinguish them structurally (such as emitting an audit or policy-mandate flag) or consolidate them into fewer modifier options is under evaluation.
 * **Parent Control Association for `Add` ([gemaraproj/gemara#492](https://github.com/gemaraproj/gemara/issues/492)):** `#AssessmentRequirementModifier` specifies only `target-id`. Resolvers currently associate added requirements with parent controls using ID prefix matching (e.g., `SEC.SLAM.CM.CTL02.AR04` $\rightarrow$ `SEC.SLAM.CM.CTL02`). Whether to add an explicit `control-id` to the schema is tracked in #492.
+* **`Remove` Semantics (Excise vs. Deactivate):** Conforming to current schemas where `#AssessmentRequirement` has no `status` or `active` field, `Remove` excises (drops) the target requirement from the resolved control's `assessment-requirements` list. Whether the schema should introduce soft-deactivation (e.g. marking a requirement as inactive with rationale) is an open design consideration.
+* **Derived Catalog Identity & Provenance ([gemaraproj/grcli#9](https://github.com/gemaraproj/grcli/issues/9)):** Resolving a catalog produces a derived artifact. Currently, the schema does not define provenance fields (such as which policy generated it or which modifier altered each requirement), nor does it prescribe a deterministic naming scheme for the resolved catalog's `metadata.id` and `version`. Reusing the source catalog's ID risks collisions if downstream tools ingest both the baseline and resolved artifacts. Whether resolvers should generate synthetic IDs (e.g. `<catalog-id>-resolved-<policy-id>`) or if Gemara should formalize provenance metadata is tracked in grcli#9.
 * **Applicability Provenance & Undeclared Groups ([gemaraproj/gemara#548](https://github.com/gemaraproj/gemara/issues/548)):** `ControlCatalog` requires all requirement `applicability` values to be defined in `metadata.applicability-groups`. When a policy modifier introduces an applicability tag (e.g. `edge_gateways`), whether those groups must be pre-declared in the source catalog, inherited from policy-level `applicability-groups`, or rejected as a validation error is an open question.
 
 ---
@@ -151,6 +153,9 @@ controls:
         applicability: ["untrusted_networks"]
       - id: "SEC.SLAM.CM.CTL02.AR03"
         text: "The system MUST verify image digests before execution."
+        applicability: ["all_deployments"]
+      - id: "SEC.SLAM.CM.CTL02.AR05"
+        text: "The system MUST log all container image retrieval events."
         applicability: ["all_deployments"]
 ```
 
@@ -211,6 +216,12 @@ imports:
           modification-rationale: "Permit WireGuard tunnels in addition to corporate VPN."
           text: "On untrusted networks, the system MUST use an approved WireGuard or IPSec VPN."
 
+        # Remove AR03: Excise requirement completely from effective set
+        - id: "MOD-AR03"
+          target-id: "SEC.SLAM.CM.CTL02.AR03"
+          modification-type: "Remove"
+          modification-rationale: "Digest verification handled externally by cluster admission controller."
+
         # Add AR04: Inject a new requirement under CTL02
         - id: "MOD-AR04"
           target-id: "SEC.SLAM.CM.CTL02.AR04"
@@ -230,7 +241,9 @@ adherence:
 
 ### 4.3 Output: Resolved Effective Control Catalog
 
-The resolved effective requirements set forms a schema-valid `ControlCatalog`:
+The resolved effective requirements set forms a schema-valid `ControlCatalog`.
+
+> **Note on Derived Identity:** For clarity, this illustrative test vector retains the base catalog's `metadata.id` and `version`. In production workflows, resolvers should assign a distinct identity or provenance metadata to avoid collisions with the baseline catalog (see Open Questions).
 
 ```yaml
 title: "Container Management Security Controls (Resolved)"
@@ -279,13 +292,15 @@ controls:
         text: "On untrusted networks, the system MUST use an approved WireGuard or IPSec VPN."
         applicability: ["untrusted_networks"]
 
-      # AR03: Unmodified baseline requirement
-      - id: "SEC.SLAM.CM.CTL02.AR03"
-        text: "The system MUST verify image digests before execution."
-        applicability: ["all_deployments"]
+      # AR03: Excised (omitted) by Remove modification MOD-AR03
 
       # AR04: Newly added requirement appended to control
       - id: "SEC.SLAM.CM.CTL02.AR04"
         text: "The system MUST verify signatures using the organizational Sigstore keyless cosign root."
         applicability: ["production"]
+
+      # AR05: Unmodified baseline requirement
+      - id: "SEC.SLAM.CM.CTL02.AR05"
+        text: "The system MUST log all container image retrieval events."
+        applicability: ["all_deployments"]
 ```
