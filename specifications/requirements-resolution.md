@@ -101,6 +101,7 @@ Gemara defines five modification types for assessment requirements:
 * When a modification supplies `applicability`, it **replaces** the target requirement's applicability list.
 * When the modification omits `applicability`, the target requirement's original applicability list is **preserved**.
 * In a single catalog import, applicability identifiers remain in their local form (e.g., `all_deployments`). Namespacing (`<catalog-id>:<group-name>`) and collision handling across multiple imports are deferred to the multi-catalog specification.
+* **Open Question (Applicability Definition Source):** The schema currently accepts strings for `applicability` without validating whether values must resolve against the imported catalog's groups or the importing policy's declared `applicability-groups`. Formalizing the provenance and selection mechanism for policy-level applicability groups remains an open design question for schema stabilization.
 
 ---
 
