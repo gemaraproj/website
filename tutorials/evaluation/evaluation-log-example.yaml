@@ -1,0 +1,114 @@
+metadata:
+  id: TUTORIAL-EVALUATION-LOG
+  type: EvaluationLog
+  gemara-version: "1.2.0"
+  version: "1.0.0"
+  description: Example Layer 5 evaluation log auditing container build and deployment controls
+  author:
+    id: security-automation-engine
+    name: Security Automation Engine
+    type: Software
+  mapping-references:
+    - id: SEC-SLAM-CM
+      title: Container Management Security Controls
+      version: "1.0.0"
+      url: file://controls.yaml
+      description: Target control catalog containing the evaluated control requirements.
+    - id: github-api
+      title: GitHub REST API
+      version: "v3"
+      url: https://api.github.com
+      description: Data source used for verifying repository configuration and branch policies.
+
+result: Passed
+
+target:
+  id: container-runtime-prod
+  name: Production Container Deployment Cluster
+  type: Software
+  uri: https://k8s.prod.example.internal
+
+evaluations:
+  - name: Immutable Image Tag Enforcement
+    result: Passed
+    message: Container deployment manifest enforces digest pinning and immutable tags.
+    control:
+      reference-id: SEC-SLAM-CM
+      entry-id: CTRL-IMG-01
+    assessment-logs:
+      - requirement:
+          reference-id: SEC-SLAM-CM
+          entry-id: REQ-IMG-01.01
+        applicability:
+          - production
+          - all_deployments
+        description: Ensure container images are pinned by immutable cryptographic sha256 digests.
+        result: Passed
+        message: Deployment manifests explicitly specify sha256 image hashes.
+        steps:
+          - inspect-deployment-manifests
+          - verify-image-digest-pinning
+        steps-executed: 2
+        start: 2026-11-04T10:00:00Z
+        end: 2026-11-04T10:00:05Z
+        confidence-level: High
+        evidence:
+          - id: EV-IMG-DIGEST-01
+            type: manifest-inspection
+            collected-at: 2026-11-04T10:00:03Z
+            payload:
+              image: "registry.example.internal/workload@sha256:d8a2f5e71465bcde1234567890abcdef1234567890abcdef1234567890abcdef"
+              digest_pinned: true
+            description: Kubernetes Deployment spec extracted during automated scan.
+
+  - name: Multi-Factor Authentication Verification
+    result: Passed
+    message: Organization-wide MFA is enforced for all container repository committers.
+    control:
+      reference-id: SEC-SLAM-CM
+      entry-id: CTRL-AUTH-02
+    assessment-logs:
+      - requirement:
+          reference-id: SEC-SLAM-CM
+          entry-id: REQ-AUTH-02.01
+        applicability:
+          - all_deployments
+        description: Verify that administrative access to container repository requires multi-factor authentication.
+        result: Passed
+        message: Repository administrative members have mandatory MFA enabled.
+        steps:
+          - query-organization-mfa-policy
+        steps-executed: 1
+        start: 2026-11-04T10:00:06Z
+        end: 2026-11-04T10:00:08Z
+        confidence-level: High
+        evidence:
+          - id: EV-MFA-STATUS-01
+            type: api-response
+            collected-at: 2026-11-04T10:00:07Z
+            source:
+              reference-id: github-api
+              coordinate: /orgs/example-org/settings
+              digest: "sha256:a1b2c3d4e5f67890123456789012345678901234567890123456789012345678"
+            payload:
+              two_factor_requirement_enabled: true
+            description: GitHub Organization configuration affirming required MFA.
+
+  - name: Ephemeral Debugging Container Check
+    result: Not Applicable
+    message: Cluster runtime disables ephemeral debugging containers by policy in this environment.
+    control:
+      reference-id: SEC-SLAM-CM
+      entry-id: CTRL-DBG-03
+    assessment-logs:
+      - requirement:
+          reference-id: SEC-SLAM-CM
+          entry-id: REQ-DBG-03.01
+        applicability:
+          - staging
+        description: Debug container execution must be logged and monitored.
+        result: Not Applicable
+        message: Target environment is production where ephemeral debug containers are entirely disabled.
+        steps:
+          - inspect-ephemeral-containers-feature-gate
+        steps-executed: 0
