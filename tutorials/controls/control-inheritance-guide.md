@@ -249,7 +249,7 @@ risks:
 
 1. **Zero Breaking Changes**: The `resp:*` naming convention works immediately with published versions of the Gemara CUE schema without waiting for schema releases.
 2. **Flexible Composability**: Requirements can combine responsibility tags with environmental tags (e.g. `applicability: ["resp:shared", "production", "pci-scope"]`).
-3. **Automated Tooling Compatibility**: Security scanners can filter evaluation targets by `resp:configurable` to run automated tests, while compliance dashboards can group `resp:inherited` controls into vendor attestation matrices.
+3. **Automated Tooling Compatibility**: Security scanners can filter evaluation targets by `resp:configurable` or `resp:shared` to run automated tests, while compliance dashboards can group `resp:inherited` controls into vendor attestation matrices.
 
 For full architectural discussion and alternatives considered, see [ADR 0023: Define Control Inheritance Conventions for Multi-Party Governance](../../adrs/0023-control-inheritance-conventions).
 

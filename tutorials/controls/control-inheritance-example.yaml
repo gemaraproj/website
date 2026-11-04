@@ -235,7 +235,7 @@ adherence:
       description: Block pull requests and infrastructure deployments that fail CMEK configuration checks.
 
   non-compliance: >
-    Violations of configurable controls automatically block deployment pipelines.
+    Violations of configurable or shared controls automatically block deployment pipelines.
     Inherited control attestation lapses trigger formal vendor risk reviews.
 
 # Custom: residual risk acceptance for missing platform feature
