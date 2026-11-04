@@ -81,13 +81,13 @@ controls:
         applicability: ["resp:inherited", "production"]
       - id: CTRL-ENCRYPTION-AR2
         text: Customer-managed keys MUST enforce a minimum key length of AES-256.
-        applicability: ["resp:configurable", "production"]
+        applicability: ["resp:shared", "production"]
 ```
 
 ### 3. Decoupled Policy Validation Patterns
 
 In Layer 3 Policies, assessment plans decouple validation based on the control responsibility:
-- **`resp:configurable` requirements** map to automated behavioral evaluation methods executed by software (e.g., CI/CD linters, Terraform policy checks, runtime CSPM scanners).
+- **`resp:configurable` and `resp:shared` requirements** map to automated behavioral evaluation methods executed by software (e.g., CI/CD linters, Terraform policy checks, runtime CSPM scanners).
 - **`resp:inherited` requirements** map to manual intent evaluation methods executed by humans (e.g., verifying vendor SOC 2 Type II reports or ISO certifications on an annual frequency).
 - **`resp:custom` requirements** that cannot be fulfilled within scope are documented under `risks.accepted` with an explicit risk reference and technical justification.
 
@@ -96,7 +96,7 @@ In Layer 3 Policies, assessment plans decouple validation based on the control r
 ### Positive
 
 - **Zero Breaking Schema Changes**: Works immediately within existing Gemara schemas (`metadata.applicability-groups`, `applicability`, `imports`, and `adherence`). No modification to CUE type definitions is required.
-- **Interoperability**: Downstream evaluators (e.g., automated scanning engines) can filter assessment requirements by `resp:configurable` to execute automated code scans, while ignoring `resp:inherited` checks that belong in audit pipelines.
+- **Interoperability**: Downstream evaluators (e.g., automated scanning engines) can filter assessment requirements by `resp:configurable` or `resp:shared` to execute automated code scans, while ignoring `resp:inherited` checks that belong in audit pipelines.
 - **Clarity across Tiers**: Clear alignment with industry standards (FedRAMP CRM, NIST SP 800-53 Rev. 5 control allocation, and FINOS Common Cloud Controls).
 
 ### Negative

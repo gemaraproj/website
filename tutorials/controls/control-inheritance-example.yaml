@@ -147,6 +147,10 @@ metadata:
       title: Cloud Storage Security Control Catalog
       version: "1.0.0"
       description: Base controls imported for cloud storage security.
+    - id: org-risk-catalog
+      title: Organization Risk Catalog
+      version: "1.0.0"
+      description: Organization risk definitions and entries.
 
 contacts:
   accountable:
@@ -191,6 +195,11 @@ adherence:
       requirement-id: CTRL-STORAGE-CMEK-CONFIG-AR1
       frequency: continuous
       evidence-requirements: "Automated scan output verifying Terraform bucket encryption arguments"
+      parameters:
+        - id: min-key-length
+          label: Minimum Key Length
+          description: Required encryption standard
+          accepted-values: ["AES-256"]
       evaluation-methods:
         - id: em-automated-iac-check
           type: Behavioral
@@ -201,11 +210,6 @@ adherence:
             id: terraform-policy-scanner
             name: Terraform Policy Scanner
             type: Software
-          parameters:
-            - id: min-key-length
-              label: Minimum Key Length
-              description: Required encryption standard
-              accepted-values: ["AES-256"]
 
     # Native: verified via automated baseline drift detection
     - id: plan-native-public-block
@@ -239,6 +243,7 @@ risks:
   accepted:
     - id: risk-accept-app-audit-logging
       risk:
+        reference-id: org-risk-catalog
         entry-id: RISK-DATA-TRACEABILITY-1
       justification: >
         Native cloud storage does not support tenant-level custom business context logging.

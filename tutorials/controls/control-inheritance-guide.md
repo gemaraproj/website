@@ -24,9 +24,9 @@ When authoring controls for multi-tenant or cloud-hosted systems, requirements f
 | Tier | Convention ID | Definition | Real-World Example |
 | :--- | :--- | :--- | :--- |
 | **Native** | `resp:native` | The component meets the requirement by default without consumer configuration. | Managed cloud endpoints enforcing TLS 1.2+ out of the box. |
-| **Configurable** | `resp:configurable` | The component provides the capability, but requires explicit consumer configuration to satisfy the control. | Enabling customer-managed keys (CMEK) and setting minimum key length to AES-256. |
+| **Configurable** | `resp:configurable` | The component provides the capability, but requires explicit consumer configuration to satisfy the control. | Setting TLS algorithm suites, or configuring bucket retention periods. |
 | **Inherited** | `resp:inherited` | The component consumes the capability entirely from an upstream source and depends on that implementation. | Physical data center security or hardware-level storage volume encryption provided by a cloud provider. |
-| **Shared (Inherited Configurable)** | `resp:shared` | Upstream platform provides the base infrastructure, but the consumer must configure and operate it correctly. | Cloud Key Management Service (KMS) where the provider hosts the HSM, but the tenant configures key rotation and access policies. |
+| **Shared (Inherited Configurable)** | `resp:shared` | Upstream platform provides the base infrastructure, but the consumer must configure and operate it correctly. | Customer-managed encryption keys (CMEK) where the cloud provider manages the KMS infrastructure, but the consumer configures the key algorithm and access policies. |
 | **Custom** | `resp:custom` | The platform does not provide the capability. The implementer must satisfy the requirement externally or accept the risk. | Custom business transaction logging implemented via a sidecar proxy because the native storage API does not log application payloads. |
 
 ---
@@ -179,6 +179,10 @@ metadata:
     - id: org-cloud-storage-controls
       title: Cloud Storage Security Control Catalog
       version: "1.0.0"
+    - id: org-risk-catalog
+      title: Organization Risk Catalog
+      version: "1.0.0"
+      description: Organization risk definitions and entries.
 
 imports:
   catalogs:
@@ -207,6 +211,11 @@ adherence:
       requirement-id: CTRL-STORAGE-CMEK-CONFIG-AR1
       frequency: continuous
       evidence-requirements: "Automated scan output verifying Terraform bucket encryption"
+      parameters:
+        - id: min-key-length
+          label: Minimum Key Length
+          description: Required encryption standard
+          accepted-values: ["AES-256"]
       evaluation-methods:
         - id: em-automated-iac-check
           type: Behavioral
@@ -217,16 +226,13 @@ adherence:
             id: terraform-policy-scanner
             name: Terraform Policy Scanner
             type: Software
-          parameters:
-            - id: min-key-length
-              label: Minimum Key Length
-              accepted-values: ["AES-256"]
 
 # Custom / Unmet Control -> Formally Documented Risk Acceptance
 risks:
   accepted:
     - id: risk-accept-app-audit-logging
       risk:
+        reference-id: org-risk-catalog
         entry-id: RISK-DATA-TRACEABILITY-1
       justification: >
         Native cloud storage does not support tenant-level custom business context logging.
