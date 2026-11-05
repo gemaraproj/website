@@ -107,11 +107,10 @@ In Layer 3 Policies, assessment plans decouple validation based on the control r
 
 ### Dedicated `responsibility` enum in `#AssessmentRequirement`
 
-Adding a mandatory or optional field `responsibility: #ResponsibilityTier` directly to `#AssessmentRequirement` in `controlcatalog.cue`.
+Adding a field `responsibility?: #ResponsibilityTier` directly to `#AssessmentRequirement` in `controlcatalog.cue`.
 
 **Rejected because:** 
-1. It introduces schema changes and breaking differences across Gemara versions.
-2. Applicability is already the canonical Gemara mechanism for scoping when and where an assessment requirement applies. Adding a redundant responsibility field fragments scoping metadata.
+Applicability is already the canonical Gemara mechanism for scoping when and where an assessment requirement applies. Adding a redundant responsibility field fragments scoping metadata and duplicates categorization across two separate fields in the same entry.
 
 ### Adding a `recommended-executor` field at the ControlCatalog layer
 
@@ -119,3 +118,9 @@ Adding a field to suggest whether an evaluation should be performed by `Human` o
 
 **Rejected because:** 
 Layer 2 defines technology controls independently of how a particular organization chooses to evaluate them. Executor assignment belongs to Layer 3 Policy (`adherence.assessment-plans.evaluation-methods.executor`), maintaining separation of concerns between definition and measurement.
+
+## Open Questions
+
+### Direct connection between Capabilities and Controls
+
+In the current schema, Controls connect to Guidelines (Layer 1) and Threats (Layer 2), while Threats connect to Capabilities. Controls do not currently have a direct `capabilities` mapping field in `#Control`. Whether `ControlCatalog` should optionally allow direct links to `CapabilityCatalog` entries (e.g., via a `capabilities` field or mapping references) remains an open design question for future schema iterations. This convention operates independently of that relationship by using `applicability-groups` on assessment requirements.

@@ -17,9 +17,6 @@ groups:
   - id: encryption-services
     title: Encryption Services
     description: Cryptographic and key management capabilities provided by the platform.
-  - id: access-control
-    title: Access Control & Network Boundaries
-    description: Identity, bucket policy, and network routing capabilities.
 
 capabilities:
   - id: CAP-DEFAULT-ENCRYPTION
@@ -30,10 +27,6 @@ capabilities:
     title: Customer-Managed Encryption Keys
     description: Platform supports integration with Key Management Service for customer-owned keys.
     group: encryption-services
-  - id: CAP-PUBLIC-ACCESS-BLOCK
-    title: Centralized Public Access Block
-    description: Account-wide and bucket-level enforcement to prevent accidental public exposure.
-    group: access-control
 
 ---
 title: Cloud Storage Security Control Catalog
@@ -106,15 +99,15 @@ controls:
         applicability: ["resp:shared", "production"]
         state: Active
 
-  # Native control met out-of-the-box by platform defaults
-  - id: CTRL-STORAGE-BLOCK-PUBLIC
-    title: Restrict Public Storage Exposure
-    objective: Ensure storage resources disallow anonymous public read access by default.
+  # Native control met out-of-the-box by component client defaults
+  - id: CTRL-STORAGE-CLIENT-TLS
+    title: Client Transport Layer Encryption
+    objective: Ensure storage client communication enforces modern TLS by default without configuration.
     group: storage-data-protection
     state: Active
     assessment-requirements:
-      - id: CTRL-STORAGE-BLOCK-PUBLIC-AR1
-        text: Storage buckets MUST block public access configurations by default.
+      - id: CTRL-STORAGE-CLIENT-TLS-AR1
+        text: Storage client SDK connections MUST enforce TLS 1.2 or higher by default.
         applicability: ["resp:native", "production"]
         state: Active
 
@@ -211,20 +204,20 @@ adherence:
             name: Terraform Policy Scanner
             type: Software
 
-    # Native: verified via automated baseline drift detection
-    - id: plan-native-public-block
-      requirement-id: CTRL-STORAGE-BLOCK-PUBLIC-AR1
+    # Native: verified via automated component client test
+    - id: plan-native-client-tls
+      requirement-id: CTRL-STORAGE-CLIENT-TLS-AR1
       frequency: continuous
-      evidence-requirements: "Continuous CSPM configuration status log"
+      evidence-requirements: "Automated test suite confirming default TLS 1.2+ enforcement"
       evaluation-methods:
-        - id: em-cspm-drift-check
+        - id: em-client-tls-check
           type: Behavioral
           mode: Automated
           required: true
-          description: Automated cloud posture monitor confirms public access remains disabled.
+          description: Automated unit and integration tests verify client defaults to TLS 1.2+.
           executor:
-            id: cloud-security-scanner
-            name: CSPM Scanner
+            id: tls-check-scanner
+            name: TLS Scanner
             type: Software
 
   enforcement-methods:

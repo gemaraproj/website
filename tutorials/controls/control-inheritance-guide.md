@@ -71,7 +71,7 @@ capabilities:
 
 ### Step 2: Consumer Control Catalog with `resp:*` Conventions (Layer 2)
 
-As a consumer, you define your security controls in a **`ControlCatalog`**. You import the upstream capabilities and define the standardized `resp:*` applicability groups in `metadata`:
+As a consumer, you define your security controls in a **`ControlCatalog`**. You reference the upstream capabilities catalog in `metadata.mapping-references` and declare the standardized `resp:*` applicability groups in `metadata`:
 
 ```yaml
 title: Cloud Storage Security Control Catalog
@@ -133,14 +133,14 @@ controls:
         text: Storage buckets holding sensitive data MUST configure CMEK with AES-256.
         applicability: ["resp:shared", "production"]
 
-  # 3. NATIVE: Out-of-the-box baseline
-  - id: CTRL-STORAGE-BLOCK-PUBLIC
-    title: Restrict Public Storage Exposure
-    objective: Ensure storage resources disallow anonymous public read access by default.
+  # 3. NATIVE: Out-of-the-box component client defaults
+  - id: CTRL-STORAGE-CLIENT-TLS
+    title: Client Transport Layer Encryption
+    objective: Ensure storage client communication enforces modern TLS by default without configuration.
     group: storage-data-protection
     assessment-requirements:
-      - id: CTRL-STORAGE-BLOCK-PUBLIC-AR1
-        text: Storage buckets MUST block public access configurations by default.
+      - id: CTRL-STORAGE-CLIENT-TLS-AR1
+        text: Storage client SDK connections MUST enforce TLS 1.2 or higher by default.
         applicability: ["resp:native", "production"]
 
   # 4. CUSTOM: Unmet by cloud platform
