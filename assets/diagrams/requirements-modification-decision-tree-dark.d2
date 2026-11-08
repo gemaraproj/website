@@ -1,0 +1,68 @@
+direction: down
+
+classes: {
+  decision: {
+    shape: diamond
+    style: {
+      fill: "#2F3142"
+      stroke: "#C4B5FD"
+      stroke-width: 2
+      font-size: 13
+      font-color: "#FFFFFF"
+    }
+  }
+  action: {
+    style: {
+      fill: "#252732"
+      stroke: "#A78BFA"
+      stroke-width: 2
+      font-size: 13
+      font-color: "#FFFFFF"
+      border-radius: 6
+    }
+  }
+  error: {
+    style: {
+      fill: "#3B1824"
+      stroke: "#F87171"
+      stroke-width: 2
+      font-size: 13
+      font-color: "#FECACA"
+      border-radius: 6
+    }
+  }
+}
+
+start: "Incoming Directive\nid, target-id, modification-type" {class: action}
+chk_target: "Target ID Exists in\nCandidate Catalog?" {class: decision}
+
+start -> chk_target
+
+chk_missing: "Type == Add?" {class: decision}
+apply_add: "Apply Add\nAppend new requirement" {class: action}
+err_missing: "ERR_TARGET_NOT_FOUND\nTarget ID must exist for\nModify, Remove, Replace, Override" {class: error}
+
+chk_target -> chk_missing: "No (Missing)"
+chk_missing -> apply_add: "Yes"
+chk_missing -> err_missing: "No"
+
+eval_type: "Evaluate\nmodification-type" {class: decision}
+chk_target -> eval_type: "Yes (Exists)"
+
+err_dup: "ERR_DUPLICATE_ID\nCannot Add existing ID" {class: error}
+apply_mod: "Apply Modify\nPatch specified fields" {class: action}
+apply_rem: "Apply Remove\nExcise from evaluation" {class: action}
+apply_rep: "Apply Replace\nSubstitute definition" {class: action}
+
+chk_rat: "Rationale\nProvided?" {class: decision}
+apply_ovr: "Apply Override\nEnforce strict mandate" {class: action}
+err_rat: "ERR_MISSING_RATIONALE\nOverride requires rationale" {class: error}
+
+eval_type -> err_dup: "Add"
+eval_type -> apply_mod: "Modify"
+eval_type -> apply_rem: "Remove"
+eval_type -> apply_rep: "Replace"
+eval_type -> chk_rat: "Override"
+
+chk_rat -> apply_ovr: "Yes"
+chk_rat -> err_rat: "No"
