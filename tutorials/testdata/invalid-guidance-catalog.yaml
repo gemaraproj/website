@@ -1,0 +1,17 @@
+# INVALID fixture — used by make test-examples to prove the validator rejects bad input.
+# This file intentionally omits the required metadata.author field,
+# includes an unrecognised type value, and omits the required `title`.
+# Expected: `cue vet` exits non-zero and prints one or more errors.
+#
+# DO NOT update this to pass validation; it is meant to stay broken.
+metadata:
+  id: BAD.EXAMPLE.001
+  type: NotARealType        # invalid: not an #ArtifactType enum value
+  gemara-version: "1.6.0"
+  description: Intentionally invalid fixture for CI smoke-test.
+  # author omitted intentionally — required field
+guidelines:
+  - id: BAD.GL01
+    title: A guideline with no group field  # group is required
+    objective: This should not validate.
+    state: Active
