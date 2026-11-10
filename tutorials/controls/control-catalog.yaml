@@ -1,5 +1,5 @@
 # Container Management Tool Security Control Catalog
-# Conforms to Gemara #ControlCatalog (schema tag v1.2.0; see controlcatalog.cue).
+# Conforms to Gemara #ControlCatalog (schema tag v1.6.0; see controlcatalog.cue).
 # See control-catalog-guide.md for the full tutorial and this scenario.
 
 title: Container Management Tool Security Control Catalog
@@ -7,7 +7,7 @@ title: Container Management Tool Security Control Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ControlCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: |
     Control catalog for container management tool security; mitigates threats
     from the SEC.SLAM.CM threat catalog.
@@ -26,7 +26,7 @@ metadata:
         control's threats.
     - id: CCC
       title: Common Cloud Controls Core
-      version: v2025.10
+      version: v2026.06-rc1
       url: https://github.com/finos/common-cloud-controls/releases
       description: |
         Foundational repository of reusable security controls, capabilities,
