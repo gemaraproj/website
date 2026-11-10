@@ -1,4 +1,4 @@
-name: Build and Deploy Site
+﻿name: Build and Deploy Site
 
 on:
   # Test on pull requests
@@ -79,6 +79,11 @@ jobs:
         with:
           go-version: '1.25'
 
+      - name: Setup CUE
+        uses: cue-lang/setup-cue@b0e30e540a2dae47304ebf16586a5b2db023b61c # v2.0.0
+        with:
+          version: 'v0.17.1'
+
       - name: Test Go tools
         run: |
           cd tools
@@ -105,6 +110,11 @@ jobs:
               --schema .. \
               --output "$GITHUB_WORKSPACE/generated/openapi.yaml")
           fi
+
+      - name: Validate tutorial examples
+        env:
+          REF: ${{ steps.spec.outputs.ref }}
+        run: make test-examples GEMARA_EXAMPLES_REF=$REF
 
       - name: Generate documentation
         run: make gendocs
