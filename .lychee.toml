@@ -1,0 +1,47 @@
+# lychee external-link checker configuration
+# https://lychee.cli.rs/usage/config/
+
+# --- Cache ---
+# Re-use the GitHub Actions cache between weekly runs; lychee reads this file
+# from the working directory when the cache restore finds a hit.
+cache = true
+max_cache_age = "7d"
+
+# --- Scope ---
+# Only follow links that look like real URLs; skip bare anchors handled by
+# the Jekyll build's own HTML-proofer step in deploy.yml.
+include_fragments = false
+
+# --- Timeouts / retries ---
+timeout        = 20   # seconds per request
+max_retries    = 3
+retry_wait_time = 2   # seconds between retries
+
+# --- Allowlist ---
+# Exclude URLs that are intentionally unreachable in CI (login walls,
+# localhost examples, placeholder anchors, or known-flaky hosts).
+exclude = [
+  # GitHub login/settings pages require authentication
+  "https://github\\.com/login",
+  "https://github\\.com/settings",
+  # Placeholder / example domains used in tutorial code snippets
+  "https://example\\.com",
+  "http://example\\.com",
+  "https://your-org\\.example",
+  # Localhost references in developer-facing docs
+  "http://localhost",
+  "http://127\\.0\\.0\\.1",
+  # GitHub blob/raw refs that may be on branches not yet merged; checked
+  # separately by the deploy workflow's html-proofer step.
+  "https://github\\.com/gemaraproj/website/blob/",
+  "https://raw\\.githubusercontent\\.com/gemaraproj/",
+  # SlackLinks require auth
+  "https://openssf\\.slack\\.com",
+  # CCC GitHub release that uses a percent-encoded tag and returns 404 on HEAD
+  "https://github\\.com/finos/common-cloud-controls/releases/tag/core",
+]
+
+# --- Accept codes ---
+# 429 (rate-limited) and 200 are both OK; treat 429 as a soft warning so a
+# rate-limited host does not fail the whole run.
+accept = [200, 429]
