@@ -1,0 +1,52 @@
+# Checks every external hyperlink reachable from the site's Markdown sources.
+# Runs weekly (Sunday 03:17 UTC) and can be triggered manually.
+# Never deploys anything; only reads the repository contents.
+#
+# Lychee docs: https://lychee.cli.rs/
+# Action docs: https://github.com/lycheeverse/lychee-action
+
+name: Check External Links
+
+on:
+  schedule:
+    # Weekly on Sunday at 03:17 UTC (offset from the hour to reduce load spikes)
+    - cron: "17 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    name: Lychee external-link audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Restore lychee cache
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: .lychee.cache
+          key: lychee-${{ runner.os }}-${{ hashFiles('.lychee.toml') }}
+          restore-keys: |
+            lychee-${{ runner.os }}-
+
+      - name: Check external links
+        uses: lycheeverse/lychee-action@82202e5e9c2f4ef1a55a3d02563e1cb6041e5332 # v2.4.1
+        with:
+          # Scan all Markdown files in the repo; skip generated schema pages
+          # (schema/*.md) because their sources are upstream and may contain
+          # intentional placeholder links.
+          args: >-
+            --config .lychee.toml
+            --no-progress
+            --exclude-path schema/
+            --exclude-path _site/
+            '**/*.md'
+          # Exit 0 on warnings (rate-limits), non-zero only on hard failures.
+          fail: true
+        env:
+          # Authenticating reduces GitHub API rate-limiting on github.com links.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
