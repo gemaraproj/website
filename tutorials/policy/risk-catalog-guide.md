@@ -260,6 +260,6 @@ risks:
 
 ## What's Next
 
-- Reference this risk catalog from a **Policy** document: in the policy's `risks` section, use `mitigated` and `accepted` entries that reference risk ids (and, for accepted risks, justification and optional scope). See the [Policy Guide](policy-guide) and the `risks` section of the [Policy schema](https://gemara.openssf.org/schema/policy.html).
+- Reference this risk catalog from a **Policy** document using `metadata.mapping-references`, `risks.mitigated`, and `risks.accepted`. For residual-risk acceptance, `target-id` points to the matching mitigated entry; see [Step 4: Risk decisions in the Policy Guide](policy-guide#step-4-risk-decisions) and the `risks` section of the [Policy schema](https://gemara.openssf.org/schema/policy.html).
 - Use **Layer 5** evaluations to assess whether controls and implementations address the threats linked to these risks.
 - Use **Layer 7** audit and continuous monitoring to review risk posture and policy effectiveness.
