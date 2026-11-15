@@ -6,12 +6,15 @@ description: Practical guide to expressing multi-party control responsibility an
 
 ## What This Is
 
+> [!NOTE]
+> This guide is a worked example of a proposed convention currently under evaluation (see [ADR 0023](../../adrs/0023-control-inheritance-conventions)). It illustrates how control inheritance can be expressed using existing schema primitives and may be refined based on feedback once applied to real-world catalogs.
+
 Modern software systems depend on shared infrastructure, cloud services, and third-party vendors. In cloud and enterprise security frameworks (such as FedRAMP, NIST SP 800-53, and FINOS Common Cloud Controls), **controls are rarely implemented by a single team or system alone**.
 
-This guide demonstrates how to model **Control Inheritance** and **Shared Responsibility** in Gemara using existing schema primitives and standardized conventions.
+This guide demonstrates how to model **Control Inheritance** and **Shared Responsibility** in Gemara using existing schema primitives and proposed conventions.
 
 By following this guide, you will learn how to:
-1. Express multi-party responsibility across **5 standardized tiers**.
+1. Express multi-party responsibility across **5 responsibility tiers**.
 2. Scope assessment requirements using the **`resp:*` applicability-groups convention** in Layer 2 Control Catalogs.
 3. Decouple validation methods in Layer 3 Policies so automated checks, vendor attestations, and risk acceptance each apply to their appropriate tier.
 
@@ -71,7 +74,7 @@ capabilities:
 
 ### Step 2: Consumer Control Catalog with `resp:*` Conventions (Layer 2)
 
-As a consumer, you define your security controls in a **`ControlCatalog`**. You reference the upstream capabilities catalog in `metadata.mapping-references` and declare the standardized `resp:*` applicability groups in `metadata`:
+As a consumer, you define your security controls in a **`ControlCatalog`**. You reference the upstream capabilities catalog in `metadata.mapping-references` and declare the proposed `resp:*` applicability groups in `metadata`:
 
 ```yaml
 title: Cloud Storage Security Control Catalog

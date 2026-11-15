@@ -35,7 +35,7 @@ Standardize conventions for control inheritance by leveraging existing schema pr
 
 ### 1. Applicability Group Namespace (`resp:*`)
 
-When defining applicability groups in catalog metadata, authors SHOULD use the `resp:` namespace prefix to represent responsibility and inheritance tiers:
+When defining applicability groups in catalog metadata, this ADR proposes the `resp:` namespace prefix to represent responsibility and inheritance tiers:
 
 - `resp:native` — Satisfied by the component/platform by default.
 - `resp:configurable` — Provided by the component, but requires consumer configuration.
@@ -124,3 +124,7 @@ Layer 2 defines technology controls independently of how a particular organizati
 ### Direct connection between Capabilities and Controls
 
 In the current schema, Controls connect to Guidelines (Layer 1) and Threats (Layer 2), while Threats connect to Capabilities. Controls do not currently have a direct `capabilities` mapping field in `#Control`. Whether `ControlCatalog` should optionally allow direct links to `CapabilityCatalog` entries (e.g., via a `capabilities` field or mapping references) remains an open design question for future schema iterations. This convention operates independently of that relationship by using `applicability-groups` on assessment requirements.
+
+### Applicability Any-Match and Composite Scoping (gemara#554)
+
+Under `gemara#554`, a Policy adopts applicability groups by any-match: an assessment requirement is in play if any of its declared applicability IDs match the import's selected groups. When a requirement is tagged with both a responsibility tier and an environmental scope (such as `["resp:inherited", "production"]`), a policy selecting `production` brings the requirement into play regardless of whether `resp:inherited` was selected. A policy cannot express "production, but not inherited" via any-match alone. Real-world catalog usage will show whether this limitation is acceptable in practice or whether a dedicated `responsibility` field on `#AssessmentRequirement` is needed after all.
