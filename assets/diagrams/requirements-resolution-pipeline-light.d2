@@ -13,11 +13,10 @@ classes: {
   }
 }
 
-s1: "Step 1: Acquire Catalog\nMatch reference-id and version against metadata" {class: step}
-s2: "Step 2: Apply Exclusions\nRemove excluded controls and requirements" {class: step}
-s3: "Step 3: Apply Constraints\nAttach prescriptive constraint text to target controls" {class: step}
-s4: "Step 4: Apply Modifications\nProcess Add, Modify, Remove, Replace, and Override" {class: step}
-out: "Effective Requirements Set\nDerived ControlCatalog ready for evaluation" {
+s1: "Step 1: Acquire Artifact\nResolve reference-id and verify pinned version" {class: step}
+s2: "Step 2: Select & Exclude\nFilter by applicability groups and excise exclusions" {class: step}
+s3: "Step 3: Apply Constraints\nAttach prescriptive requirement text to in-play controls" {class: step}
+out: "Step 4: Effective Requirements Set\nDerived in-play requirements preserving source identifiers" {
   style: {
     fill: "#F0F9FF"
     stroke: "#0284C7"
@@ -28,7 +27,6 @@ out: "Effective Requirements Set\nDerived ControlCatalog ready for evaluation" {
   }
 }
 
-s1 -> s2: "candidate set"
-s2 -> s3: "filtered base"
-s3 -> s4: "validated baseline"
-s4 -> out: "resolved requirements"
+s1 -> s2: "candidate catalog"
+s2 -> s3: "filtered in-play set"
+s3 -> out: "resolved mandates"

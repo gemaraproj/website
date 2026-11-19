@@ -27,46 +27,35 @@ A conforming resolver accepts:
 * `policy.cue`: `#Imports`, `#CatalogImport`, `#Constraint`.
 * `controlcatalog.cue`: `#ControlCatalog`, `#Control`, `#AssessmentRequirement`.
 
+### Schema Validation vs. Tool Resolution Rules
+
+Implementations must recognize the distinction between rules enforced syntactically by CUE schemas versus semantic rules enforced by tool resolvers:
+* **Enforced by CUE:** Schema structure, required types, and field boundaries (e.g., `#CatalogImport` declaring `exclusions?: [...string]`, `#Constraint` requiring `id`, `target-id`, and `text`, `#MappingReference` requiring `id` and `version`).
+* **Enforced by Tool Resolvers:** Operational semantics that CUE schemas do not evaluate across document boundaries. For example:
+  * Resolving `policy.imports.catalogs[].reference-id` against `policy.metadata.mapping-references`.
+  * Verifying that each ID in `exclusions` actually exists in the acquired catalog.
+  * Verifying that each ID in `#CatalogImport.applicability` exists in `metadata."applicability-groups"`.
+  * Verifying that `#Constraint.target-id` references a control that remains in play.
+  * Pruning empty controls after requirement selection.
+
 ---
 
 ## 2. Resolution Workflow (Single Catalog Import)
 
 A Policy is a **profile**: it selects, constrains, and parametrizes; it does not rewrite catalog content ([gemaraproj/gemara#560](https://github.com/gemaraproj/gemara/issues/560)). Resolution follows a deterministic 4-step pipeline: **Acquire ➔ Select ➔ Exclude ➔ Constrain**.
 
-```
-+-----------------------------------+
-| 1. Artifact Acquisition           |
-|    - Resolve reference-id         |
-|    - Verify metadata and version  |
-+-----------------+-----------------+
-                  |
-                  v
-+-----------------+-----------------+
-| 2. Select & Exclude               |
-|    - Select catalog applicability |
-|    - Excise excluded IDs          |
-|    - Drop empty controls          |
-+-----------------+-----------------+
-                  |
-                  v
-+-----------------+-----------------+
-| 3. Apply Constraints              |
-|    - Validate target-id in play   |
-|    - Attach prescriptive text     |
-+-----------------+-----------------+
-                  |
-                  v
-+-----------------------------------+
-| 4. Resolved Effective Set         |
-|    - Strict subset of source      |
-|    - Preserve source identifiers  |
-+-----------------------------------+
-```
+{% include themed-image.html
+   light="/assets/diagrams/requirements-resolution-pipeline-light.svg"
+   dark="/assets/diagrams/requirements-resolution-pipeline-dark.svg"
+   alt="Requirements Resolution Pipeline"
+   caption="Figure 1: Deterministic Requirements Resolution Pipeline"
+   class="spec-diagram-pipeline"
+%}
 
 ### Step 1: Artifact Acquisition & Identification
 The resolver locates the catalog using `policy.metadata.mapping-references` matching `policy.imports.catalogs[].reference-id`.
-* The mapping reference `id` MUST match the referenced catalog's `metadata.id`.
-* When `version` is specified in the mapping reference, it MUST match the catalog's `metadata.version`.
+* `#MappingReference.version` is required by schema and MUST match the acquired catalog's `metadata.version`.
+* When `#MappingReference.url` is omitted, `#MappingReference.id` MUST equal the referenced catalog's `metadata.id`. When `url` is present, `id` acts as a local alias pointing to the artifact located at `url`.
 * The transport mechanism used to retrieve the artifact (local filesystem, HTTP, OCI registry) is implementation-specific.
 
 ### Step 2: Select and Exclude
@@ -87,15 +76,15 @@ Selection and exclusion run against the acquired source catalog to establish whi
 
 ### Step 3: Apply Constraints
 If `constraints` are declared on the import:
-* In `policy.cue`, `#Constraint` is defined as `{id, target-id, text}`: prescriptive requirement text attached to a specific control or guidance item.
-* Every constraint's `target-id` MUST target a control or requirement that remains **in play** after Step 2. A constraint that targets an ID that was excluded, dropped by applicability selection, or never defined in the catalog is a **resolution error**.
-* Conforming resolvers attach valid constraints to the matching target in the candidate set as supplemental mandates.
+* In `policy.cue`, `#Constraint` is defined as `{id: string, target-id: string, text: string}`: prescriptive requirement text attached to a specific control (for catalog imports) or guidance item (for guidance imports).
+* Every constraint's `target-id` MUST target a control that remains **in play** after Step 2. A constraint that targets an ID that was excluded, pruned (because all its assessment requirements were dropped), or never defined in the catalog is a **resolution error**.
+* Constraints do not mutate `#Control` in the catalog schema; rather, resolvers track validated constraints alongside the in-play set for downstream evaluation and enforcement.
 
 ### Step 4: Resolved Output & In-Play Set
 The resulting set represents the effective requirements of the policy import:
 * The resolved set is a strict subset of the source catalog.
 * Every control and assessment requirement retains its source ID, objective, and normative text.
-* Policy `assessment-plans` MUST cover exactly the in-play set.
+* When policy `assessment-plans` are declared, they MUST only target requirements that remain in play; referencing an excluded or dropped requirement is a tool validation error.
 
 ---
 
@@ -106,7 +95,7 @@ Gemara clearly separates static policy commitment from runtime evaluation:
 * **Static Policy Commitment (In-Play):**
   * Which requirements is the policy committed to? This is static and decided by the policy author.
   * Applicability selection (`#CatalogImport.applicability`) and `exclusions` answer this question.
-  * Policy `assessment-plans` MUST cover every in-play requirement.
+  * When declared, policy `assessment-plans` MUST only target in-play requirements.
 * **Dynamic Target Evaluation (Not Applicable):**
   * Does an in-play requirement apply to a specific target system or environment? This is dynamic and decided by the evaluator at assessment time.
   * When an in-play requirement does not apply to a target, the evaluation log records it with disposition `Not Applicable` (along with justifying evidence or rationale).
@@ -243,6 +232,23 @@ adherence:
       mode: "Automated"
       required: true
       description: "Automated CI/CD policy verification checks."
+  assessment-plans:
+    - id: "plan-ctl02-ar01"
+      requirement-id: "SEC.SLAM.CM.CTL02.AR01"
+      frequency: "every push"
+      evaluation-methods:
+        - id: "EV-AUTO-01"
+          type: "Behavioral"
+          mode: "Automated"
+          required: true
+    - id: "plan-ctl02-ar05"
+      requirement-id: "SEC.SLAM.CM.CTL02.AR05"
+      frequency: "every push"
+      evaluation-methods:
+        - id: "EV-AUTO-01"
+          type: "Behavioral"
+          mode: "Automated"
+          required: true
 ```
 
 ### 5.3 Output: Resolved Effective Control Catalog
@@ -251,7 +257,7 @@ The resolved effective requirements set is a strict subset of the source catalog
 * `AR01` and `AR05` are in play (tagged with selected applicability group `all_deployments`).
 * `AR02` is dropped (its tag `untrusted_networks` was not selected in `imports.catalogs[].applicability`).
 * `AR03` is excised by explicit entry in `exclusions`.
-* Control `CTL02` carries the attached constraint `CST-CTL02-01`.
+* Policy constraint `CST-CTL02-01` applies to `CTL02` as companion policy metadata (constraints govern evaluation alongside the catalog and do not mutate `#Control` in `controlcatalog.cue`).
 
 ```yaml
 title: "Container Management Security Controls (Resolved)"
@@ -280,10 +286,6 @@ controls:
     title: "Require TLS/SSL and Digest Verification"
     objective: "Protect registry traffic and verify artifact integrity."
     group: "SEC.SLAM.CM.FAM01"
-    constraints:
-      - id: "CST-CTL02-01"
-        target-id: "SEC.SLAM.CM.CTL02"
-        text: "Registry connections MUST enforce TLS 1.3 or higher with corporate root CA pinning."
     assessment-requirements:
       - id: "SEC.SLAM.CM.CTL02.AR01"
         text: "The system MUST use TLS/SSL for all registry communication."
@@ -298,3 +300,4 @@ controls:
 ## 6. Open Questions
 
 1. **Exclusion Rationales:** Should `exclusions` support optional rationales (e.g. why a specific requirement was excluded), analogous to how adopted applicability groups carry descriptions? An excluded ID currently carries no explanation in the schema. This would require a separate schema enhancement and depends on concrete industry use cases.
+2. **Constraint Representation in Derived Artifacts:** In `controlcatalog.cue`, `#Control` has no `constraints` field, so derived `ControlCatalog` outputs cannot embed constraints directly while remaining schema-valid. Today, constraints travel alongside the catalog at the Policy layer (`#CatalogImport.constraints`) or within composite packaging (e.g. an OCI bundle or runner manifest). Whether `#Control` should eventually gain an optional `constraints` field in the catalog schema or remain strictly external companion metadata is under maintainer discussion.
