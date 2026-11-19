@@ -6,8 +6,7 @@ description: Practical guide to expressing multi-party control responsibility an
 
 ## What This Is
 
-> [!NOTE]
-> This guide is a worked example of a proposed convention currently under evaluation (see [ADR 0023](../../adrs/0023-control-inheritance-conventions)). It illustrates how control inheritance can be expressed using existing schema primitives and may be refined based on feedback once applied to real-world catalogs.
+> **Note:** This guide is a worked example of a proposed convention currently under evaluation (see [ADR 0023](../../adrs/0023-control-inheritance-conventions)). It illustrates how control inheritance can be expressed using existing schema primitives and may be refined based on feedback once applied to real-world catalogs.
 
 Modern software systems depend on shared infrastructure, cloud services, and third-party vendors. In cloud and enterprise security frameworks (such as FedRAMP, NIST SP 800-53, and FINOS Common Cloud Controls), **controls are rarely implemented by a single team or system alone**.
 
