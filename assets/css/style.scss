@@ -1513,6 +1513,14 @@ table {
   text-align: center;
 }
 
+.spec-diagram-pipeline .theme-image__img {
+  max-width: 460px;
+}
+
+.spec-diagram-decision .theme-image__img {
+  max-width: 820px;
+}
+
 /* ============================================
    Footer
    ============================================ */

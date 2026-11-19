@@ -1,0 +1,32 @@
+direction: down
+
+classes: {
+  step: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#45208C"
+      stroke-width: 2
+      font-size: 15
+      font-color: "#170D34"
+      border-radius: 6
+    }
+  }
+}
+
+s1: "Step 1: Acquire Artifact\nResolve reference-id and verify pinned version" {class: step}
+s2: "Step 2: Select & Exclude\nFilter by applicability groups and excise exclusions" {class: step}
+s3: "Step 3: Apply Constraints\nAttach prescriptive requirement text to in-play controls" {class: step}
+out: "Step 4: Effective Requirements Set\nDerived in-play requirements preserving source identifiers" {
+  style: {
+    fill: "#F0F9FF"
+    stroke: "#0284C7"
+    stroke-width: 2
+    font-size: 15
+    font-color: "#0369A1"
+    border-radius: 6
+  }
+}
+
+s1 -> s2: "candidate catalog"
+s2 -> s3: "filtered in-play set"
+s3 -> out: "resolved mandates"
