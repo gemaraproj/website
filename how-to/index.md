@@ -2,13 +2,11 @@
 layout: page
 title: How-to guides
 description: "Pick the Gemara how-to guide for your task: threat assessments, catalogs, mappings, policies, OSCAL export and OCI bundles."
-redirect_from:
-  - /tutorials/
 ---
 
 ## Start here
 
-New to Gemara? Read [The Gemara Model](../model/) first. It explains the seven layers these guides build on.
+New to Gemara? Work through the tutorial [Write and validate your first control catalog](../tutorials/first-control-catalog/) first, and read [The Gemara Model](../model/) for the seven layers these guides build on.
 
 ---
 

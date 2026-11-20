@@ -4,6 +4,13 @@
 # Top-level entries are Diátaxis sections (tutorials, how-to guides, reference,
 # explanation). Entries under a section may have one level of children.
 
+- title: Tutorials
+  description: Lessons that teach Gemara by doing, starting from nothing.
+  url: /tutorials/
+  children:
+    - title: Your first control catalog
+      url: /tutorials/first-control-catalog/
+
 - title: How-to guides
   description: Step-by-step guides for writing each kind of Gemara artifact.
   url: /how-to/

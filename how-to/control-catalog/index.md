@@ -24,6 +24,8 @@ Complete the [Threat Assessment Guide](../threat-assessment/) for your scope (e.
 
 ## Walkthrough
 
+Each step explains only the fields it needs. For every field and its type, see the [Control Catalog schema](../../schema/controlcatalog.html).
+
 ### Step 0: Define Scope and References
 
 Reuse the same component or technology as your threat assessment. You will reference that threat catalog so controls can map to the threats you identified.
@@ -34,17 +36,14 @@ We continue with the container management tool example (SEC.SLAM.CM) and assume 
 
 ### Step 1: Setting Up Metadata
 
-Declare your control catalog and mapping references. Key fields:
+Declare your control catalog and the catalogs it refers to. The fields that need a decision:
 
-| Field                               | What It Is                                                   | Why                                                                                       |
-|-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `title`                             | Display name for the control catalog (top-level field)       | Human-readable label used in reports and tooling output                                   |
-| `metadata.type`                     | Must be `ControlCatalog`                                     | Identifies the artifact kind for validation             |
-| `metadata.gemara-version`           | String (e.g. `"1.6.0"`)                                   | Declares which Gemara specification version the file conforms to (required in current schema) |
-| `mapping-references` with `id: CCC` | Optional pointer to CCC or another control/threat catalog   | Resolve imported capability and control IDs from the referenced catalog                  |
-| `metadata.applicability-groups` | List of groups (id, title, description) for when controls apply | Scope assessment requirements by context (e.g., production, CI/CD) so evaluators know when each requirement applies |
-
-> **Note:** Applicability groups **must** be defined to assign applicability to controls.
+| Field | What to put there |
+|-------|-------------------|
+| `metadata.type` | `ControlCatalog` |
+| `metadata.gemara-version` | The spec version you validate against, here `"1.6.0"` |
+| `metadata.mapping-references` | One entry per catalog you import from or link to, such as your threat catalog and CCC. The `id` is what `reference-id` uses later. |
+| `metadata.applicability-groups` | The contexts your requirements apply in, such as production or CI/CD. Required once the catalog defines controls; every `applicability` value must be one of these ids. |
 
 **Example (YAML):**
 
@@ -98,15 +97,7 @@ metadata:
 
 ### Step 2: Define Control Groups
 
-**Groups** group controls by theme. The Layer 2 schema requires at least one group when the catalog defines its own `controls`. Each control's `group` field must match the `id` of one of these groups.
-
-Required fields for each group:
-
-| Field         | Required | Description                                  |
-|---------------|----------|----------------------------------------------|
-| `id`          | Yes      | Unique identifier referenced by controls     |
-| `title`       | Yes      | Short name for the group                    |
-| `description` | Yes      | Explanation of what controls in this group address |
+**Groups** group controls by theme. The schema requires at least one group when the catalog defines its own `controls`. Each group needs an `id`, a `title` and a `description`, and each control's `group` field must match the `id` of one of them.
 
 **Example (YAML):**
 
@@ -136,25 +127,13 @@ imports:
         remarks: Image signing and verification
 ```
 
-**Option B — Define your own controls:** For controls specific to your scope, define them under `controls`. Required and common fields (see `controlcatalog.cue`):
+**Option B — Define your own controls:** For controls specific to your scope, define them under `controls`. Each control needs an `id` (this guide uses `ORG.PROJ.COMPONENT.CTL##`), a `title`, an `objective` stating its intent, a `group` from Step 2, and at least one assessment requirement. The fields that link a control to the rest of your work:
 
-| Field                    | Required | Description                                                                 |
-|--------------------------|----------|-----------------------------------------------------------------------------|
-| `id`                     | Yes      | Unique identifier (e.g., `ORG.PROJ.COMPONENT.CTL##`)                        |
-| `title`                  | Yes      | Short name describing the control                                           |
-| `objective`              | Yes      | Unified statement of intent for the control                                 |
-| `group`                  | Yes      | `id` of a group in this catalog (or in a referenced catalog for imports)  |
-| `assessment-requirements`| Yes      | List of verifiable conditions; each has `id`, `text`, `applicability`      |
-| `threats`        | No       | Links to threat catalog(s) and threat IDs this control mitigates |
-| `state`                  | No       | Lifecycle: `Active`, `Draft`, `Deprecated`, `Retired`; omitted is treated as `Active`. |
-
-Each **assessment requirement** must have:
-
-| Field           | Required | Description                                                                 |
-|-----------------|----------|-----------------------------------------------------------------------------|
-| `id`            | Yes      | Unique within the control (e.g., `SEC.SLAM.CM.CTL01.AR01`)                 |
-| `text`          | Yes      | Verifiable condition (typically a MUST statement)                           |
-| `applicability` | Yes      | List of strings describing when this requirement applies                    |
+| Field | What to put there |
+|-------|-------------------|
+| `assessment-requirements` | Verifiable conditions, each with an `id`, a `text` (usually a MUST statement) and an `applicability` list of ids from `metadata.applicability-groups` |
+| `threats` | Optional. The threats this control mitigates, as a `reference-id` from `mapping-references` plus the threat ids under `entries` |
+| `state` | Optional. `Active` (the default), `Draft`, `Deprecated` or `Retired` |
 
 **Example (YAML):**
 

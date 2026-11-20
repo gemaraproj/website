@@ -23,6 +23,8 @@ See the [Mapping Document Guide](../mapping-document/) to create a mapping betwe
 
 ## Walkthrough
 
+Each step explains only the fields it needs. For every field and its type, see the [Guidance Catalog schema](../../schema/guidancecatalog.html).
+
 ### Step 0: Define Scope and Catalog Type
 
 Choose the scope of your guidance (e.g., secure development, supply chain, data protection) and the **catalog type** that best fits intent:
@@ -38,19 +40,15 @@ You can later add `mapping-references` to external documents and use a [Mapping 
 
 ### Step 1: Setting Up Metadata
 
-Declare your catalog and, if you will reference external standards, add mapping references. Key fields:
+Declare your catalog and, if you will reference external standards, add mapping references. The fields that need a decision:
 
-| Field                         | What It Is                                                                 | Why                                                                 |
-|-------------------------------|----------------------------------------------------------------------------|---------------------------------------------------------------------|
-| `title`                       | Display name for the guidance catalog (top-level)                         | Human-readable label in reports and tooling                         |
-| `type`                        | One of Standard, Regulation, Best Practice, Framework (catalog intent)     | Required by schema; clarifies intent                                |
-| `metadata.id`                 | Unique identifier for this catalog                                        | Used when other artifacts reference this catalog                    |
-| `metadata.type`               | Artifact kind (e.g. `GuidanceCatalog`)                                    | Required by schema; identifies the Gemara artifact type              |
-| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.6.0"`)                         | Required by schema; declares which spec the artifact conforms to     |
-| `metadata.description`        | High-level summary of purpose and scope                                   | Required by schema; human-readable catalog summary                   |
-| `metadata.author`             | Actor responsible for the artifact (`id`, `name`, `type`, …)              | Required by schema; identifies ownership or authorship                 |
-| `metadata.mapping-references` | Pointers to external standards (e.g., OWASP, NIST)                        | Optional; resolve IDs used in external Mapping Document on guidelines |
-| `metadata.applicability-groups` | List of groups (id, title, description) for when guidelines apply | Optional; define scope so guidelines reference these ids in `applicability` |
+| Field | What to put there |
+|-------|-------------------|
+| `type` (top-level) | The catalog type you chose in Step 0 |
+| `metadata.type` | `GuidanceCatalog` |
+| `metadata.gemara-version` | The spec version you validate against, here `"1.6.0"` |
+| `metadata.mapping-references` | Optional. One entry per external standard you will map to, such as OWASP. Its `id` is what mapping documents use. |
+| `metadata.applicability-groups` | Optional. The contexts guidelines apply in; each guideline's `applicability` values must be one of these ids. |
 
 Other optional metadata fields (e.g. `version`, `date`, `draft`, `lexicon`) are documented under [#Metadata](https://gemara.openssf.org/schema/metadata.html).
 
@@ -104,17 +102,7 @@ groups:
 
 ### Step 3: Define Guidelines
 
-**Guidelines** are the core content. Required fields for each guideline (see `guidancecatalog.cue`):
-
-| Field       | Required | Description                                              |
-|-------------|----------|----------------------------------------------------------|
-| `id`        | Yes      | Unique identifier (e.g., `ORG.SSD.GL01`)                 |
-| `title`     | Yes      | Short name for the guideline                             |
-| `objective` | Yes      | Unified statement of intent                              |
-| `group`     | Yes      | `id` of a group in this catalog                          |
-| `state`     | No       | Lifecycle: `Active`, `Draft`, `Deprecated`, or `Retired` (must match this casing). Omitted means `Active` |
-
-Optional: `recommendations`, `rationale`, `vectors`,`extends`, `applicability`, and others (see `guidancecatalog.cue`).
+**Guidelines** are the core content. Each guideline needs an `id` (e.g. `ORG.SSD.GL01`), a `title`, an `objective` stating its intent, and a `group` from Step 2. `state` is optional: `Active` (the default), `Draft`, `Deprecated` or `Retired`, in that casing. Optional fields such as `recommendations`, `rationale` and `applicability` are listed on the schema page.
 
 **Applicability:** When you define `metadata.applicability-groups` in Step 1, use those group **ids** in each guideline’s `applicability` list (e.g. `["containerized_workloads", "ci_cd"]`). That keeps applicability consistent and documented.
 

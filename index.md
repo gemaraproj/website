@@ -60,6 +60,7 @@ Gemara delivers three core components that work together to support automated GR
 
 Choose your starting point based on your needs:
 
+- **New to Gemara?** Follow the tutorial **[Write and validate your first control catalog](./tutorials/first-control-catalog/)**
 - **Understanding GRC structure?** Start with **[The Model](./model)** component
 - **Validating documents?** Use **[The Schemas](./schema/)** component
 - **Building tools?** Jump to **[The SDKs](./sdk/)** component

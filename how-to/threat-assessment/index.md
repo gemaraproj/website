@@ -22,6 +22,8 @@ Gemara splits these into two artifact kinds: a `CapabilityCatalog` for capabilit
 
 ## Walkthrough
 
+Each step explains only the fields it needs. For every field and its type, see the [Capability Catalog](../../schema/capabilitycatalog.html) and [Threat Catalog](../../schema/threatcatalog.html) schemas.
+
 ### Step 0: Define Scope
 
 Select a component or technology to assess (service, API, infrastructure component, or technology stack).
@@ -32,11 +34,10 @@ We will explore how this is leveraged below as we dive into our container manage
 
 ### Step 1: Setting Up Metadata
 
-Each artifact declares its own scope and mapping references. Key fields:
+Each artifact declares its own scope and mapping references. The fields that need a decision:
 
 | Field | What It Is | Why |
 |-------|------------|-----|
-| `title` | Display name for the catalog (top-level field) | Human-readable label used in reports and tooling output |
 | `metadata.id` | Identifier for this catalog | Other artifacts point at this catalog by this value |
 | `metadata.type` | `CapabilityCatalog` or `ThreatCatalog` | Identifies the artifact for `#CapabilityCatalog` or `#ThreatCatalog` validation (required) |
 | `metadata.gemara-version` | Spec version the artifact conforms to, here `"1.6.0"` | Lets tooling pick the right schema and migration path (required) |
@@ -90,14 +91,7 @@ imports:
         remarks: Resource Versioning
 ```
 
-**Then, define specific capabilities** unique to your target. Required fields:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `id` | Yes | Unique identifier. The schema enforces no pattern; this guide uses `ORG.PROJ.COMPONENT.CAP##` as a convention |
-| `title` | Yes | Clear name for the capability |
-| `description` | Yes | What this capability does |
-| `group` | Yes | `id` of a **group** declared in this catalog's `groups` list |
+**Then, define specific capabilities** unique to your target. Each capability needs an `id`, a `title`, a `description` of what it does, and a `group` declared in this catalog's `groups` list. The schema enforces no `id` pattern; this guide uses `ORG.PROJ.COMPONENT.CAP##`.
 
 **Example (YAML)**:
 
@@ -159,17 +153,7 @@ imports:
         remarks: Image Retrieval by Tag
 ```
 
-**Then, define specific threats** unique to your target. Required fields:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `id` | Yes | Unique identifier. The schema enforces no pattern; this guide uses `ORG.PROJ.COMPONENT.THR##` as a convention |
-| `title` | Yes | Short name for the threat |
-| `description` | Yes | What goes wrong and why it matters |
-| `group` | Yes | `id` of a **group** declared in this catalog's `groups` list |
-| `capabilities` | Yes | Links this threat to the capabilities it exploits, by mapping reference |
-| `vectors` | No | Optional link to vector catalog entries |
-| `actors` | No | Optional threat actors (`#Actor`) |
+**Then, define specific threats** unique to your target. Like a capability, each threat needs an `id` (this guide uses `ORG.PROJ.COMPONENT.THR##`), a `title`, a `description` of what goes wrong and why it matters, and a `group`. It also needs `capabilities`: the capabilities it exploits, linked through a mapping reference. `vectors` and `actors` are optional.
 
 **Example (YAML)**: a custom threat (*Container Image Tampering or Poisoning*) linked to the capabilities it exploits: **CCC.Core.CP29** (Active Ingestion), **CCC.Core.CP18** (Resource Versioning), and **SEC.SLAM.CM.CAP01** (Image Retrieval by Tag) via the capability catalog reference (`SEC.SLAM.CM.CAP`).
 

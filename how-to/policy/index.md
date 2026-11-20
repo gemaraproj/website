@@ -22,22 +22,11 @@ This exercise produces a policy document that captures scope, imported controls 
 
 ## Walkthrough
 
+Each step explains only the fields it needs. For every field and its type, see the [Policy schema](../../schema/policy.html).
+
 ### Step 0: Metadata and mapping-references
 
-Set `title` and `metadata` (see [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue) for the standard metadata fields). Include `mapping-references` for every external catalog, guidance document, or policy you reference in `imports` (by `reference-id`). Key fields (see [`policy.cue`](https://github.com/gemaraproj/gemara/blob/main/policy.cue) and [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue):
-
-| Field                         | What It Is                                                                 | Why                                                                 |
-|-------------------------------|----------------------------------------------------------------------------|---------------------------------------------------------------------|
-| `title`                       | Display name for the policy (top-level)                                   | Human-readable label in reports and tooling                         |
-| `metadata.id`                 | Unique identifier for this policy                                         | Used when other documents reference this policy                     |
-| `metadata.type`               | Must be `Policy`                                                          | Required by schema; identifies the artifact kind                    |
-| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.6.0"`)                        | Required by schema; should match the module tag you pass to `cue vet` |
-| `metadata.description`        | High-level summary of the policy's purpose and scope                       | Required by schema; clarifies intent                                |
-| `metadata.author`             | Actor (id, name, type) primarily responsible for this policy              | Required by schema; identifies the author                            |
-| `metadata.version`            | Version identifier (e.g. `"1.0.0"`)                                       | Optional; supports versioning and references                         |
-| `metadata.mapping-references` | Pointers to external catalogs, guidance, or policies referenced in imports                   | Required for `imports`; each `reference-id` must match an entry here |
-
-> **Note:** Include a `mapping-references` entry for every external catalog, guidance document, or policy you reference in `imports` (by `reference-id`).
+Set `title` and `metadata`. Set `metadata.type` to `Policy` and `metadata.gemara-version` to the spec version you pass to `cue vet`, here `"1.6.0"`. Add a `metadata.mapping-references` entry for every external catalog, guidance document or policy you reference in `imports`: each `reference-id` there must match one of its ids.
 
 **Example (YAML):**
 

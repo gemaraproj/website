@@ -36,6 +36,8 @@ Complete the [Guidance Catalog Guide](../guidance-catalog/) and have a guidance 
 
 ## Walkthrough
 
+Each step explains only the fields it needs. For every field and its type, see the [Mapping Document schema](../../schema/mappingdocument.html).
+
 We use the **Secure Software Development Guidance** (`ORG.SSD.001`) from the guidance tutorial and map its guidelines to **OWASP Top 10**. The same pattern applies when mapping controls to regulations or other frameworks.
 
 ### Step 0: Define Scope and References
@@ -48,17 +50,7 @@ We continue with the Secure Software Development Guidance as source and OWASP To
 
 ### Step 1: Setting Up Metadata
 
-Declare your mapping document and mapping references. Key fields:
-
-| Field                               | What It Is                                                   | Why                                                                                       |
-|-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `title`                             | Display name for the mapping document (top-level)            | Human-readable label in reports and tooling                                               |
-| `metadata.id`                       | Unique identifier for this mapping document                  | Used when other documents or tools reference this mapping                                 |
-| `metadata.type`                     | `MappingDocument`                                           | Required by schema; identifies the Gemara artifact type                                   |
-| `metadata.description`              | High-level summary of what is being mapped and why           | Required by schema; clarifies intent                                                      |
-| `metadata.mapping-references`       | List of source and target artifacts (by id)                 | **Required** for MappingDocument; `source-reference` and `target-reference` must match ids here |
-
-> **Note:** Both `source-reference.reference-id` and `target-reference.reference-id` must appear in `metadata.mapping-references`.
+Declare your mapping document and mapping references. Set `metadata.type` to `MappingDocument`, and list **both** artifacts, source and target, in `metadata.mapping-references`: a mapping document requires it, and `source-reference.reference-id` and `target-reference.reference-id` must each match one of its ids.
 
 **Example (YAML):**
 
@@ -91,12 +83,6 @@ metadata:
 
 Set **`source-reference`** and **`target-reference`**. Each is a **typed mapping**: `reference-id` (must match `metadata.mapping-references`) plus **`entry-type`** for all entries on that side of the document. Optionally add top-level **remarks** to describe the mapping.
 
-| Field               | What It Is                                                                 |
-|---------------------|----------------------------------------------------------------------------|
-| `source-reference`  | Artifact you map *from*; `reference-id` and required `entry-type`          |
-| `target-reference`  | Artifact you map *to*; `reference-id` and required `entry-type`            |
-| `remarks`           | Optional prose about this mapping document as a whole                      |
-
 **Example (YAML):**
 
 ```yaml
@@ -113,13 +99,7 @@ remarks: Guidance guidelines ORG.SSD.GL01–GL03 mapped to OWASP for tutorial us
 
 Define one or more **mappings**. Each mapping has a **source** string (the source entry’s id) and, unless `relationship` is `no-match`, a non-empty **`targets`** list. Each list element is a **`#MappingTarget`**: at minimum `entry-id`, plus optional `strength`, `confidence-level`, `applicability`, `rationale`, and `remarks` for that target (see [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue)).
 
-| Field                 | Required | Description                                                                 |
-|-----------------------|----------|-----------------------------------------------------------------------------|
-| `id`                  | Yes      | Unique identifier for this mapping                                         |
-| `source`              | Yes      | Source entry id (string), matching an entry in the source artifact        |
-| `targets`             | Yes*     | Non-empty list of `{ entry-id: ... }` (and optional per-target fields). Omit only when `relationship` is `no-match` |
-| `relationship`        | Yes      | One of `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match`, `relates-to` |
-| `remarks`             | No       | General prose regarding this mapping                                      |
+Each mapping also needs an `id`, and a **`relationship`**: one of `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match` or `relates-to`. `remarks` is optional.
 
 **Example (YAML):** Map the three guidelines from the Secure Software Development Guidance (`ORG.SSD.GL01`, `GL02`, `GL03`) to OWASP Top 10 categories (`A06`, `A01`, `A02`):
 
