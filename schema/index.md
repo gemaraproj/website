@@ -2,6 +2,7 @@
 layout: page
 title: Gemara Schemas
 nav-title: Schema
+description: "The Gemara CUE schemas for every artifact type, how to validate an artifact against them, and their naming standards."
 ---
 
 Schemas (CUE format) standardize the expression of elements in the model and enable automated interoperability between GRC tools. These schemas provide validation across all layers.

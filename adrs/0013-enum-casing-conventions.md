@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Enum Casing Conventions
+description: "ADR-0013: use Title Case for all enum values in the Gemara schemas."
 ---
 
 - **ADR:** 0013

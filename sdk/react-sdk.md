@@ -1,6 +1,7 @@
 ---
 layout: page
 title: React SDK
+description: "Reference for @gemara/react, headless React renderers and TypeScript types for Gemara artifacts."
 ---
 
 The React SDK (`@gemara/react`) provides headless React renderers and TypeScript components for Gemara GRC artifacts. Built to be server-component-clean by default, it renders Gemara documents in React Server Component (RSC) and static site environments (such as Astro) with full static typing and zero unnecessary client JavaScript.

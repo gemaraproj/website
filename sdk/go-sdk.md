@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Go SDK
+description: "Reference for go-gemara, the Go SDK for loading, validating, converting and bundling Gemara artifacts."
 ---
 
 The Go SDK provides type-safe APIs for reading, writing, converting, and bundling Gemara documents. Types are generated from the CUE schemas with `cue exp gengotypes`, then tidied by the SDK's `typestagger` tool.

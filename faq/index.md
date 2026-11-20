@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Frequently Asked Questions
+description: "Answers to common questions about when and why to use Gemara, its artifacts, OSCAL, adoption and publishing."
 nav-title: FAQ
 ---
 

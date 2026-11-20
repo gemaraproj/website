@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Community
+description: "How to join the Gemara community on Slack and in biweekly meetings, and the projects and working groups Gemara takes part in."
 nav-title: Community
 ---
 

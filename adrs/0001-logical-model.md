@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Create A Logical Model for GRC Engineering Activities
+description: "ADR-0001: create a community-defined logical model for GRC engineering activities, extended by schemas and SDKs."
 ---
 
 - **ADR:** 0001

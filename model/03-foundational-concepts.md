@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Foundational Concepts
+description: "The prior work the Gemara model builds on, including ISO compliance standards, the CNCF AGMM, NIST and OSCAL."
 ---
 
 ## Prior Work

@@ -1,6 +1,7 @@
 ---
 layout: home
 title: Home
+description: "Gemara is an OpenSSF model and set of CUE schemas for machine-readable governance, risk and compliance (GRC) artifacts, with Go, Python and React SDKs."
 ---
 
 # Gemara <span class="pronunciation">(Juh-MAH-ruh)</span>

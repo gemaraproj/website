@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Finish Development on the Model and Common Terms
+description: "ADR-0008: finish the Gemara model and common terms, publish them as a peer-reviewed OpenSSF whitepaper, and close the model to changes."
 ---
 
 - **ADR:** 0008

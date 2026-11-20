@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Promote Nested Concepts to First-class Catalogs
+description: "ADR-0018 (rejected): promote families, categories and capabilities from nested lists to first-class catalogs."
 ---
 
 - **ADR:** 0018

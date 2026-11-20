@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Python SDK
+description: "Reference for gemara-python, the pre-release Python SDK with Pydantic models for loading and validating Gemara artifacts."
 ---
 
 The Python SDK (`gemara-python`) is a pre-release (0.1.0). It provides generated Pydantic v2 models for Gemara v1 documents. It enables loading, validating, manipulating, and inspecting Gemara JSON and YAML files with full static type hints and runtime validation. Types are generated from CUE schemas, ensuring consistency with the Gemara core specification.

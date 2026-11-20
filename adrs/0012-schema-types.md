@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Refine Terms for Top-level Schema Types
+description: "ADR-0012: name Gemara schema types Document, Catalog or Log by what they contain."
 ---
 
 - **ADR:** 0012

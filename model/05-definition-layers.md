@@ -1,6 +1,7 @@
 ---
 layout: page
 title: The Definition Layers (1, 2, 3)
+description: "The Gemara definition layers (1 to 3): vectors and guidance, threats and controls, and risk and policy."
 ---
 
 Risk Assessment activities in Layer 1 through Layer 3 all work together to equip the organization for success when Sensitive Activities are performed.

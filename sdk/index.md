@@ -1,6 +1,7 @@
 ---
 layout: page
 title: SDKs
+description: "Gemara's Go, Python and React SDKs, the spec version each one supports, and how SDK releases relate to spec releases."
 ---
 
 Language-specific SDKs provide programmatic access to Gemara documents. SDK types are generated from CUE schemas, ensuring consistency between validation and programmatic access.
@@ -40,6 +41,3 @@ Provides the conceptual foundation. SDK types correspond to elements in the mode
 
 ### [The Schemas](../schema/)
 SDK types are generated from the CUE schemas. The schemas are the source of truth for data structures.
-
-### [The Specifications](../specifications/)
-Tool and resolution specifications define the normative operational algorithms that SDKs and tools implement for downstream consumers.

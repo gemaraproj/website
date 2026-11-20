@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Unified Go SDK Package Structure
+description: "ADR-0006: consolidate the Go SDK's per-layer packages into a single gemara package at the module root."
 ---
 
 - **ADR:** 0006

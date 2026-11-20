@@ -1,5 +1,6 @@
 ---
 layout: page
+description: "An introduction to the Gemara model, a layered model of governance, risk and compliance (GRC) activities for GRC engineering."
 ---
 
 # The Gemara Model

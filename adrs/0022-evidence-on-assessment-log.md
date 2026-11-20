@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Add Evidence to AssessmentLog
+description: "ADR-0022: reshape the #Evidence type so evaluation and audit logs both record the evidence behind their opinions."
 ---
 
 - **ADR:** 0022

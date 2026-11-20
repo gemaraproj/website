@@ -1,40 +1,80 @@
-- title: The Model
-  url: /model/
-- title: The Schemas
-  url: /schema/
-- title: The SDKs
-  url: /sdk/
-  children:
-    - title: Go SDK
-      url: /sdk/go-sdk
-    - title: Python SDK
-      url: /sdk/python-sdk
-    - title: React SDK
-      url: /sdk/react-sdk
-- title: Specifications
-  url: /specifications/
-- title: Tutorials
+# The one navigation source for the docs. The sidebar and the /docs/ landing
+# both render from this file; nothing is discovered from page paths.
+#
+# Top-level entries are Diátaxis sections (tutorials, how-to guides, reference,
+# explanation). Entries under a section may have one level of children.
+
+- title: How-to guides
+  description: Step-by-step guides for writing each kind of Gemara artifact.
   url: /tutorials/
   children:
-    - title: Threats & Controls
+    - title: Assess threats for a component
+      url: /tutorials/controls/threat-assessment-guide
+    - title: Write a control catalog
+      url: /tutorials/controls/control-catalog-guide
+    - title: Turn best practices into guidance
+      url: /tutorials/guidance/guidance-guide
+    - title: Map one artifact to another
+      url: /tutorials/mapping/mapping-document-guide
+    - title: Build a risk catalog
+      url: /tutorials/policy/risk-catalog-guide
+    - title: Write an organizational policy
+      url: /tutorials/policy/policy-guide
+
+- title: Reference
+  description: Schemas, defined terms and SDKs, for looking things up.
+  children:
+    - title: Schemas
+      url: /schema/
+    - title: Definitions
+      url: /model/02-definitions
+    - title: SDKs
+      url: /sdk/
       children:
-        - title: Threat Assessment Guide
-          url: /tutorials/controls/threat-assessment-guide
-        - title: Control Catalog Guide
-          url: /tutorials/controls/control-catalog-guide
-    - title: Guidance
+        - title: Go SDK
+          url: /sdk/go-sdk
+        - title: Python SDK
+          url: /sdk/python-sdk
+        - title: React SDK
+          url: /sdk/react-sdk
+
+- title: Explanation
+  description: The Gemara model, common questions and the decisions behind the project.
+  children:
+    - title: The Gemara model
+      url: /model/
       children:
-        - title: Guidance Catalog Guide
-          url: /tutorials/guidance/guidance-guide
-    - title: Policy
-      children:
-        - title: Risk Catalog Guide
-          url: /tutorials/policy/risk-catalog-guide
-        - title: Policy Guide
-          url: /tutorials/policy/policy-guide
-    - title: Mapping
-      children:
-        - title: Mapping Document Guide
-          url: /tutorials/mapping/mapping-document-guide
-- title: ADRs
-  url: /adrs/
+        - title: Scope
+          url: /model/01-scope
+        - title: Foundational concepts
+          url: /model/03-foundational-concepts
+        - title: The model
+          url: /model/04-the-model
+        - title: The definition layers
+          url: /model/05-definition-layers
+        - title: Layer 1
+          url: /model/05.1-Layer-1
+        - title: Layer 2
+          url: /model/05.2-Layer-2
+        - title: Layer 3
+          url: /model/05.3-Layer-3
+        - title: Sensitive activities (Layer 4)
+          url: /model/06-sensitive-activities
+        - title: The measurement layers
+          url: /model/07.1-measurement-layers
+        - title: Layer 5
+          url: /model/07.2-Layer-5
+        - title: Layer 6
+          url: /model/07.3-Layer-6
+        - title: Layer 7
+          url: /model/07.4-Layer-7
+        - title: Machine-optimized documentation
+          url: /model/08-applying
+        - title: Conclusion
+          url: /model/09-conclusion
+        - title: Authors and acknowledgements
+          url: /model/10-acknowledgement
+    - title: FAQ
+      url: /faq/
+    - title: Architecture decisions
+      url: /adrs/

@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Enforce Automated Alignment from Schemas to SDK
+description: "ADR-0005: generate the Go SDK's types from the CUE schemas and enforce in CI that they stay in sync."
 ---
 
 - **ADR:** 0005
