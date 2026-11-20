@@ -1,6 +1,7 @@
 ---
 layout: page
 title: The Need for Machine-Optimized Documentation Standards
+description: "Why GRC needs machine-optimized documentation standards, what Gemara learned from OSCAL, and how it serves people and AI."
 ---
 
 ## Going Beyond Machine-Readable

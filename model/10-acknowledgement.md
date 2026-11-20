@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Authors & Acknowledgements
+description: "Authors of the Gemara model and the contributors and prior work that shaped it."
 ---
 
 ## Authors & Acknowledgements

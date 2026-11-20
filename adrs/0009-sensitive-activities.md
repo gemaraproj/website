@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Formalize Sensitive Activities as a Layer
+description: "ADR-0009: add sensitive activities to the Gemara model as their own layer, between policy and evaluation."
 ---
 
 - **ADR:** 0009

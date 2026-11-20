@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Base Catalog Type
+description: "ADR-0017: introduce a #Catalog base definition with the fields common to all Gemara catalog artifacts."
 ---
 
 - **ADR:** 0017

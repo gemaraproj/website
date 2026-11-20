@@ -80,6 +80,13 @@ title: Definitions
 	if !strings.Contains(output, `<a id="policy-document"></a>**Policy Document**`) {
 		t.Errorf("output missing anchor for Policy Document:\n%s", output)
 	}
+	// A term whose id differs from its title slug keeps an anchor for the id
+	if !strings.Contains(output, `<a id="policy"></a><a id="policy-document"></a>`) {
+		t.Errorf("output missing id anchor for Policy Document:\n%s", output)
+	}
+	if strings.Contains(output, `<a id="control"></a><a id="control"></a>`) {
+		t.Errorf("duplicate anchor when id equals title slug:\n%s", output)
+	}
 	if !strings.Contains(output, `Layer 3`) {
 		t.Errorf("reference Layer 3 missing:\n%s", output)
 	}

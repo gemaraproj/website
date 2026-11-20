@@ -2,6 +2,8 @@
 layout: page
 title: Guidance Catalog Guide
 description: Step-by-step guide to creating Gemara-compatible guidance catalogs
+redirect_from:
+  - /tutorials/guidance/guidance-guide.html
 ---
 
 ## What This Is
@@ -15,11 +17,13 @@ In technical terms:
 * **Guidelines:** state the intent and context; they have statements which act as sub-requirements of the guideline (e.g., `ORG.SSD.001` and statements.id `ORG.SSD.001.1`). The guidance includes a see-also for linking other guidelines within the same guidance catalog (e.g., `ORG.SSD.001` see-also `ORG.SSD.002`, `ORG.SSD.003`).
 * **Guidelines** have the ability to be mapped to external guidance (e.g., OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO) and to controls in a *separate* **Mapping Document**. Downstream Gemara Layers can reference `guidelines`, defining support for specific controls.
 
-See the [Mapping Document Guide](../mapping/mapping-document-guide) to create a mapping between two artifacts (e.g., your guidance catalog and an external framework).
+See the [Mapping Document Guide](../mapping-document/) to create a mapping between two artifacts (e.g., your guidance catalog and an external framework).
 
 **Who might write guidance:** Authors can represent **internal** teams (unique organizational circumstances), **industry groups** (e.g., OWASP Top 10, PCI standards), **government agencies** (e.g., NIST Cybersecurity Framework, HIPAA), or **international standards bodies** (e.g., GDPR, CRA, ISO). Compliance professionals can use Gemara as a logical model for categorizing and mapping compliance activities to these sources.
 
 ## Walkthrough
+
+Each step explains only the fields it needs. For every field and its type, see the [Guidance Catalog schema](../../schema/guidancecatalog.html).
 
 ### Step 0: Define Scope and Catalog Type
 
@@ -32,23 +36,19 @@ Choose the scope of your guidance (e.g., secure development, supply chain, data 
 | `Best Practice`| Non-mandatory recommendations (e.g., internal playbooks, OWASP-style)      |
 | `Framework`    | High-level structure or taxonomy (e.g., NIST CSF)                          |
 
-You can later add `mapping-references` to external documents and use a [Mapping Document](https://gemara.openssf.org/schema/mappingdocument.html) to align those sources (walkthrough: [Mapping Document Guide](../mapping/mapping-document-guide)).
+You can later add `mapping-references` to external documents and use a [Mapping Document](https://gemara.openssf.org/schema/mappingdocument.html) to align those sources (walkthrough: [Mapping Document Guide](../mapping-document/)).
 
 ### Step 1: Setting Up Metadata
 
-Declare your catalog and, if you will reference external standards, add mapping references. Key fields:
+Declare your catalog and, if you will reference external standards, add mapping references. The fields that need a decision:
 
-| Field                         | What It Is                                                                 | Why                                                                 |
-|-------------------------------|----------------------------------------------------------------------------|---------------------------------------------------------------------|
-| `title`                       | Display name for the guidance catalog (top-level)                         | Human-readable label in reports and tooling                         |
-| `type`                        | One of Standard, Regulation, Best Practice, Framework (catalog intent)     | Required by schema; clarifies intent                                |
-| `metadata.id`                 | Unique identifier for this catalog                                        | Used when other artifacts reference this catalog                    |
-| `metadata.type`               | Artifact kind (e.g. `GuidanceCatalog`)                                    | Required by schema; identifies the Gemara artifact type              |
-| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.2.0"`)                         | Required by schema; declares which spec the artifact conforms to     |
-| `metadata.description`        | High-level summary of purpose and scope                                   | Required by schema; human-readable catalog summary                   |
-| `metadata.author`             | Actor responsible for the artifact (`id`, `name`, `type`, …)              | Required by schema; identifies ownership or authorship                 |
-| `metadata.mapping-references` | Pointers to external standards (e.g., OWASP, NIST)                        | Optional; resolve IDs used in external Mapping Document on guidelines |
-| `metadata.applicability-groups` | List of groups (id, title, description) for when guidelines apply | Optional; define scope so guidelines reference these ids in `applicability` |
+| Field | What to put there |
+|-------|-------------------|
+| `type` (top-level) | The catalog type you chose in Step 0 |
+| `metadata.type` | `GuidanceCatalog` |
+| `metadata.gemara-version` | The spec version you validate against, here `"1.6.0"` |
+| `metadata.mapping-references` | Optional. One entry per external standard you will map to, such as OWASP. Its `id` is what mapping documents use. |
+| `metadata.applicability-groups` | Optional. The contexts guidelines apply in; each guideline's `applicability` values must be one of these ids. |
 
 Other optional metadata fields (e.g. `version`, `date`, `draft`, `lexicon`) are documented under [#Metadata](https://gemara.openssf.org/schema/metadata.html).
 
@@ -59,7 +59,7 @@ title: Secure Software Development Guidance
 metadata:
   id: ORG.SSD.001
   type: GuidanceCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:
@@ -85,7 +85,7 @@ metadata:
 type: Best Practice
 ```
 
-> **Minimal Mapping Document example:** A Mapping Document that maps this guidance catalog’s guidelines to OWASP Top 10 (source `ORG.SSD.001`, target `OWASP`) is in [mapping-document.yaml](../mapping/mapping-document.yaml).
+> **Minimal Mapping Document example:** A Mapping Document that maps this guidance catalog’s guidelines to OWASP Top 10 (source `ORG.SSD.001`, target `OWASP`) is in [mapping-document.yaml](../mapping-document/mapping-document.yaml).
 
 ### Step 2: Define Groups
 
@@ -102,17 +102,7 @@ groups:
 
 ### Step 3: Define Guidelines
 
-**Guidelines** are the core content. Required fields for each guideline (see `guidancecatalog.cue`):
-
-| Field       | Required | Description                                              |
-|-------------|----------|----------------------------------------------------------|
-| `id`        | Yes      | Unique identifier (e.g., `ORG.SSD.GL01`)                 |
-| `title`     | Yes      | Short name for the guideline                             |
-| `objective` | Yes      | Unified statement of intent                              |
-| `group`     | Yes      | `id` of a group in this catalog                          |
-| `state`     | Yes      | Lifecycle: `Active`, `Draft`, `Deprecated`, or `Retired` (must match this casing) |
-
-Optional: `recommendations`, `rationale`, `vectors`,`extends`, `applicability`, and others (see `guidancecatalog.cue`).
+**Guidelines** are the core content. Each guideline needs an `id` (e.g. `ORG.SSD.GL01`), a `title`, an `objective` stating its intent, and a `group` from Step 2. `state` is optional: `Active` (the default), `Draft`, `Deprecated` or `Retired`, in that casing. Optional fields such as `recommendations`, `rationale` and `applicability` are listed on the schema page.
 
 **Applicability:** When you define `metadata.applicability-groups` in Step 1, use those group **ids** in each guideline’s `applicability` list (e.g. `["containerized_workloads", "ci_cd"]`). That keeps applicability consistent and documented.
 
@@ -172,10 +162,10 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@v1 your-guidance.yaml
+cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@v1.6.0 your-guidance.yaml
 ```
 
-To validate against the rolling tip of the default branch instead, use `github.com/gemaraproj/gemara@latest`.
+No output means the artifact is valid. Swap `@v1.6.0` for `@latest` to validate against the newest published schema.
 
 ### Minimal Full Example
 
@@ -186,7 +176,7 @@ title: Secure Software Development Guidance
 metadata:
   id: ORG.SSD.001
   type: GuidanceCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:

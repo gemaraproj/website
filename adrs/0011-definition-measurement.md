@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Adjust "Upper" and "Lower" Layer Descriptors into "Definition" and "Measurement"
+description: "ADR-0011: call layers 1 to 3 the definition layers and layers 5 to 7 the measurement layers."
 ---
 
 - **ADR:** 0011

@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Extend Go SDK for "Layer 4" Based on the Privateer Project
+description: "ADR-0004: extend the Go SDK with evaluation capabilities extracted from the Privateer project."
 ---
 
 - **ADR:** 0004

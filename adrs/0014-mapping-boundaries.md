@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Mapping Boundaries
+description: "ADR-0014: separate inline design relationships on catalog entries from standalone mapping documents."
 ---
 
 - **ADR:** 0014

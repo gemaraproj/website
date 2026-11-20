@@ -1,6 +1,7 @@
 ---
 layout: page
 title: The Model
+description: "How the seven layers of the Gemara model build on each other, from guidance and controls to evaluation, enforcement and audit."
 ---
 
 ### Introduction to the Model

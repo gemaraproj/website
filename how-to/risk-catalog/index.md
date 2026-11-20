@@ -2,11 +2,13 @@
 layout: page
 title: Risk Catalog Guide
 description: Step-by-step guide to creating Gemara-compatible risk catalogs
+redirect_from:
+  - /tutorials/policy/risk-catalog-guide.html
 ---
 
 ## What This Is
 
-This guide walks through creating a **Risk Catalog** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to `#RiskCatalog` in [riskcatalog.cue](https://github.com/gemaraproj/gemara/blob/main/riskcatalog.cue) and the published [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog.html). Examples use `gemara-version: "1.2.0"` to match the [v1.2.0](https://github.com/gemaraproj/gemara/releases/tag/v1.2.0) specification release; adjust if you target a different Gemara version.
+This guide walks through creating a **Risk Catalog** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to `#RiskCatalog` in [riskcatalog.cue](https://github.com/gemaraproj/gemara/blob/main/riskcatalog.cue) and the published [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog.html). Examples use `gemara-version: "1.6.0"` to match the [v1.6.0](https://github.com/gemaraproj/gemara/releases/tag/v1.6.0) specification release; adjust if you target a different Gemara version.
 
 **The basic idea:** A Risk Catalog is a structured list of **[risks](../../model/02-definitions.html#risk)** that might affect an organization, system, or service. You organize them into **groups** (schema type `#RiskCategory`) that express how much risk you are willing to carry ( risk appetite) and optionally cap how bad a single risk in that group can be (**max-severity**). Each risk has an assessed **severity** and can point to Layer 2 **[threats](../../model/02-definitions.html#threat)** so mitigations and policies stay traceable to threat catalogs. Optionally, **`rank`** records a total order among risks in this catalog (for example when several share the same severity); see Step 2.
 
@@ -16,25 +18,17 @@ In technical terms:
 * **Groups** use appetite values `Minimal`, `Low`, `Moderate`, or `High` and optional group-level **max-severity** (`Low`, `Medium`, `High`, `Critical`).
 * **Risks** use **severity** at the same scale (`Low` through `Critical`). Optional **`rank`** is an integer; **lower values mean higher relative importance** among risks that set `rank`. Each `rank` value must be **unique** among risks that specify it (partial ranking is allowed: risks without `rank` are unconstrained). Links under `threats` use the same multi-entry mapping pattern as control and threat catalogs; every outer `reference-id` must match an id in `metadata.mapping-references`.
 
-This exercise produces a risk catalog that you can reference from a [Policy](policy-guide) when documenting mitigated and accepted risks.
+This exercise produces a risk catalog that you can reference from a [Policy](../policy/) when documenting mitigated and accepted risks.
 
-The example risks in this guide are drawn from the same scope as the [Threat Assessment Guide](../controls/threat-assessment-guide): the container management tool (SEC.SLAM.CM) and the CCC Core catalog. They correspond to the imported threat **TH14** (Older Resource Versions are Used) and the custom threat **SEC.SLAM.CM.THR01** (Container Image Tampering or Poisoning) defined there.
+The example risks in this guide are drawn from the same scope as the [Threat Assessment Guide](../threat-assessment/): the container management tool (SEC.SLAM.CM) and the CCC Core catalog. They correspond to the imported threat **TH14** (Older Resource Versions are Used) and the custom threat **SEC.SLAM.CM.THR01** (Container Image Tampering or Poisoning) defined there.
 
 ## Walkthrough
 
+Each step explains only the fields it needs. For every field and its type, see the [Risk Catalog schema](../../schema/riskcatalog.html).
+
 ### Step 0: Metadata and mapping-references
 
-Set `title` and `metadata`. Use `type: RiskCatalog` and the usual Gemara metadata fields (`id`, `gemara-version`, `description`, `author`, and optional `version`). Include `mapping-references` for every external threat catalog (or other document) you reference in risks under `threats` (by `reference-id`). Key fields:
-
-| Field                         | What It Is                                                                 | Why                                                                 |
-|-------------------------------|----------------------------------------------------------------------------|---------------------------------------------------------------------|
-| `title`                       | Display name for the catalog (top-level)                                  | Human-readable label in reports and tooling                         |
-| `metadata.id`                 | Unique identifier for this catalog                                       | Used when policies or other documents reference this catalog       |
-| `metadata.description`       | High-level summary of the catalog's purpose and scope                     | Required by schema; clarifies intent                               |
-| `metadata.author`             | Actor (id, name, type) primarily responsible for this catalog            | Required by schema; identifies the author                           |
-| `metadata.mapping-references` | Pointers to external threat catalogs (or artifacts) referenced in risks   | Required for `threats`; each `reference-id` used there must match here |
-
-> **Note:** Include a `mapping-references` entry for every external catalog you reference in any risk's `threats` (by `reference-id`).
+Set `title` and `metadata`. Set `metadata.type` to `RiskCatalog` and fill in the usual Gemara metadata fields (`id`, `gemara-version`, `description`, `author`, and optional `version`). Include `mapping-references` for every external threat catalog (or other document) you reference in risks under `threats` (by `reference-id`): each `reference-id` used there must match one of its ids.
 
 **Example (YAML):**
 
@@ -43,7 +37,7 @@ title: "Organization Risk Catalog for Cloud and Container Workloads"
 metadata:
   id: "org-risk-catalog-001"
   type: RiskCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: "Risks relevant to cloud and container management; threats linked to CCC Core and SEC.SLAM.CM threat catalog."
   version: "1.0.0"
   author:
@@ -67,15 +61,12 @@ metadata:
 
 ### Step 1: Groups (risk categories)
 
-Define at least one **group** when the catalog has risks. In CUE these are `#RiskCategory` values (embedded `#Group` plus appetite). Groups classify risks and set appetite boundaries. Each group entry has:
+Define at least one **group** when the catalog has risks. In CUE these are `#RiskCategory` values (embedded `#Group` plus appetite). Groups classify risks and set appetite boundaries. Each group needs an `id` (risks use it in their `group` field), a `title` and a `description`, plus:
 
-| Field            | Required | What It Is                                                                 |
-|------------------|----------|----------------------------------------------------------------------------|
-| `id`             | Yes      | Unique identifier; risks reference this id in their `group` field          |
-| `title`          | Yes      | Short name for the group                                                   |
-| `description`    | Yes      | Explains what kinds of risks belong in this group                          |
-| `appetite`       | Yes      | Acceptable level of risk: `Minimal`, `Low`, `Moderate`, or `High`          |
-| `max-severity`   | No       | Highest allowed severity in this group: `Low`, `Medium`, `High`, `Critical` |
+| Field | What to put there |
+|-------|-------------------|
+| `appetite` | Required. The acceptable level of risk: `Minimal`, `Low`, `Moderate` or `High` |
+| `max-severity` | Optional. The highest severity allowed in this group: `Low`, `Medium`, `High` or `Critical` |
 
 **Example (YAML):**
 
@@ -98,17 +89,14 @@ groups:
 
 Define **[risks](../../model/02-definitions.html#risk)** with required fields and optional links to Layer 2 threats and RACI owner. Each risk must reference a group id defined in Step 1. When a group sets **`max-severity`**, keep the risk’s **`severity`** at or below that cap so the catalog stays internally consistent (otherwise the risk sits outside the category’s stated tolerance).
 
-| Field           | Required | What It Is                                                                 |
-|-----------------|----------|----------------------------------------------------------------------------|
-| `id`            | Yes      | Unique identifier for this risk; used when policies reference it          |
-| `title`         | Yes      | Clear, concise name for the risk                                          |
-| `description`   | Yes      | Explains the risk scenario and context                                    |
-| `group`         | Yes      | Id of a group in this catalog (from Step 1)                               |
-| `severity`      | Yes      | Impact level: `Low`, `Medium`, `High`, or `Critical`                       |
-| `rank`          | No       | Optional ordering within the catalog: integer; **lower = more important**. Unique among risks that set `rank`. Omit when severity alone is enough. |
-| `owner`         | No       | RACI roles (responsible, accountable, consulted, informed) for this risk   |
-| `impact`        | No       | Business or operational impact description                                 |
-| `threats`       | No       | Links to Layer 2 threat entries via reference-id and entries (see below)   |
+Each risk needs an `id` (policies use it to reference the risk), a `title`, a `description` of the scenario, and a `group` from Step 1. The fields that need a decision:
+
+| Field | What to put there |
+|-------|-------------------|
+| `severity` | Required. `Low`, `Medium`, `High` or `Critical` |
+| `rank` | Optional. An integer for ordering within the catalog; **lower = more important**, unique among risks that set it. Omit it when severity alone is enough. |
+| `owner` | Optional. RACI roles (responsible, accountable, consulted, informed) for this risk |
+| `threats` | Optional. Links to Layer 2 threat entries (see below) |
 
 For `threats`, use the same structure as in control and threat catalogs: a list of `#MultiEntryMapping` values. Each item has a `reference-id` (must match a `mapping-references` id) and `entries` (nested `#ArtifactMapping` rows). Each entry uses `reference-id` for the threat id in that catalog and optional `remarks`.
 
@@ -163,14 +151,10 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#RiskCatalog' github.com/gemaraproj/gemara@latest your-risk-catalog.yaml
+cue vet -c -d '#RiskCatalog' github.com/gemaraproj/gemara@v1.6.0 your-risk-catalog.yaml
 ```
 
-From a **clone of this repository** (uses the working tree’s CUE package, including `riskcatalog.cue`):
-
-```bash
-cue vet -c -d '#RiskCatalog' . docs/tutorials/policy/risk-catalog-example.yaml
-```
+No output means the artifact is valid. Swap `@v1.6.0` for `@latest` to validate against the newest published schema.
 
 Fix any errors (e.g. missing required fields, risks present without `groups`, invalid `group` reference, severity or appetite not in allowed enums, **duplicate `rank` values** among risks that set `rank`, or a `threats` outer `reference-id` not listed in `metadata.mapping-references`) so the catalog is schema-valid.
 
@@ -182,13 +166,13 @@ A complete, schema-valid example is in [risk-catalog-example.yaml](risk-catalog-
 ```yaml
 # Organization Risk Catalog for Cloud and Container Workloads (Layer 3)
 # Conforms to Gemara #RiskCatalog (riskcatalog.cue).
-# gemara-version: v1.2.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.2.0
+# gemara-version: v1.6.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.6.0
 # Risks drawn from Threat Assessment Guide: CCC (CCC.Core.TH14) and SEC.SLAM.CM (SEC.SLAM.CM.THR01).
 title: "Organization Risk Catalog for Cloud and Container Workloads"
 metadata:
   id: "org-risk-catalog-001"
   type: RiskCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: "Risks relevant to cloud and container management; threats linked to CCC Core and SEC.SLAM.CM threat catalog."
   version: "1.0.0"
   author:
@@ -260,6 +244,6 @@ risks:
 
 ## What's Next
 
-- Reference this risk catalog from a **Policy** document: in the policy's `risks` section, use `mitigated` and `accepted` entries that reference risk ids (and, for accepted risks, justification and optional scope). See the [Policy Guide](policy-guide) and the `risks` section of the [Policy schema](https://gemara.openssf.org/schema/policy.html).
+- Reference this risk catalog from a **Policy** document: in the policy's `risks` section, use `mitigated` and `accepted` entries that reference risk ids (and, for accepted risks, justification and optional scope). See the [Policy Guide](../policy/) and the `risks` section of the [Policy schema](https://gemara.openssf.org/schema/policy.html).
 - Use **Layer 5** evaluations to assess whether controls and implementations address the threats linked to these risks.
 - Use **Layer 7** audit and continuous monitoring to review risk posture and policy effectiveness.

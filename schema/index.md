@@ -2,6 +2,7 @@
 layout: page
 title: Gemara Schemas
 nav-title: Schema
+description: "The Gemara CUE schemas for every artifact type, how to validate an artifact against them, and their naming standards."
 ---
 
 Schemas (CUE format) standardize the expression of elements in the model and enable automated interoperability between GRC tools. These schemas provide validation across all layers.
@@ -76,7 +77,7 @@ Click on an artifact to view its schema:
   </a>
 </div>
 
-**[Browse all schemas in the CUE Central Registry →](https://registry.cue.works/docs/github.com/gemaraproj/gemara@latest)**
+**[Browse all schemas in the CUE Central Registry →](https://registry.cue.works/docs/github.com/gemaraproj/gemara)**
 
 ## Schema Documentation
 
@@ -110,7 +111,7 @@ Schema documentation generated from CUE. One page per schema file:
 go install cuelang.org/go/cmd/cue@latest
 
 # Validate a control catalog using the ControlCatalog definition
-cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@latest your-controls.yaml
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1.6.0 your-controls.yaml
 ```
 
 ## Architecture Decisions
@@ -123,7 +124,7 @@ Schemas follow these naming standards:
 
 | Layer | Category    | Atomic Unit (Interactive) | Atomic Unit (Defensive) | Collection (Interactive) | Collection (Defensive) |
 |:------|:------------|:--------------------------|:------------------------|:-------------------------|:-----------------------|
-| 1     | Definition  | Vector                    | Guidance                | Vector Catalog           | Guidance Catalog       |
+| 1     | Definition  | Vector                    | Guideline               | Vector Catalog           | Guidance Catalog       |
 | 2     | Definition  | Threat                    | Control                 | Threat Catalog           | Control Catalog        |
 | 3     | Definition  | Risk                      | Policy                  | Risk Catalog             | —                      |
 | 4     | —           | —                         | —                       | —                        | —                      |
@@ -133,67 +134,15 @@ Schemas follow these naming standards:
 
 **Note:** "—" indicates no planned schema implementation.
 
+The table shows the paired artifacts in each layer. Layer 1 also has the Principle Catalog (atomic unit: Principle), and Layer 2 the Capability Catalog (atomic unit: Capability).
+
 **Naming conventions**:
 - **Definition layers (1-3)**: Collections of atomic units are called **Catalogs**
 - **Measurement layers (5-7)**: Collections of atomic units are called **Logs**
 
 ## Versioning and Maintenance
 
-Project release deliverables are divided into the **Core Specification** and language-specific **SDKs**.
-
-* **Core Specification Release:** The CUE schemas are versioned and released as the core specification. These schemas implement the Model, which is published separately.
-* **SDK Releases:** Language-specific implementations that provide tooling, types, and helpers to work with Gemara documents. SDK types are generated from the CUE schemas.
-
-Each **maintains its own** independent [SemVer](https://semver.org/) lifecycle.
-
-### Specification Release Versioning
-
-The core specification release versions the CUE schemas as a single unit.
-
-| Change Type | Version Bump | Examples                                                     |
-|:------------|:-------------|:-------------------------------------------------------------|
-| Major       | v2.0.0       | Breaking changes to Stable schemas.                         |
-| Minor       | v1.(x+1).0   | Additive changes, schema promotions, or new optional fields. |
-| Patch       | v1.x.(y+1)   | Bug fixes in schema logic or documentation.                  |
-
-### Schema Lifecycle and Major Version Example
-
-Possible schema states include: **Experimental** → **Stable** → **Deprecated**. These are denoted on each schema file with a `@status(experimental|stable|deprecated)` attribute.
-
-The following table illustrates how schemas progress through their lifecycle and how major version changes are handled:
-
-| Version | Status              | Change Type | Example Scenario                        |
-|:--------|:--------------------|:------------|:----------------------------------------|
-| v1.0.0  | Experimental        | Initial     | Schema first published                  |
-| v1.1.0  | Experimental        | Minor       | Optional fields added                   |
-| v1.2.0  | Stable              | Minor       | Promoted to Stable                      |
-| v1.3.0  | Stable              | Minor       | Additive changes                        |
-| v1.3.1  | Stable              | Patch       | Bug fix                                 |
-| v1.4.0  | Stable              | Minor       | Field deprecated, replacement added     |
-| v1.5.0  | Stable → Deprecated | Minor       | Original deprecated, replacement Stable |
-| v2.0.0  | Stable              | Major       | Deprecated schema removed               |
-| v2.1.0  | Stable              | Minor       | Additive changes                        |
-
-### Experimental Status
-* All new schemas start as Experimental.
-* Adding Experimental schemas or making breaking changes triggers minor version increments.
-* Breaking changes and performance issues may occur during this phase.
-* These schemas may not be feature-complete.
-
-### Stable Status
-
-* Schemas promote independently and at different times (e.g., ControlCatalog can be Stable while Policy remains Experimental).
-* When a schema is promoted to Stable, all types it references must also be Stable (e.g., promoting `#ControlCatalog` requires `#Catalog`, `#Metadata`, `#Group`, and any other referenced types to already be Stable).
-* Stable schemas may only reference other Stable types.
-* Stable schemas maintain backward and forward compatibility within major versions, allowing **additive optional changes** only.
-* Breaking changes require major version increments and should be avoided in all normal circumstances.
-
-### Deprecated Status
-
-* Schemas or fields within schemas may be deprecated when replaced.
-* Replacement schema or field must be added in Experimental status and promoted to Stable before deprecation.
-* Deprecated schemas and fields maintain the same support guarantees as Stable schemas and remain functional.
-* Deprecated schemas are removed in the next major version release.
+The specification and the SDKs keep separate [SemVer](https://semver.org/) lifecycles, and each schema moves from Experimental to Stable to Deprecated on its own. The full policy is on the [Versioning and lifecycle](../reference/versioning/) page.
 
 ## Contributing
 

@@ -29,7 +29,10 @@ Site content sits at the root of the repo, sorted by folder:
 | --- | --- |
 | `index.md` | The home page |
 | `model/` | The Gemara model, written as chapters |
-| `tutorials/` | Hands-on walkthroughs |
+| `tutorials/` | Tutorials: lessons for newcomers |
+| `how-to/` | How-to guides, each with its example YAML |
+| `reference/` | Reference pages that are not generated (versioning) |
+| `faq/` | Frequently asked questions |
 | `sdk/` | SDK docs |
 | `adrs/` | Architecture Decision Records |
 | `community/` | Meetings, Slack, maintainers |

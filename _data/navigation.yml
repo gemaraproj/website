@@ -1,7 +1,8 @@
+# Header tabs. Docs pages are listed in _data/sidebar.yml, not here.
 - title: Home
   url: /
-- title: Specifications
-  url: /specifications/
+- title: Docs
+  url: /docs/
 - title: Community
   url: /community/
   children:
@@ -13,10 +14,3 @@
       url: /community/maintainers
 - title: Roadmap
   url: /roadmap
-- title: Tutorials
-  url: /tutorials/
-- title: FAQ
-  url: /faq/
-- title: ADRs
-  url: /adrs/
-

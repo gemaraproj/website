@@ -1,9 +1,10 @@
 ---
 layout: page
 title: Go SDK
+description: "Reference for go-gemara, the Go SDK for loading, validating, converting and bundling Gemara artifacts."
 ---
 
-The Go SDK provides type-safe APIs for reading, writing, converting, and bundling Gemara documents. Types are generated from CUE schemas using [cuegen](https://github.com/gemaraproj/cuegen).
+The Go SDK provides type-safe APIs for reading, writing, converting, and bundling Gemara documents. Types are generated from the CUE schemas with `cue exp gengotypes`, then tidied by the SDK's `typestagger` tool.
 
 **[Go Package Reference →](https://pkg.go.dev/github.com/gemaraproj/go-gemara)**
 
@@ -54,24 +55,15 @@ The `fetcher` package provides three implementations of the `gemara.Fetcher` int
 
 ## Converting to OSCAL
 
-```go
-import (
-    "github.com/gemaraproj/go-gemara"
-    "github.com/gemaraproj/go-gemara/fetcher"
-    "github.com/gemaraproj/go-gemara/gemaraconv"
-)
+The `gemaraconv` package converts three artifact types to OSCAL:
 
-f := &fetcher.File{}
-ctx := context.Background()
+| Wrapper | Method | Returns |
+|:--|:--|:--|
+| `gemaraconv.ControlCatalog(c)` | `ToOSCAL(opts...)` | `oscal.Catalog` |
+| `gemaraconv.GuidanceCatalog(g)` | `ToOSCAL(catalogHref, opts...)` | `oscal.Catalog`, `oscal.Profile` |
+| `gemaraconv.EvaluationLog(l)` | `ToOSCALAssessmentResults(opts...)` | `oscal.AssessmentResults` |
 
-catalog, _ := gemara.Load[gemara.ControlCatalog](ctx, f, "path/to/catalog.yaml")
-oscalCatalog, _ := gemaraconv.ControlCatalog(catalog).ToOSCAL()
-
-guidance, _ := gemara.Load[gemara.GuidanceCatalog](ctx, f, "path/to/guidance.yaml")
-oscalCat, oscalProfile, _ := gemaraconv.GuidanceCatalog(guidance).ToOSCAL("relative/path/to/catalog.json")
-```
-
-A `ControlCatalog` can also be rendered to Markdown via `gemaraconv.ControlCatalog(catalog).ToMarkdown(ctx)`.
+The wrappers take values, so dereference the pointer `gemara.Load` returns. Control and Guidance Catalogs can also be rendered to Markdown with `ToMarkdown(ctx)`. For a complete program, see [Export to OSCAL](../how-to/export-oscal/).
 
 ## Converting to SARIF
 
@@ -80,42 +72,16 @@ A `ControlCatalog` can also be rendered to Markdown via `gemaraconv.ControlCatal
 ```go
 catalog, _ := gemara.Load[gemara.ControlCatalog](ctx, f, "path/to/catalog.yaml")
 
-evaluationLog := &gemara.EvaluationLog{ /* populate */ }
-sarifBytes, _ := gemaraconv.EvaluationLog(evaluationLog).ToSARIF("path/to/artifact.md", catalog)
+evaluationLog := gemara.EvaluationLog{ /* populate */ }
+sarifBytes, _ := gemaraconv.EvaluationLog(evaluationLog).ToSARIF(
+    gemaraconv.WithArtifactURI("path/to/artifact.md"),
+    gemaraconv.WithCatalog(catalog),
+)
 ```
 
 ## Bundling and Distributing via OCI
 
-The `bundle` package assembles the full dependency tree (`extends` + `imports`) of a Gemara document, packs it into an OCI layout, and pushes it to a registry.
-
-```go
-import (
-    "github.com/gemaraproj/go-gemara/bundle"
-    "github.com/gemaraproj/go-gemara/fetcher"
-    "oras.land/oras-go/v2"
-    "oras.land/oras-go/v2/content/oci"
-    "oras.land/oras-go/v2/registry/remote"
-)
-
-data, _ := os.ReadFile("policy.yaml")
-src := bundle.File{Name: "policy.yaml", Data: data}
-
-m := bundle.Manifest{BundleVersion: "1", GemaraVersion: "v1.0.0"}
-asm := bundle.NewAssembler(&fetcher.URI{})
-b, _ := asm.Assemble(ctx, m, src)
-
-layoutStore, _ := oci.New("./bundle-output")
-desc, _ := bundle.Pack(ctx, layoutStore, b)
-_ = layoutStore.Tag(ctx, desc, "v1.0.0")
-
-repo, _ := remote.NewRepository("registry.example.com/org/bundle")
-tagDesc, _ := layoutStore.Resolve(ctx, "v1.0.0")
-_ = oras.CopyGraph(ctx, layoutStore, repo, tagDesc, oras.DefaultCopyGraphOptions)
-_ = repo.Tag(ctx, tagDesc, "v1.0.0")
-
-unpacked, _ := bundle.Unpack(ctx, repo, "v1.0.0")
-_ = unpacked
-```
+The `bundle` package defines Gemara's OCI artifact format (`application/vnd.gemara.bundle.v1`). `bundle.NewAssembler(fetcher).Assemble` resolves a document's full dependency tree (`extends` and `imports`), `bundle.Pack` writes the result to any ORAS target, and `bundle.Unpack` reads it back. For the steps, see [Publish artifacts as an OCI bundle](../how-to/publish-bundle/).
 
 ## Developer Tooling
 

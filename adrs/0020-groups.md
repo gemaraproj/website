@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Merge Family and Category into Group
+description: "ADR-0020 (proposed): adopt Group as the single term for organizational groupings across the Gemara schemas and docs."
 ---
 
 - **ADR:** 0020

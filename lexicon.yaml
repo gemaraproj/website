@@ -2,10 +2,10 @@ title: Gemara Lexicon
 metadata:
   id: gemara-lexicon
   type: Lexicon
-  gemara-version: "1.0.0"
+  gemara-version: "1.6.0"
   description: Controlled vocabulary for the Gemara project
   author:
-    id: geamra-maintainers
+    id: gemara-maintainers
     name: Gemara Maintainers
     type: Human
 terms:
@@ -33,7 +33,7 @@ terms:
     references:
       - citation: Layer 7
   - id: behavior-evaluation
-    title: Behavior Evaluation
+    title: Behavioral Evaluation
     definition: an opinionated observation of simulated or real-world activities
     references:
       - citation: Layer 5
