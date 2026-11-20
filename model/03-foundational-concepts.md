@@ -11,7 +11,7 @@ Other similar resources abound, such as the recent *Automated Governance Maturit
 
 Still, there is a deficiency in the consistent use of terminology, schemas, and processes — as well as the cross-team interoperability that could reasonably be expected when governing sensitive activities. These divisions have resulted in re-work both within organizations and across industries, with persistent gaps between Policy and reality.
 
-**Section 8.1** discusses how organizations might learn from this prior work in comprehensive automated solutions.
+[The Need for Machine-Optimized Documentation Standards](./08-applying.html) discusses how organizations might learn from this prior work in comprehensive automated solutions.
 
 ## Assessing the State of Risk Assessments
 
@@ -21,7 +21,7 @@ In some scenarios, Risk Assessment occurs even in the same lifecycle that a **Se
 
 These Sensitive Activities may take many forms, from analog scenarios such as the daily operations of a bank teller to the seemingly antithetical software development lifecycle (SDLC). Still, the categorical activities performed to Control outcomes and mitigate Risk are similar.
 
-As we’ll see in **Section 4**, Risk Assessments can be categorized into different types based on their inputs and outputs. These categories are cumulative, each calling upon other elements predictably, like layers building upon each other. 
+As we’ll see in [The Model](./04-the-model.html), Risk Assessments can be categorized into different types based on their inputs and outputs. These categories are cumulative, each calling upon other elements predictably, like layers building upon each other. 
 
 At the beginning of the logical flow, Risk is hypothetical and cannot be made concrete without information about the specific organization and activity being performed. These activities are often performed by consortiums or as a matter of course during the creation of a Policy — sometimes causing the processes to be stunted and the outputs to be created with lower quality or insufficient completeness. Because those elements form the foundation, an incomplete understanding can reduce the effectiveness of entire GRC and security programs.
 

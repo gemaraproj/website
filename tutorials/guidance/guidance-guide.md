@@ -44,7 +44,7 @@ Declare your catalog and, if you will reference external standards, add mapping 
 | `type`                        | One of Standard, Regulation, Best Practice, Framework (catalog intent)     | Required by schema; clarifies intent                                |
 | `metadata.id`                 | Unique identifier for this catalog                                        | Used when other artifacts reference this catalog                    |
 | `metadata.type`               | Artifact kind (e.g. `GuidanceCatalog`)                                    | Required by schema; identifies the Gemara artifact type              |
-| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.2.0"`)                         | Required by schema; declares which spec the artifact conforms to     |
+| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.6.0"`)                         | Required by schema; declares which spec the artifact conforms to     |
 | `metadata.description`        | High-level summary of purpose and scope                                   | Required by schema; human-readable catalog summary                   |
 | `metadata.author`             | Actor responsible for the artifact (`id`, `name`, `type`, …)              | Required by schema; identifies ownership or authorship                 |
 | `metadata.mapping-references` | Pointers to external standards (e.g., OWASP, NIST)                        | Optional; resolve IDs used in external Mapping Document on guidelines |
@@ -59,7 +59,7 @@ title: Secure Software Development Guidance
 metadata:
   id: ORG.SSD.001
   type: GuidanceCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:
@@ -110,7 +110,7 @@ groups:
 | `title`     | Yes      | Short name for the guideline                             |
 | `objective` | Yes      | Unified statement of intent                              |
 | `group`     | Yes      | `id` of a group in this catalog                          |
-| `state`     | Yes      | Lifecycle: `Active`, `Draft`, `Deprecated`, or `Retired` (must match this casing) |
+| `state`     | No       | Lifecycle: `Active`, `Draft`, `Deprecated`, or `Retired` (must match this casing). Omitted means `Active` |
 
 Optional: `recommendations`, `rationale`, `vectors`,`extends`, `applicability`, and others (see `guidancecatalog.cue`).
 
@@ -172,10 +172,10 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@v1 your-guidance.yaml
+cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@v1.6.0 your-guidance.yaml
 ```
 
-To validate against the rolling tip of the default branch instead, use `github.com/gemaraproj/gemara@latest`.
+No output means the artifact is valid. Swap `@v1.6.0` for `@latest` to validate against the newest published schema.
 
 ### Minimal Full Example
 
@@ -186,7 +186,7 @@ title: Secure Software Development Guidance
 metadata:
   id: ORG.SSD.001
   type: GuidanceCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:

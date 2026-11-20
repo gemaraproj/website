@@ -39,7 +39,8 @@ Pass your parsed Gemara JSON/YAML document object directly to the corresponding 
 ### Server Component Example
 
 ```tsx
-import { ControlCatalog, isControlCatalog } from '@gemara/react/control-catalog';
+import { isControlCatalog } from '@gemara/react';
+import { ControlCatalog } from '@gemara/react/control-catalog';
 import fs from 'node:fs/promises';
 import YAML from 'yaml';
 

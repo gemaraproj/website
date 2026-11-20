@@ -11,14 +11,19 @@ Language-specific SDKs provide programmatic access to Gemara documents. SDK type
 - [Python SDK](./python-sdk.html) — Typed Pydantic v2 models and loader utilities for Gemara documents
 - [React SDK](./react-sdk.html) — Headless React renderers and UI components for Gemara documents
 
+## Supported specification versions
+
+| SDK | Latest release | Generated from spec |
+|:--|:--|:--|
+| Go (`go-gemara`) | v0.12.0 | v1.5.0 |
+| Python (`gemara-python`) | 0.1.0 (pre-release) | v1.5.0 |
+| React (`@gemara/react`) | 0.2.2 | v1.3.0 |
+
+The latest specification is v1.6.0. Check each SDK's release notes for newer versions.
+
 ## Versioning and Maintenance
 
-Project release deliverables are divided into the **Core Specification** and language-specific **SDKs**.
-
-* **Core Specification Release:** The CUE schemas are versioned and released as the core specification. These schemas implement the Model, which is published separately.
-* **SDK Releases:** Language-specific implementations that support programmatic access to Gemara documents. SDK types are generated from the CUE schemas.
-
-Each maintains its own independent [SemVer](https://semver.org/) lifecycle.
+The specification and each SDK keep separate [SemVer](https://semver.org/) lifecycles. The policy for both is on the [Schemas page](../schema/#versioning-and-maintenance).
 
 ### SDK Release Versioning
 

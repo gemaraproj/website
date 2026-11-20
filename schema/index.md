@@ -76,7 +76,7 @@ Click on an artifact to view its schema:
   </a>
 </div>
 
-**[Browse all schemas in the CUE Central Registry →](https://registry.cue.works/docs/github.com/gemaraproj/gemara@latest)**
+**[Browse all schemas in the CUE Central Registry →](https://registry.cue.works/docs/github.com/gemaraproj/gemara)**
 
 ## Schema Documentation
 
@@ -110,7 +110,7 @@ Schema documentation generated from CUE. One page per schema file:
 go install cuelang.org/go/cmd/cue@latest
 
 # Validate a control catalog using the ControlCatalog definition
-cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@latest your-controls.yaml
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1.6.0 your-controls.yaml
 ```
 
 ## Architecture Decisions
@@ -123,7 +123,7 @@ Schemas follow these naming standards:
 
 | Layer | Category    | Atomic Unit (Interactive) | Atomic Unit (Defensive) | Collection (Interactive) | Collection (Defensive) |
 |:------|:------------|:--------------------------|:------------------------|:-------------------------|:-----------------------|
-| 1     | Definition  | Vector                    | Guidance                | Vector Catalog           | Guidance Catalog       |
+| 1     | Definition  | Vector                    | Guideline               | Vector Catalog           | Guidance Catalog       |
 | 2     | Definition  | Threat                    | Control                 | Threat Catalog           | Control Catalog        |
 | 3     | Definition  | Risk                      | Policy                  | Risk Catalog             | —                      |
 | 4     | —           | —                         | —                       | —                        | —                      |
@@ -132,6 +132,8 @@ Schemas follow these naming standards:
 | 7     | Measurement | —                         | Audit Result            | —                        | Audit Log              |
 
 **Note:** "—" indicates no planned schema implementation.
+
+The table shows the paired artifacts in each layer. Layer 1 also has the Principle Catalog (atomic unit: Principle), and Layer 2 the Capability Catalog (atomic unit: Capability).
 
 **Naming conventions**:
 - **Definition layers (1-3)**: Collections of atomic units are called **Catalogs**
@@ -158,7 +160,7 @@ The core specification release versions the CUE schemas as a single unit.
 
 ### Schema Lifecycle and Major Version Example
 
-Possible schema states include: **Experimental** → **Stable** → **Deprecated**. These are denoted on each schema file with a `@status(experimental|stable|deprecated)` attribute.
+Possible schema states include: **Experimental** → **Stable** → **Deprecated**. These are denoted on each schema file with a `@gemara(status="...")` attribute, for example `@gemara(status="stable")`.
 
 The following table illustrates how schemas progress through their lifecycle and how major version changes are handled:
 

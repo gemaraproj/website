@@ -6,7 +6,7 @@ description: Step-by-step guide to creating Gemara-compatible risk catalogs
 
 ## What This Is
 
-This guide walks through creating a **Risk Catalog** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to `#RiskCatalog` in [riskcatalog.cue](https://github.com/gemaraproj/gemara/blob/main/riskcatalog.cue) and the published [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog.html). Examples use `gemara-version: "1.2.0"` to match the [v1.2.0](https://github.com/gemaraproj/gemara/releases/tag/v1.2.0) specification release; adjust if you target a different Gemara version.
+This guide walks through creating a **Risk Catalog** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to `#RiskCatalog` in [riskcatalog.cue](https://github.com/gemaraproj/gemara/blob/main/riskcatalog.cue) and the published [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog.html). Examples use `gemara-version: "1.6.0"` to match the [v1.6.0](https://github.com/gemaraproj/gemara/releases/tag/v1.6.0) specification release; adjust if you target a different Gemara version.
 
 **The basic idea:** A Risk Catalog is a structured list of **[risks](../../model/02-definitions.html#risk)** that might affect an organization, system, or service. You organize them into **groups** (schema type `#RiskCategory`) that express how much risk you are willing to carry ( risk appetite) and optionally cap how bad a single risk in that group can be (**max-severity**). Each risk has an assessed **severity** and can point to Layer 2 **[threats](../../model/02-definitions.html#threat)** so mitigations and policies stay traceable to threat catalogs. Optionally, **`rank`** records a total order among risks in this catalog (for example when several share the same severity); see Step 2.
 
@@ -43,7 +43,7 @@ title: "Organization Risk Catalog for Cloud and Container Workloads"
 metadata:
   id: "org-risk-catalog-001"
   type: RiskCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: "Risks relevant to cloud and container management; threats linked to CCC Core and SEC.SLAM.CM threat catalog."
   version: "1.0.0"
   author:
@@ -163,14 +163,10 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#RiskCatalog' github.com/gemaraproj/gemara@latest your-risk-catalog.yaml
+cue vet -c -d '#RiskCatalog' github.com/gemaraproj/gemara@v1.6.0 your-risk-catalog.yaml
 ```
 
-From a **clone of this repository** (uses the working tree’s CUE package, including `riskcatalog.cue`):
-
-```bash
-cue vet -c -d '#RiskCatalog' . docs/tutorials/policy/risk-catalog-example.yaml
-```
+No output means the artifact is valid. Swap `@v1.6.0` for `@latest` to validate against the newest published schema.
 
 Fix any errors (e.g. missing required fields, risks present without `groups`, invalid `group` reference, severity or appetite not in allowed enums, **duplicate `rank` values** among risks that set `rank`, or a `threats` outer `reference-id` not listed in `metadata.mapping-references`) so the catalog is schema-valid.
 
@@ -182,13 +178,13 @@ A complete, schema-valid example is in [risk-catalog-example.yaml](risk-catalog-
 ```yaml
 # Organization Risk Catalog for Cloud and Container Workloads (Layer 3)
 # Conforms to Gemara #RiskCatalog (riskcatalog.cue).
-# gemara-version: v1.2.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.2.0
+# gemara-version: v1.6.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.6.0
 # Risks drawn from Threat Assessment Guide: CCC (CCC.Core.TH14) and SEC.SLAM.CM (SEC.SLAM.CM.THR01).
 title: "Organization Risk Catalog for Cloud and Container Workloads"
 metadata:
   id: "org-risk-catalog-001"
   type: RiskCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: "Risks relevant to cloud and container management; threats linked to CCC Core and SEC.SLAM.CM threat catalog."
   version: "1.0.0"
   author:

@@ -28,7 +28,7 @@ Set `title` and `metadata` (see [metadata.cue](https://github.com/gemaraproj/gem
 | `title`                       | Display name for the policy (top-level)                                   | Human-readable label in reports and tooling                         |
 | `metadata.id`                 | Unique identifier for this policy                                         | Used when other documents reference this policy                     |
 | `metadata.type`               | Must be `Policy`                                                          | Required by schema; identifies the artifact kind                    |
-| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.2.0"`)                        | Required by schema; should match the module tag you pass to `cue vet` |
+| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.6.0"`)                        | Required by schema; should match the module tag you pass to `cue vet` |
 | `metadata.description`        | High-level summary of the policy's purpose and scope                       | Required by schema; clarifies intent                                |
 | `metadata.author`             | Actor (id, name, type) primarily responsible for this policy              | Required by schema; identifies the author                            |
 | `metadata.version`            | Version identifier (e.g. `"1.0.0"`)                                       | Optional; supports versioning and references                         |
@@ -43,7 +43,7 @@ title: "Information Security Policy for Cloud and Web Applications"
 metadata:
   id: "org-policy-001"
   type: Policy
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: "Policy for cloud and web application security; references control catalogs."
   version: "1.0.0"
   author:
@@ -163,13 +163,13 @@ implementation-plan:
 
 ### Step 5: Adherence
 
-Define `adherence` with at least one of the following:
+Define `adherence` with any of the following fields. All are optional in the schema:
 
 | Field                   | Purpose                                                                 |
 | ----------------------- | ----------------------------------------------------------------------- |
-| `evaluation-methods`    | List of methods: required `id`; `type` (`Behavioral`, `Intent`, `Remediation`, `Gate`); `mode` (`Manual`, `Automated`); optional `required`, `description`, `executor` |
+| `evaluation-methods`    | List of methods: required `id`; `type` (`Intent` or `Behavioral`); `mode` (`Manual`, `Automated`); optional `required`, `description`, `executor` |
 | `assessment-plans`      | Plans: required `id`, `requirement-id`, `frequency`, and `evaluation-methods`; optional `evidence-requirements`, `parameters` |
-| `enforcement-methods`   | Same structure as `evaluation-methods` (required `id`, `type`, `mode`) |
+| `enforcement-methods`   | Same fields as `evaluation-methods`, but `type` is `Gate` or `Remediation` |
 | `non-compliance`        | String describing handling of non-compliance                            |
 
 **Example (YAML):**
@@ -215,7 +215,7 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#Policy' github.com/gemaraproj/gemara@v1 your-policy.yaml
+cue vet -c -d '#Policy' github.com/gemaraproj/gemara@v1.6.0 your-policy.yaml
 ```
 
 Fix any errors (e.g. missing required fields, invalid reference-ids, or type mismatches) so the policy is schema-valid.
@@ -229,7 +229,7 @@ title: "Information Security Policy for Cloud and Web Applications"
 metadata:
   id: "org-policy-001"
   type: Policy
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: "Policy for cloud and web application security; references control catalogs."
   version: "1.0.0"
   author:

@@ -5,7 +5,7 @@ title: Tutorials
 
 ## Start here
 
-**Gemara Layers — Knowledge, Inputs & Outputs** — Start here if you're new to the model.
+New to Gemara? Read [The Gemara Model](../model/) first. It explains the seven layers these guides build on.
 
 ---
 
@@ -64,7 +64,7 @@ When you need a structured inventory of organizational or system risks—**risk 
 ## What You'll Need
 
 - `go` installed
-- `cue` installed for validation (e.g. `cue vet -c -d '#MappingDocument' . your-mapping-document-example.yaml` from a clone, or the same placeholder filename with `github.com/gemaraproj/gemara@latest` for the published module)
+- `cue` installed for validation, for example `cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@v1.6.0 your-mapping-document.yaml`
 
 ## Have Ideas?
 

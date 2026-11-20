@@ -53,6 +53,10 @@ func runLexicon2MD(cmd *cobra.Command, args []string) error {
 		slug := termToSlug(term.Title)
 
 		termName := fmt.Sprintf("<a id=\"%s\"></a>**%s**", slug, term.Title)
+		// Also anchor the term id, so links keep working when a title is reworded.
+		if term.ID != "" && term.ID != slug {
+			termName = fmt.Sprintf("<a id=\"%s\"></a>", term.ID) + termName
+		}
 
 		refs := make([]string, 0, len(term.References))
 		for _, r := range term.References {

@@ -3,7 +3,7 @@ layout: page
 title: Go SDK
 ---
 
-The Go SDK provides type-safe APIs for reading, writing, converting, and bundling Gemara documents. Types are generated from CUE schemas using [cuegen](https://github.com/gemaraproj/cuegen).
+The Go SDK provides type-safe APIs for reading, writing, converting, and bundling Gemara documents. Types are generated from the CUE schemas with `cue exp gengotypes`, then tidied by the SDK's `typestagger` tool.
 
 **[Go Package Reference →](https://pkg.go.dev/github.com/gemaraproj/go-gemara)**
 
@@ -64,14 +64,18 @@ import (
 f := &fetcher.File{}
 ctx := context.Background()
 
+// gemara.Load returns a pointer; the converters take a value.
 catalog, _ := gemara.Load[gemara.ControlCatalog](ctx, f, "path/to/catalog.yaml")
-oscalCatalog, _ := gemaraconv.ControlCatalog(catalog).ToOSCAL()
+oscalCatalog, _ := gemaraconv.ControlCatalog(*catalog).ToOSCAL()
 
 guidance, _ := gemara.Load[gemara.GuidanceCatalog](ctx, f, "path/to/guidance.yaml")
-oscalCat, oscalProfile, _ := gemaraconv.GuidanceCatalog(guidance).ToOSCAL("relative/path/to/catalog.json")
+oscalCat, oscalProfile, _ := gemaraconv.GuidanceCatalog(*guidance).ToOSCAL("relative/path/to/catalog.json")
+
+evalLog, _ := gemara.Load[gemara.EvaluationLog](ctx, f, "path/to/evaluation-log.yaml")
+assessmentResults, _ := gemaraconv.EvaluationLog(*evalLog).ToOSCALAssessmentResults(gemaraconv.WithCatalog(catalog))
 ```
 
-A `ControlCatalog` can also be rendered to Markdown via `gemaraconv.ControlCatalog(catalog).ToMarkdown(ctx)`.
+The SDK converts three artifact types to OSCAL: a Control Catalog to an OSCAL Catalog, a Guidance Catalog to an OSCAL Catalog and Profile, and an Evaluation Log to OSCAL Assessment Results. Control and Guidance Catalogs can also be rendered to Markdown with `ToMarkdown(ctx)`.
 
 ## Converting to SARIF
 
@@ -80,8 +84,11 @@ A `ControlCatalog` can also be rendered to Markdown via `gemaraconv.ControlCatal
 ```go
 catalog, _ := gemara.Load[gemara.ControlCatalog](ctx, f, "path/to/catalog.yaml")
 
-evaluationLog := &gemara.EvaluationLog{ /* populate */ }
-sarifBytes, _ := gemaraconv.EvaluationLog(evaluationLog).ToSARIF("path/to/artifact.md", catalog)
+evaluationLog := gemara.EvaluationLog{ /* populate */ }
+sarifBytes, _ := gemaraconv.EvaluationLog(evaluationLog).ToSARIF(
+    gemaraconv.WithArtifactURI("path/to/artifact.md"),
+    gemaraconv.WithCatalog(catalog),
+)
 ```
 
 ## Bundling and Distributing via OCI

@@ -13,15 +13,6 @@ Gemara provides a logical model to describe the categories of compliance activit
 
 In order to better facilitate cross-functional communication, the Gemara Model seeks to outline the categorical layers of activities related to automated governance.
 
-<!--
-## Quick Start
-
-- **New to Gemara?** Start with our [About page](/about) to understand the model
-- **Want to dive deeper?** Explore the [Seven Layers](/layers) of the model
-- **Ready to build?** Check out our [Tutorial](/tutorial) for a hands-on example
-- **Want to contribute?** See our [Contributing Guide](/contributing)
--->
-
 ## The Three Components
 
 Gemara delivers three core components that work together to support automated GRC:
@@ -58,7 +49,7 @@ Gemara delivers three core components that work together to support automated GR
         to accelerate automated tool development.
       </p>
       <p class="component-content">
-        Currently provides Go SDK for reading, writing, and manipulating Gemara documents.
+        Go, Python and React SDKs for loading, validating, converting and rendering Gemara documents.
       </p>
   </a>
 </div>
@@ -80,4 +71,4 @@ Gemara is being used today in production environments:
 
 - **[FINOS Common Cloud Controls](https://www.finos.org/common-cloud-controls-project)** - Layer 2 controls for cloud environments
 - **[Open Source Project Security Baseline](https://baseline.openssf.org/)** - Layer 2 security baseline for open source projects
-- **[Privateer](https://github.com/privateerproj/privateer)** - Layer 5 evaluation framework with plugins like the [OSPS Baseline Plugin](https://github.com/revanite-io/pvtr-github-repo)
+- **[Privateer](https://github.com/privateerproj/pvtr)** - Layer 5 evaluation framework with plugins like the [OSPS Baseline Plugin](https://github.com/ossf/pvtr-github-repo-scanner)
