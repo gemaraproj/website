@@ -20,6 +20,7 @@ group :jekyll_plugins do
   gem "jekyll-seo-tag", "~> 2.9"
   gem "jekyll-remote-theme", "~> 0.5"
   gem "jekyll-sitemap", "~> 1.4"
+  gem "jekyll-redirect-from", "~> 0.16"
 end
 
 # Development and testing tools

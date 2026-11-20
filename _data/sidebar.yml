@@ -6,20 +6,24 @@
 
 - title: How-to guides
   description: Step-by-step guides for writing each kind of Gemara artifact.
-  url: /tutorials/
+  url: /how-to/
   children:
     - title: Assess threats for a component
-      url: /tutorials/controls/threat-assessment-guide
+      url: /how-to/threat-assessment/
     - title: Write a control catalog
-      url: /tutorials/controls/control-catalog-guide
+      url: /how-to/control-catalog/
     - title: Turn best practices into guidance
-      url: /tutorials/guidance/guidance-guide
+      url: /how-to/guidance-catalog/
     - title: Map one artifact to another
-      url: /tutorials/mapping/mapping-document-guide
+      url: /how-to/mapping-document/
     - title: Build a risk catalog
-      url: /tutorials/policy/risk-catalog-guide
+      url: /how-to/risk-catalog/
     - title: Write an organizational policy
-      url: /tutorials/policy/policy-guide
+      url: /how-to/policy/
+    - title: Export to OSCAL
+      url: /how-to/export-oscal/
+    - title: Publish artifacts as an OCI bundle
+      url: /how-to/publish-bundle/
 
 - title: Reference
   description: Schemas, defined terms and SDKs, for looking things up.
@@ -37,6 +41,8 @@
           url: /sdk/python-sdk
         - title: React SDK
           url: /sdk/react-sdk
+    - title: Versioning and lifecycle
+      url: /reference/versioning/
 
 - title: Explanation
   description: The Gemara model, common questions and the decisions behind the project.

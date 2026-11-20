@@ -2,6 +2,8 @@
 layout: page
 title: Threat Assessment Guide
 description: Step-by-step guide to performing Gemara-compatible threat assessments
+redirect_from:
+  - /tutorials/controls/threat-assessment-guide.html
 ---
 
 ## What This Is
@@ -318,7 +320,7 @@ No output means the artifact is valid. Swap `@v1.6.0` for `@latest` to validate 
 
 ## What's Next
 
-Create a Gemara control catalog that maps security controls to these threats using the [Control Catalog Guide](control-catalog-guide).
+Create a Gemara control catalog that maps security controls to these threats using the [Control Catalog Guide](../control-catalog/).
 
 **Layer 2 schema documentation:** 
 - [Capability Catalog](https://gemara.openssf.org/schema/capabilitycatalog.html)

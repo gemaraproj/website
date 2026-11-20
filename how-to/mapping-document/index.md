@@ -2,11 +2,13 @@
 layout: page
 title: Mapping Document Guide
 description: Step-by-step guide to creating Gemara-compatible mapping documents
+redirect_from:
+  - /tutorials/mapping/mapping-document-guide.html
 ---
 
 ## What This Is
 
-This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance/guidance-guide). Examples use `gemara-version: "1.6.0"` to match the [v1.6.0](https://github.com/gemaraproj/gemara/releases/tag/v1.6.0) specification release; adjust if you target a different Gemara version.
+This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance-catalog/). Examples use `gemara-version: "1.6.0"` to match the [v1.6.0](https://github.com/gemaraproj/gemara/releases/tag/v1.6.0) specification release; adjust if you target a different Gemara version.
 
 A mapping document captures the user's intent for how entries in a **source** artifact relate to entries in a **target** artifact. It is the place to express alignment between independently authored catalogs (e.g., your guidance to OWASP, or controls to regulations) in a single, directed way.
 
@@ -30,7 +32,7 @@ This exercise produces a mapping document that downstream tools and policies can
 
 ## Optional Workflow
 
-Complete the [Guidance Catalog Guide](../guidance/guidance-guide) and have a guidance catalog (e.g., [guidance-example.yaml](../guidance/guidance-example.yaml)) with `mapping-references` that include the target framework you want to map to (e.g., OWASP). You will reference that guidance catalog as the source and the external framework as the target.
+Complete the [Guidance Catalog Guide](../guidance-catalog/) and have a guidance catalog (e.g., [guidance-example.yaml](../guidance-catalog/guidance-example.yaml)) with `mapping-references` that include the target framework you want to map to (e.g., OWASP). You will reference that guidance catalog as the source and the external framework as the target.
 
 ## Walkthrough
 
@@ -78,7 +80,7 @@ metadata:
     - id: ORG.SSD.001
       title: Secure Software Development Guidance
       version: "1.0.0"
-      url: "file://../guidance/guidance-example.yaml"
+      url: "file://../guidance-catalog/guidance-example.yaml"
     - id: OWASP
       title: OWASP Top 10
       version: "2021"
@@ -173,7 +175,7 @@ Combine metadata, source-reference, target-reference, remarks, and mappings into
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
 # Conforms to Gemara #MappingDocument (mappingdocument.cue).
 # gemara-version: v1.6.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.6.0
-# Source guidance catalog: ../guidance/guidance-example.yaml (metadata.id ORG.SSD.001)
+# Source guidance catalog: ../guidance-catalog/guidance-example.yaml (metadata.id ORG.SSD.001)
 # entry-type on source-reference / target-reference applies to all entries on that side (#TypedMapping).
 title: Secure Software Development Guidance to OWASP Top 10
 metadata:
@@ -192,7 +194,7 @@ metadata:
     - id: ORG.SSD.001
       title: Secure Software Development Guidance
       version: "1.0.0"
-      url: "file://../guidance/guidance-example.yaml"
+      url: "file://../guidance-catalog/guidance-example.yaml"
     - id: OWASP
       title: OWASP Top 10
       version: "2021"

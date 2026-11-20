@@ -2,6 +2,8 @@
 layout: page
 title: Organizational Risk & Policy Guide
 description: "Step-by-step guide to writing a Gemara-compatible organizational policy that scopes, imports and adheres to catalogs."
+redirect_from:
+  - /tutorials/policy/policy-guide.html
 ---
 
 ## What This Is

@@ -2,11 +2,13 @@
 layout: page
 title: Control Catalog Guide
 description: Step-by-step guide to creating Gemara-compatible control catalogs
+redirect_from:
+  - /tutorials/controls/control-catalog-guide.html
 ---
 
 ## What This Is
 
-This guide walks through creating a **control catalog** using the [Gemara](https://gemara.openssf.org/) project, building on the threats and scope you identified in the [Threat Assessment Guide](threat-assessment-guide).
+This guide walks through creating a **control catalog** using the [Gemara](https://gemara.openssf.org/) project, building on the threats and scope you identified in the [Threat Assessment Guide](../threat-assessment/).
 
 In technical terms:
 * **[Controls](../../model/02-definitions.html#control)** are safeguards with a stated **objective** and a list of **[assessment requirements](../../model/02-definitions.html#assessment-requirement)**.
@@ -17,7 +19,7 @@ This exercise produces a structured way to develop control objectives and corres
 
 ## Optional Workflow
 
-Complete the [Threat Assessment Guide](threat-assessment-guide) for your scope (e.g., the container management tool **SEC.SLAM.CM**). You can reference the linked `threats` and `guidelines` to support the intent of Controls in the catalog. 
+Complete the [Threat Assessment Guide](../threat-assessment/) for your scope (e.g., the container management tool **SEC.SLAM.CM**). You can reference the linked `threats` and `guidelines` to support the intent of Controls in the catalog. 
 
 
 ## Walkthrough

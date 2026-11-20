@@ -5,7 +5,7 @@ description: "Answers to common questions about when and why to use Gemara, its 
 nav-title: FAQ
 ---
 
-Answers to common questions about when and why to use Gemara. For hands-on creation guides, see the [Tutorials](../tutorials/).
+Answers to common questions about when and why to use Gemara. For step-by-step guides, see the [how-to guides](../how-to/).
 
 ## Getting Started
 
@@ -96,7 +96,7 @@ Some controls are procedural, so those logs can be human-authored. Audit Logs ar
 
 ### How does Gemara relate to OSCAL?
 
-OSCAL is a mature standard for machine-readable compliance documents, adopted in programs like FedRAMP. Gemara builds on lessons from the OSCAL community and optimizes for a specific workflow: lean YAML authoring, machine-generated artifacts at scale, and first-class threat-to-control traceability. The [Go SDK](../sdk/go-sdk.html#converting-to-oscal) converts Control Catalogs, Guidance Catalogs and Evaluation Logs to OSCAL, so organizations can use Gemara for authoring and automation while producing OSCAL artifacts for exchange.
+OSCAL is a mature standard for machine-readable compliance documents, adopted in programs like FedRAMP. Gemara builds on lessons from the OSCAL community and optimizes for a specific workflow: lean YAML authoring, machine-generated artifacts at scale, and first-class threat-to-control traceability. The [Go SDK](../how-to/export-oscal/) converts Control Catalogs, Guidance Catalogs and Evaluation Logs to OSCAL, so organizations can use Gemara for authoring and automation while producing OSCAL artifacts for exchange.
 
 ### When should I use OSCAL vs Gemara?
 
@@ -116,13 +116,7 @@ If you're exchanging compliance data between organizations or submitting to a re
 
 ### How do I get from Gemara to OSCAL?
 
-The SDK converts Control Catalogs and Guidance Catalogs to their OSCAL equivalents, and Evaluation Logs to OSCAL Assessment Results. It handles OSCAL-specific requirements like UUID generation. Your source YAML stays lean; the SDK produces the OSCAL output.
-
-```go
-oscalCatalog, _ := gemaraconv.ControlCatalog(*catalog).ToOSCAL()
-```
-
-Conversions for other artifact types are tracked in [go-gemara#29](https://github.com/gemaraproj/go-gemara/issues/29).
+Use the Go SDK. It converts Control Catalogs and Guidance Catalogs to their OSCAL equivalents, and Evaluation Logs to OSCAL Assessment Results, so your source YAML stays lean. See [Export to OSCAL](../how-to/export-oscal/).
 
 ## Adopting Gemara
 
@@ -147,7 +141,7 @@ Yes. Policy scoping handles this. Your high-sensitivity systems (payments, auth)
 
 You're still writing prose, just structured and in YAML. A 20-page Word policy becomes a Gemara Policy document with defined scope, imports, and adherence sections. The substance is the same; the structure makes it machine-readable.
 
-AI tooling can help. The Gemara MCP Server assists agents with migrations.
+AI tooling can help. The Gemara MCP Server assists agents with migrations. To write the result, follow [Write an organizational policy](../how-to/policy/).
 
 ## Working Across Teams
 
@@ -184,4 +178,4 @@ Each evaluation result references an assessment requirement ID from the imported
 
 ### How do I publish my artifacts?
 
-You can publish artifacts as release artifacts in your repository. The project is also standardizing on a Gemara bundle spec based on OCI artifacts to make scaled consumption and publishing easier.
+You can publish artifacts as release artifacts in your repository. To ship an artifact together with everything it imports, package it as an OCI bundle and push it to a registry: see [Publish artifacts as an OCI bundle](../how-to/publish-bundle/).

@@ -24,15 +24,7 @@ The latest specification is v1.6.0. Check each SDK's release notes for newer ver
 
 ## Versioning and Maintenance
 
-The specification and each SDK keep separate [SemVer](https://semver.org/) lifecycles. The policy for both is on the [Schemas page](../schema/#versioning-and-maintenance).
-
-### SDK Release Versioning
-
-SDK releases are versioned independently to allow for rapid iteration on tooling, bug fixes, and utilities without requiring core specification version bumps.
-
-* The CUE schemas in the core specification release are the source of truth for validation.
-* SDKs must explicitly document which core specification release version they support.
-* When a new core specification release is published, SDKs regenerate their types from the updated schemas and release new versions that support the updated specification.
+The specification and each SDK keep separate [SemVer](https://semver.org/) lifecycles. SDKs regenerate their types from each new spec release and say which spec version they support. The full policy is on the [Versioning and lifecycle](../reference/versioning/) page.
 
 ## Relationship to Other Components
 

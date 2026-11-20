@@ -1,6 +1,6 @@
 # Minimal Secure Software Development Guidance
 # Schema: #GuidanceCatalog (github.com/gemaraproj/gemara@v1.6.0).
-# See guidance-guide.md for the full guide.
+# See the guidance catalog how-to guide (how-to/guidance-catalog/) for the full guide.
 
 title: Secure Software Development Guidance
 metadata:

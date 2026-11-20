@@ -1,0 +1,8 @@
+---
+# Serves risk-catalog-example.yaml at its old /tutorials/ URL too. GitHub Pages cannot redirect a
+# non-HTML file, so this copies the file's content at build time instead.
+permalink: /tutorials/policy/risk-catalog-example.yaml
+layout: null
+sitemap: false
+---
+{% include_relative risk-catalog-example.yaml %}

@@ -1,6 +1,6 @@
 # Container Management Tool Security Control Catalog
 # Conforms to Gemara #ControlCatalog (schema tag v1.6.0; see controlcatalog.cue).
-# See control-catalog-guide.md for the full tutorial and this scenario.
+# See the control catalog how-to guide (how-to/control-catalog/) for the full tutorial and this scenario.
 
 title: Container Management Tool Security Control Catalog
 

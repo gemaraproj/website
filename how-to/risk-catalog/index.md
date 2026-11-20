@@ -2,6 +2,8 @@
 layout: page
 title: Risk Catalog Guide
 description: Step-by-step guide to creating Gemara-compatible risk catalogs
+redirect_from:
+  - /tutorials/policy/risk-catalog-guide.html
 ---
 
 ## What This Is
@@ -16,9 +18,9 @@ In technical terms:
 * **Groups** use appetite values `Minimal`, `Low`, `Moderate`, or `High` and optional group-level **max-severity** (`Low`, `Medium`, `High`, `Critical`).
 * **Risks** use **severity** at the same scale (`Low` through `Critical`). Optional **`rank`** is an integer; **lower values mean higher relative importance** among risks that set `rank`. Each `rank` value must be **unique** among risks that specify it (partial ranking is allowed: risks without `rank` are unconstrained). Links under `threats` use the same multi-entry mapping pattern as control and threat catalogs; every outer `reference-id` must match an id in `metadata.mapping-references`.
 
-This exercise produces a risk catalog that you can reference from a [Policy](policy-guide) when documenting mitigated and accepted risks.
+This exercise produces a risk catalog that you can reference from a [Policy](../policy/) when documenting mitigated and accepted risks.
 
-The example risks in this guide are drawn from the same scope as the [Threat Assessment Guide](../controls/threat-assessment-guide): the container management tool (SEC.SLAM.CM) and the CCC Core catalog. They correspond to the imported threat **TH14** (Older Resource Versions are Used) and the custom threat **SEC.SLAM.CM.THR01** (Container Image Tampering or Poisoning) defined there.
+The example risks in this guide are drawn from the same scope as the [Threat Assessment Guide](../threat-assessment/): the container management tool (SEC.SLAM.CM) and the CCC Core catalog. They correspond to the imported threat **TH14** (Older Resource Versions are Used) and the custom threat **SEC.SLAM.CM.THR01** (Container Image Tampering or Poisoning) defined there.
 
 ## Walkthrough
 
@@ -256,6 +258,6 @@ risks:
 
 ## What's Next
 
-- Reference this risk catalog from a **Policy** document: in the policy's `risks` section, use `mitigated` and `accepted` entries that reference risk ids (and, for accepted risks, justification and optional scope). See the [Policy Guide](policy-guide) and the `risks` section of the [Policy schema](https://gemara.openssf.org/schema/policy.html).
+- Reference this risk catalog from a **Policy** document: in the policy's `risks` section, use `mitigated` and `accepted` entries that reference risk ids (and, for accepted risks, justification and optional scope). See the [Policy Guide](../policy/) and the `risks` section of the [Policy schema](https://gemara.openssf.org/schema/policy.html).
 - Use **Layer 5** evaluations to assess whether controls and implementations address the threats linked to these risks.
 - Use **Layer 7** audit and continuous monitoring to review risk posture and policy effectiveness.
