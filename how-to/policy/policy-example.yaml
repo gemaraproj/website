@@ -20,7 +20,7 @@ metadata:
     - id: "org-risk-catalog-001"
       title: "Organization Risk Catalog for Cloud and Container Workloads"
       version: "1.0.0"
-      url: "https://github.com/gemaraproj/website/blob/main/how-to/risk-catalog/risk-catalog-example.yaml"
+      url: "https://gemara.openssf.org/how-to/risk-catalog/risk-catalog-example.yaml"
       description: "Risk catalog for cloud and container workload policy decisions."
 
 contacts:
