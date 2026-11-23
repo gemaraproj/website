@@ -84,6 +84,13 @@ jobs:
           cd tools
           go test -v ./...
 
+      - name: Install CUE
+        run: go install cuelang.org/go/cmd/cue@latest
+
+      - name: Validate Policy example
+        run: |
+          "$(go env GOPATH)/bin/cue" vet -c -d '#Policy' github.com/gemaraproj/gemara@v1.2.0 tutorials/policy/policy-example.yaml
+
       - name: Fetch spec OpenAPI
         env:
           GH_TOKEN: ${{ github.token }}
