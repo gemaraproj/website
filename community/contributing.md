@@ -46,7 +46,7 @@ Focusing on a handful of pull requests at a time also tends to produce reviews
 that are easier to act on, for contributor and reviewer alike. We lift the 
 limits when submission volume returns to a level the team can keep pace with. 
 
-Bundling related changes, specifically when they are changes to test coverage, is 
+Bundling related changes, specifically when they are changes to improve test coverage, is 
 fine to keep contributions under the cap.
 
 ## DCO
