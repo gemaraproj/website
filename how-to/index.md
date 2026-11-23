@@ -52,6 +52,14 @@ Create a policy document that translates risk appetite into mandatory rules — 
 
 When you need a structured inventory of organizational or system risks—**risk categories** (appetite, optional max-severity), per-risk **severity**, optional **`rank`** for ordering within the catalog, optional RACI **owner** and **impact**, and optional **threats** links backed by `metadata.mapping-references`—so policies can reference mitigated or accepted risks → [Risk Catalog Guide](risk-catalog/) (Layer 3).
 
+### Exporting to OSCAL
+
+Convert Control Catalogs, Guidance Catalogs and Evaluation Logs to OSCAL JSON with the Go SDK → [Export to OSCAL](export-oscal/).
+
+### Publishing artifacts
+
+Package an artifact and everything it imports as an OCI bundle and push it to a registry → [Publish artifacts as an OCI bundle](publish-bundle/).
+
 ## What You'll Build
 
 | Layer | Artifact | Guide |
@@ -66,14 +74,6 @@ When you need a structured inventory of organizational or system risks—**risk 
 
 - `go` installed
 - `cue` installed for validation, for example `cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@v1.6.0 your-mapping-document.yaml`
-
-### Exporting to OSCAL
-
-Convert Control Catalogs, Guidance Catalogs and Evaluation Logs to OSCAL JSON with the Go SDK → [Export to OSCAL](export-oscal/).
-
-### Publishing artifacts
-
-Package an artifact and everything it imports as an OCI bundle and push it to a registry → [Publish artifacts as an OCI bundle](publish-bundle/).
 
 ## Have Ideas?
 

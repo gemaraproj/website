@@ -16,7 +16,7 @@ Language-specific SDKs provide programmatic access to Gemara documents. SDK type
 
 | SDK | Latest release | Generated from spec |
 |:--|:--|:--|
-| Go (`go-gemara`) | v0.12.0 | v1.5.0 |
+| Go (`go-gemara`) | v0.13.0 | v1.5.0 |
 | Python (`gemara-python`) | 0.1.0 (pre-release) | v1.5.0 |
 | React (`@gemara/react`) | 0.2.2 | v1.3.0 |
 

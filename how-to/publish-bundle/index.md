@@ -18,7 +18,7 @@ A bundle is an OCI artifact with type `application/vnd.gemara.bundle.v1`. The [G
   go get github.com/gemaraproj/go-gemara@v0.12.0
   ```
 
-- An artifact that passes `cue vet`, for example the [example policy](../policy/policy-example.yaml) from the policy guide.
+- An artifact that passes `cue vet`. The example YAML files in these guides won't assemble as published: some mapping-references have no `url`, and others point at web pages rather than YAML files.
 - Every artifact it extends or imports listed in `metadata.mapping-references` with a `url` the SDK can fetch (`file://`, `http://`, `https://` or a plain path). The assembler follows those URLs, then the imports of each fetched artifact, until the tree is complete.
 - Push access to a registry.
 
@@ -48,7 +48,7 @@ func main() {
 		log.Fatal(err)
 	}
 	m := bundle.Manifest{BundleVersion: "1", GemaraVersion: "v1.6.0"}
-	b, err := bundle.NewAssembler(&fetcher.URI{}).Assemble(ctx, m, bundle.File{Name: "policy.yaml", Data: data})
+	b, err := bundle.NewAssembler(&fetcher.URI{}).Assemble(ctx, m, bundle.File{Name: "policy.yaml", Data: data}, bundle.WithContinueOnError())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,7 +77,7 @@ func main() {
 }
 ```
 
-`GemaraVersion` records the spec version the artifacts were written against. `b.Warnings` lists non-fatal problems found while assembling, such as a mapping-reference ID that matches no artifact; check it before you push. To authenticate to the registry, set `repo.Client` to an ORAS `auth.Client`.
+`GemaraVersion` records the spec version the artifacts were written against. `bundle.WithContinueOnError()` makes `Assemble` record a mapping-reference ID that matches no artifact in `b.Warnings` instead of returning an error; check `b.Warnings` before you push. Leave the option out to make any such mismatch fail the build. To authenticate to the registry, set `repo.Client` to an ORAS `auth.Client`.
 
 ## Pull a bundle
 

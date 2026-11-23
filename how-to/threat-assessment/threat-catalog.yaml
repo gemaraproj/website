@@ -1,7 +1,7 @@
 # Container Management Tool Security Threat Catalog (ThreatCatalog).
 # Conforms to Gemara #ThreatCatalog (threatcatalog.cue); gemara-version matches schema tag.
 # Scope-specific capabilities live in capabilities.yaml (CapabilityCatalog).
-# See threat-assessment-guide.md.
+# See the threat assessment how-to guide (how-to/threat-assessment/).
 
 title: Container Management Tool Security Threat Catalog
 

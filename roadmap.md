@@ -2,6 +2,8 @@
 layout: page
 title: Roadmap
 description: "Gemara's strategic priorities for 2026, planned tool specifications and completed milestones."
+redirect_from:
+  - /specifications/
 ---
 
 This document outlines the strategic priorities ("big rocks") for Gemara in 2026 and beyond. This roadmap is a living document and is subject to change based on community feedback and evolving industry requirements.

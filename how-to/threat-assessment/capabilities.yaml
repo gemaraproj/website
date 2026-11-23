@@ -1,6 +1,6 @@
 # Scope-specific capabilities for SEC.SLAM.CM (CapabilityCatalog).
 # Referenced from threat-catalog.yaml via mapping-references id SEC.SLAM.CM.CAP.
-# See threat-assessment-guide.md.
+# See the threat assessment how-to guide (how-to/threat-assessment/).
 
 title: Container Management Tool Security Capability Catalog
 

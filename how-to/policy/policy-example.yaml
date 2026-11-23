@@ -1,6 +1,6 @@
 # Information Security Policy for Cloud and Web Applications (Layer 3)
 # Conforms to Gemara #Policy (policy.cue). Validate: cue vet -c -d '#Policy' github.com/gemaraproj/gemara@v1.6.0 this-file.yaml
-# Aligned to threat-assessment-guide scope (SEC.SLAM.CM) and policy guide.
+# Aligned to the threat assessment guide's scope (SEC.SLAM.CM) and the policy guide (how-to/policy/).
 title: "Information Security Policy for Cloud and Web Applications"
 metadata:
   id: "org-policy-001"
