@@ -37,6 +37,7 @@
   children:
     - title: Schemas
       url: /schema/
+      match: prefix
     - title: Definitions
       url: /model/02-definitions
     - title: SDKs
@@ -91,3 +92,4 @@
       url: /faq/
     - title: Architecture decisions
       url: /adrs/
+      match: prefix

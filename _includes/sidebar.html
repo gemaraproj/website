@@ -43,7 +43,9 @@
               </div>
             </details>
           {%- else -%}
-            <a href="{{ item.url | relative_url }}" class="sidebar-link"{% if item.url == current %} aria-current="page"{% endif %}>{{ item.title | escape }}</a>
+            {%- comment -%} match: prefix marks the entry on its unlisted child pages too. {%- endcomment -%}
+            {%- assign prefix = current | slice: 0, item.url.size -%}
+            <a href="{{ item.url | relative_url }}" class="sidebar-link"{% if item.url == current %} aria-current="page"{% elsif item.match == "prefix" and prefix == item.url %} aria-current="location"{% endif %}>{{ item.title | escape }}</a>
           {%- endif -%}
         {%- endfor -%}
       {%- endfor -%}

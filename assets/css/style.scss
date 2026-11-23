@@ -983,7 +983,8 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
   margin-top: var(--spacing-md);
 }
 
-.sidebar-nav [aria-current="page"] {
+.sidebar-nav [aria-current="page"],
+.sidebar-nav [aria-current="location"] {
   color: var(--openssf-purple);
   font-weight: 600;
 }
