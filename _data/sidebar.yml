@@ -32,6 +32,10 @@
           url: /tutorials/policy/risk-catalog-guide
         - title: Policy Guide
           url: /tutorials/policy/policy-guide
+    - title: Evaluation
+      children:
+        - title: Evaluation Log Guide
+          url: /tutorials/evaluation/evaluation-log-guide
     - title: Mapping
       children:
         - title: Mapping Document Guide

@@ -51,6 +51,10 @@ Create a policy document that translates risk appetite into mandatory rules — 
 
 When you need a structured inventory of organizational or system risks—**risk categories** (appetite, optional max-severity), per-risk **severity**, optional **`rank`** for ordering within the catalog, optional RACI **owner** and **impact**, and optional **threats** links backed by `metadata.mapping-references`—so policies can reference mitigated or accepted risks → [Risk Catalog Guide](policy/risk-catalog-guide) (Layer 3).
 
+### Generating and recording security evaluations
+
+When you run automated tests, policy checks, or compliance scans against a target system—**control evaluations**, per-requirement **assessment logs**, execution timestamps (start/end), step counts, result states (Passed, Failed, Not Applicable), and cryptographic or payload evidence—capturing operational truth against Layer 2 controls → [Evaluation Log Guide](evaluation/evaluation-log-guide) (Layer 5).
+
 ## What You'll Build
 
 | Layer | Artifact | Guide |
@@ -59,6 +63,7 @@ When you need a structured inventory of organizational or system risks—**risk 
 | **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threats) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
 | **Layer 3** — Policy   | Policy Document (scope, imports, adherence)                  | [Policy Guide](policy/policy-guide) |
 | **Layer 3** — Risks    | Risk Catalog (risk categories, appetite, risks, optional rank and threat mappings) | [Risk Catalog Guide](policy/risk-catalog-guide) |
+| **Layer 5** — Evaluation | Evaluation Log (control evaluations, assessment logs, execution timestamps, evidence) | [Evaluation Log Guide](evaluation/evaluation-log-guide) |
 | **Cross-artifact**     | Mapping Document (typed `source`/`target` references, `targets` per mapping, relationship types; entry types per schema include guidelines, controls, Principle, threats, risks, and others) | [Mapping Document Guide](mapping/mapping-document-guide) |
 
 ## What You'll Need
