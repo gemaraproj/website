@@ -38,7 +38,7 @@ Declare your control catalog and mapping references. Key fields:
 |-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `title`                             | Display name for the control catalog (top-level field)       | Human-readable label used in reports and tooling output                                   |
 | `metadata.type`                     | Must be `ControlCatalog`                                     | Identifies the artifact kind for validation             |
-| `metadata.gemara-version`           | String (e.g. `1.2.0`)                                   | Declares which Gemara specification version the file conforms to (required in current schema) |
+| `metadata.gemara-version`           | String (e.g. `1.6.0`)                                   | Declares which Gemara specification version the file conforms to (required in current schema) |
 | `mapping-references` with `id: CCC` | Optional pointer to CCC or another control/threat catalog   | Resolve imported capability and control IDs from the referenced catalog                  |
 | `applicability-groups`          | List of groups (id, title, description) for when controls apply | Scope assessment requirements by context (e.g., production, CI/CD) so evaluators know when each requirement applies |
 
@@ -51,7 +51,7 @@ title: Container Management Tool Security Control Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ControlCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: Control catalog for container management tool security; mitigates threats from the SEC.SLAM.CM threat catalog.
   version: 1.0.0
   author:
@@ -68,7 +68,7 @@ metadata:
         control's threats.
     - id: CCC
       title: Common Cloud Controls Core
-      version: v2025.10
+      version: v2026.06-rc1
       url: https://github.com/finos/common-cloud-controls/releases
       description: |
         Foundational repository of reusable security controls, capabilities,
@@ -228,7 +228,7 @@ Validate the final catalog with CUE:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1 your-control-catalog.yaml
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1.6.0 your-control-catalog.yaml
 ```
 
 Fix any reported errors (e.g., missing required fields, invalid `group` reference, or malformed `threats`) so the catalog is schema-consistent.
@@ -245,7 +245,7 @@ title: Container Management Tool Security Control Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ControlCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: |
     Control catalog for container management tool security; mitigates threats
     from the SEC.SLAM.CM threat catalog.
@@ -264,7 +264,7 @@ metadata:
         control's threats.
     - id: CCC
       title: Common Cloud Controls Core
-      version: v2025.10
+      version: v2026.06-rc1
       url: https://github.com/finos/common-cloud-controls/releases
       description: |
         Foundational repository of reusable security controls, capabilities,
@@ -379,7 +379,7 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1 your-control-catalog.yaml
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1.6.0 your-control-catalog.yaml
 ```
 
 Fix any reported errors (e.g., missing required fields, invalid `group` reference, or malformed `threats`) so the catalog is schema-consistent.

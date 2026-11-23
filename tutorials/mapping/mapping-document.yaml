@@ -1,13 +1,13 @@
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
 # Conforms to Gemara #MappingDocument (mappingdocument.cue).
-# gemara-version: v1.2.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.2.0
+# gemara-version: v1.6.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.2.0
 # Source guidance catalog: ../guidance/guidance-example.yaml (metadata.id ORG.SSD.001)
 # entry-type on source-reference / target-reference applies to all entries on that side (#TypedMapping).
 title: Secure Software Development Guidance to OWASP Top 10
 metadata:
   id: SSD-OWASP-MAP-001
   type: MappingDocument
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.

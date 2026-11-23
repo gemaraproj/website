@@ -8,7 +8,7 @@ title: Container Management Tool Security Threat Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ThreatCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: Threat catalog for container management tool security assessment
   version: 1.0.0
   author:
@@ -18,7 +18,7 @@ metadata:
   mapping-references:
     - id: CCC
       title: Common Cloud Controls Core
-      version: v2025.10
+      version: v2026.06-rc1
       url: https://github.com/finos/common-cloud-controls/releases
       description: |
         Foundational repository of reusable security controls, capabilities,

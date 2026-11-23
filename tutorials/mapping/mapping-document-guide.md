@@ -6,7 +6,7 @@ description: Step-by-step guide to creating Gemara-compatible mapping documents
 
 ## What This Is
 
-This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance/guidance-guide). Examples use `gemara-version: "1.2.0"` to match the [v1.2.0](https://github.com/gemaraproj/gemara/releases/tag/v1.2.0) specification release candidate; adjust if you target a different Gemara version.
+This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance/guidance-guide). Examples use `gemara-version: "1.6.0"` to match the [v1.6.0](https://github.com/gemaraproj/gemara/releases/tag/v1.6.0) specification release candidate; adjust if you target a different Gemara version.
 
 A mapping document captures the user's intent for how entries in a **source** artifact relate to entries in a **target** artifact. It is the place to express alignment between independently authored catalogs (e.g., your guidance to OWASP, or controls to regulations) in a single, directed way.
 
@@ -66,7 +66,7 @@ metadata:
   id: SSD-OWASP-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
@@ -157,8 +157,8 @@ Validate with CUE:
 **Validation commands:**
 
 ```bash
-go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@latest your-mapping-document-example.yaml
+go install cuelang.org/go/cmd/cue@v1.6.0
+cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@v1.6.0 your-mapping-document-example.yaml
 ```
 
 From a **clone of this repository** (run from the repo root; replace the placeholder with your file path):
@@ -176,7 +176,7 @@ Combine metadata, source-reference, target-reference, remarks, and mappings into
 ```yaml
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
 # Conforms to Gemara #MappingDocument (mappingdocument.cue).
-# gemara-version: v1.2.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.2.0
+# gemara-version: v1.6.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.6.0
 # Source guidance catalog: ../guidance/guidance-example.yaml (metadata.id ORG.SSD.001)
 # entry-type on source-reference / target-reference applies to all entries on that side (#TypedMapping).
 title: Secure Software Development Guidance to OWASP Top 10
@@ -184,7 +184,7 @@ metadata:
   id: SSD-OWASP-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
