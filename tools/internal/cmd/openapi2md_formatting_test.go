@@ -55,6 +55,16 @@ func TestFormatFieldType(t *testing.T) {
 				"CustomActor": map[string]interface{}{
 					"type": "object",
 				},
+				"ResolvedComposite": map[string]interface{}{
+					"allOf": []interface{}{
+						map[string]interface{}{
+							"$ref": "#/components/schemas/CustomActor",
+						},
+						map[string]interface{}{
+							"type": "object",
+						},
+					},
+				},
 			},
 		},
 	}
@@ -76,6 +86,14 @@ func TestFormatFieldType(t *testing.T) {
 			},
 			schemaToFile: schemaToFile,
 			want:         "string",
+		},
+		{
+			name: "primitive integer",
+			fieldSchema: Schema{
+				Type: "integer",
+			},
+			schemaToFile: schemaToFile,
+			want:         "integer",
 		},
 		{
 			name: "ref with matching schemaToFile generates markdown link without md ext",
@@ -116,6 +134,24 @@ func TestFormatFieldType(t *testing.T) {
 			want:         "array[[CustomActor](entities#customactor)]",
 		},
 		{
+			name: "array of composite allOf items resolving to ref from spec",
+			fieldSchema: Schema{
+				Type: "array",
+				Items: map[string]interface{}{
+					"allOf": []interface{}{
+						map[string]interface{}{
+							"$ref": "#/components/schemas/CustomActor",
+						},
+						map[string]interface{}{
+							"type": "object",
+						},
+					},
+				},
+			},
+			schemaToFile: schemaToFile,
+			want:         "array[[CustomActor](entities#customactor)]",
+		},
+		{
 			name: "array of unmapped ref types without linking",
 			fieldSchema: Schema{
 				Type: "array",
@@ -127,8 +163,8 @@ func TestFormatFieldType(t *testing.T) {
 			want:         "array[UnmappedItem]",
 		},
 		{
-			name: "empty schema returns empty string",
-			fieldSchema: Schema{},
+			name:         "empty schema returns empty string",
+			fieldSchema:  Schema{},
 			schemaToFile: schemaToFile,
 			want:         "",
 		},
@@ -184,17 +220,23 @@ func TestFormatFieldInlineAndNested(t *testing.T) {
 		t.Errorf("expected inherited description from ref target, got %q", desc)
 	}
 
-	// 3. formatFieldWithNested produces formatted block with trailing newlines
-	nestedBlock := formatFieldWithNested("entry", Schema{
+	// 3. formatFieldWithNested exact block match for required field with description
+	gotRequired := formatFieldWithNested("entry", Schema{
 		Type:        "string",
 		Description: "Entry description",
 	}, spec, true, schemaToFile)
-
-	if !strings.Contains(nestedBlock, "`entry` **string** _Required_\n\n") {
-		t.Errorf("nested block missing field definition: %q", nestedBlock)
+	wantRequired := "`entry` **string** _Required_\n\nEntry description\n"
+	if gotRequired != wantRequired {
+		t.Errorf("formatFieldWithNested(required) = %q, want %q", gotRequired, wantRequired)
 	}
-	if !strings.Contains(nestedBlock, "Entry description\n") {
-		t.Errorf("nested block missing description: %q", nestedBlock)
+
+	// 4. formatFieldWithNested exact block match for optional field without description
+	gotOptional := formatFieldWithNested("optionalEntry", Schema{
+		Type: "integer",
+	}, spec, false, schemaToFile)
+	wantOptional := "`optionalEntry` **integer**\n\n"
+	if gotOptional != wantOptional {
+		t.Errorf("formatFieldWithNested(optional, no desc) = %q, want %q", gotOptional, wantOptional)
 	}
 }
 
@@ -204,18 +246,43 @@ func TestMergeSchemasEdgeCases(t *testing.T) {
 		Description: "Base description",
 		Required:    []string{"id", "title"},
 		Properties: map[string]interface{}{
-			"id": map[string]interface{}{"type": "string"},
+			"id":    map[string]interface{}{"type": "string", "description": "Original ID"},
+			"title": map[string]interface{}{"type": "string"},
 		},
+		Pattern: "^[0-9]+$",
+		Format:  "date",
 		XStatus: "stable",
 	}
 
+	// 1. Merge empty source: verify that target fields are preserved and not cleared
+	emptySource := Schema{}
+	mergeSchemas(&target, emptySource)
+	if target.Type != "object" {
+		t.Errorf("target.Type = %q after empty source merge, want object", target.Type)
+	}
+	if target.Description != "Base description" {
+		t.Errorf("target.Description = %q after empty source merge, want 'Base description'", target.Description)
+	}
+	if target.Pattern != "^[0-9]+$" {
+		t.Errorf("target.Pattern = %q after empty source merge, want '^[0-9]+$'", target.Pattern)
+	}
+	if target.Format != "date" {
+		t.Errorf("target.Format = %q after empty source merge, want 'date'", target.Format)
+	}
+	if target.XStatus != "stable" {
+		t.Errorf("target.XStatus = %q after empty source merge, want 'stable'", target.XStatus)
+	}
+
+	// 2. Merge non-empty source: verify property override ("id"), property union ("extra"),
+	// and internal seen-tracking deduplication ("extra" repeated inside source itself).
 	source := Schema{
 		Description: "Overridden description",
 		Pattern:     "^[a-z]+$",
 		Format:      "uri",
 		XStatus:     "experimental",
-		Required:    []string{"id", "extra"}, // "id" is duplicate, "extra" is new
+		Required:    []string{"id", "extra", "extra"}, // "id" is overlap with target, "extra" is duplicate within source
 		Properties: map[string]interface{}{
+			"id":    map[string]interface{}{"type": "string", "description": "Overridden ID"},
 			"extra": map[string]interface{}{"type": "integer"},
 		},
 	}
@@ -246,14 +313,18 @@ func TestMergeSchemasEdgeCases(t *testing.T) {
 		}
 	}
 
-	// Check properties merged
-	if len(target.Properties) != 2 {
-		t.Fatalf("target.Properties length = %d, want 2", len(target.Properties))
+	// Check properties: length 3, id overridden, extra added, title retained
+	if len(target.Properties) != 3 {
+		t.Fatalf("target.Properties length = %d, want 3", len(target.Properties))
 	}
-	if _, ok := target.Properties["id"]; !ok {
-		t.Errorf("missing property 'id'")
+	idProp, ok := target.Properties["id"].(map[string]interface{})
+	if !ok || idProp["description"] != "Overridden ID" {
+		t.Errorf("expected property 'id' to be overridden by source, got %v", target.Properties["id"])
 	}
 	if _, ok := target.Properties["extra"]; !ok {
 		t.Errorf("missing property 'extra'")
+	}
+	if _, ok := target.Properties["title"]; !ok {
+		t.Errorf("missing retained property 'title'")
 	}
 }
