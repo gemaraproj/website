@@ -46,11 +46,11 @@ Express how entries in a source artifact (e.g., guidance, principle, or control 
 
 ### Creating organizational policy
 
-Create a policy document that translates risk appetite into mandatory rules — [Policy Guide](policy/) — scope, imports, adherence, and risks (Layer 3).
+Create a policy document that translates risk appetite into mandatory rules — [Policy Guide](policy/) — scope, imports, [risk decisions](policy/#step-4-risk-decisions), and adherence (Layer 3).
 
 ### Creating a risk catalog
 
-When you need a structured inventory of organizational or system risks—**risk categories** (appetite, optional max-severity), per-risk **severity**, optional **`rank`** for ordering within the catalog, optional RACI **owner** and **impact**, and optional **threats** links backed by `metadata.mapping-references`—so policies can reference mitigated or accepted risks → [Risk Catalog Guide](risk-catalog/) (Layer 3).
+When you need a structured inventory of organizational or system risks—**risk categories** (appetite, optional max-severity), per-risk **severity**, optional **`rank`** for ordering within the catalog, optional RACI **owner** and **impact**, and optional **threats** links backed by `metadata.mapping-references`—so policies can reference mitigated or accepted risks → [Risk Catalog Guide](risk-catalog/) (Layer 3); then use the [Policy Guide risk-decision walkthrough](policy/#step-4-risk-decisions).
 
 ### Exporting to OSCAL
 
