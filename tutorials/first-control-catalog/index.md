@@ -1,10 +1,10 @@
 ---
 layout: page
 title: Write and validate your first control catalog
-description: "A first Gemara tutorial: write a two-control catalog in YAML, validate it with CUE, fix a validation error and export the catalog to OSCAL."
+description: "A first Gemara tutorial: write a two-control catalog in YAML, validate it with CUE and fix a validation error."
 ---
 
-In this tutorial you write a small Gemara control catalog for a web service, check it against the Gemara schema, break it on purpose to see what a validation error looks like, fix it, and convert it to OSCAL.
+In this tutorial you write a small Gemara control catalog for a web service, check it against the Gemara schema, break it on purpose to see what a validation error looks like, and fix it.
 
 It takes about 15 minutes. You don't need to know Gemara or CUE first.
 
@@ -132,38 +132,13 @@ cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1.6.0 my-catalog.y
 
 It prints nothing again. Your catalog is valid.
 
-## Step 5: Export it to OSCAL
-
-A Gemara catalog is meant to be used by tools. To see one at work, convert yours to [OSCAL](https://pages.nist.gov/OSCAL/), the compliance format many assessors and government programs accept. Install the `oscalexport` command from the [Go SDK](../../sdk/go-sdk.html):
-
-```bash
-go install github.com/gemaraproj/go-gemara/cmd/oscalexport@v0.12.0
-```
-
-Then run it on your catalog:
-
-```bash
-oscalexport catalog my-catalog.yaml --output my-catalog.oscal.json
-```
-
-It prints:
-
-```text
-Successfully wrote OSCAL content to my-catalog.oscal.json
-```
-
-Open `my-catalog.oscal.json`. Your group became an OSCAL group holding both controls, and each assessment requirement became an OSCAL sub-control whose statement is your requirement text:
-
-```json
-"prose": "Every administrator account MUST require a second factor at sign-in."
-```
-
 ## What you did
 
-You wrote a Gemara control catalog, validated it against the published schema, read and fixed a validation error, and turned the catalog into OSCAL.
+You wrote a Gemara control catalog, validated it against the published schema, and read and fixed a validation error.
 
 ## Next steps
 
 - To write a catalog for a real system, linked to the threats it mitigates, follow [Write a control catalog](../../how-to/control-catalog/).
 - To see every field a control catalog can have, read the [Control Catalog schema](../../schema/controlcatalog.html).
+- To convert your catalog to OSCAL, the compliance format many assessors accept, follow [Export to OSCAL](../../how-to/export-oscal/).
 - To see where control catalogs sit among the other artifacts, read [The Gemara model](../../model/).
