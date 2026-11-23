@@ -374,3 +374,267 @@ func TestFindHTMLContentRanges(t *testing.T) {
 		t.Errorf("expected range (9, %d) for unclosed tag, got %+v", len(unclosed), unclosedRanges)
 	}
 }
+
+func controlTermInfos() []TermInfo {
+	return []TermInfo{{
+		OriginalTerm: "Control",
+		LowerTerm:    "control",
+		Slug:         "control",
+		Regex:        regexp.MustCompile(`(?i)\bControl\b`),
+	}}
+}
+
+func TestProcessContentStateTracking(t *testing.T) {
+	const defPath = "02-definitions.html"
+	link := "[Control](02-definitions.html#control)"
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "single body horizontal rule",
+			input: "A Control.\n\n---\n\nB Control.",
+			want:  "A " + link + ".\n\n---\n\nB " + link + ".",
+		},
+		{
+			name:  "two body horizontal rules",
+			input: "A Control.\n\n---\n\nB Control.\n\n---\n\nC Control.",
+			want:  "A " + link + ".\n\n---\n\nB " + link + ".\n\n---\n\nC " + link + ".",
+		},
+		{
+			name:  "front matter at top is skipped",
+			input: "---\ntitle: Control\n---\nA Control.",
+			want:  "---\ntitle: Control\n---\nA " + link + ".",
+		},
+		{
+			name:  "front matter followed by body rules",
+			input: "---\ntitle: Control\n---\nA Control.\n\n---\n\nB Control.",
+			want:  "---\ntitle: Control\n---\nA " + link + ".\n\n---\n\nB " + link + ".",
+		},
+		{
+			name:  "dashes not on first line do not start front matter",
+			input: "\n---\ntitle: Control\n---\nA Control.",
+			want:  "\n---\ntitle: " + link + "\n---\nA " + link + ".",
+		},
+		{
+			name:  "longer dash rule in body",
+			input: "A Control.\n\n-----\n\nB Control.",
+			want:  "A " + link + ".\n\n-----\n\nB " + link + ".",
+		},
+		{
+			name:  "br tag does not disable later lines",
+			input: "line<br>\nB Control.",
+			want:  "line<br>\nB " + link + ".",
+		},
+		{
+			name:  "img tag does not disable later lines",
+			input: "<img src=\"x\">\nB Control.",
+			want:  "<img src=\"x\">\nB " + link + ".",
+		},
+		{
+			name:  "hr tag does not disable later lines",
+			input: "<hr>\nB Control.",
+			want:  "<hr>\nB " + link + ".",
+		},
+		{
+			name:  "self-closing br does not disable later lines",
+			input: "line<br/>\nB Control.",
+			want:  "line<br/>\nB " + link + ".",
+		},
+		{
+			name:  "autolink does not disable later lines",
+			input: "See <https://x.io>.\nB Control.",
+			want:  "See <https://x.io>.\nB " + link + ".",
+		},
+		{
+			name:  "mailto autolink does not disable later lines",
+			input: "Mail <mailto:a@x.io>.\nB Control.",
+			want:  "Mail <mailto:a@x.io>.\nB " + link + ".",
+		},
+		{
+			name:  "html comment does not disable later lines",
+			input: "<!-- c -->\nB Control.",
+			want:  "<!-- c -->\nB " + link + ".",
+		},
+		{
+			name:  "balanced div suppresses linking inside",
+			input: "<div>\nA Control.\n</div>\nB Control.",
+			want:  "<div>\nA Control.\n</div>\nB " + link + ".",
+		},
+		{
+			name:  "void tag inside div does not close it early",
+			input: "<div>\nA Control.<br>\n</div>\nB Control.",
+			want:  "<div>\nA Control.<br>\n</div>\nB " + link + ".",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := processContent(tt.input, controlTermInfos(), defPath)
+			if got != tt.want {
+				t.Errorf("processContent()\n got: %q\nwant: %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestContentStateUpdateHTMLTags(t *testing.T) {
+	tests := []struct {
+		name     string
+		line     string
+		wantOpen bool
+	}{
+		{"void br", "line<br>", false},
+		{"void br uppercase", "line<BR>", false},
+		{"void img with attrs", `<img src="x" alt="y">`, false},
+		{"void hr", "<hr>", false},
+		{"void input", `<input type="text">`, false},
+		{"self-closing br", "<br/>", false},
+		{"self-closing custom", "<foo />", false},
+		{"https autolink", "See <https://x.io>.", false},
+		{"http autolink", "See <http://x.io>.", false},
+		{"mailto autolink", "<mailto:a@x.io>", false},
+		{"html comment", "<!-- c -->", false},
+		{"doctype", "<!DOCTYPE html>", false},
+		{"processing instruction", `<?xml version="1.0"?>`, false},
+		{"div opens", "<div>", true},
+		{"div with attrs opens", `<div class="x">`, true},
+		{"balanced div", "<div>text</div>", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			state := &contentState{}
+			state.update("first line")
+			state.update(tt.line)
+			gotOpen := state.inHTMLBlock || state.htmlTagStack > 0
+			if gotOpen != tt.wantOpen {
+				t.Errorf("update(%q): open = %v (stack %d), want %v", tt.line, gotOpen, state.htmlTagStack, tt.wantOpen)
+			}
+		})
+	}
+}
+
+func TestContentStateUpdateFrontMatterOnlyAtTop(t *testing.T) {
+	state := &contentState{}
+	state.update("Some text.")
+	state.update("---")
+	if state.inFrontMatter {
+		t.Error("expected --- after the first line not to start front matter")
+	}
+
+	state = &contentState{}
+	state.update("---")
+	state.update("title: x")
+	state.update("---")
+	state.update("body")
+	state.update("---")
+	if state.inFrontMatter {
+		t.Error("expected body --- after front matter not to re-enter front matter")
+	}
+
+	state = &contentState{}
+	state.update("---")
+	state.update("--- not a delimiter")
+	if !state.inFrontMatter {
+		t.Error("expected only an exact --- line to close front matter")
+	}
+}
+
+func TestCleanupContentStateTracking(t *testing.T) {
+	const defPath = "02-definitions.html"
+	link := "[Control](02-definitions.html#control)"
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "strips links after a body horizontal rule",
+			input: "A " + link + ".\n\n---\n\nB " + link + ".",
+			want:  "A Control.\n\n---\n\nB Control.",
+		},
+		{
+			name:  "strips links between two body rules",
+			input: "A " + link + ".\n\n---\n\nB " + link + ".\n\n---\n\nC " + link + ".",
+			want:  "A Control.\n\n---\n\nB Control.\n\n---\n\nC Control.",
+		},
+		{
+			name:  "leaves front matter at top untouched",
+			input: "---\ntitle: " + link + "\n---\nA " + link + ".",
+			want:  "---\ntitle: " + link + "\n---\nA Control.",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := cleanupContent(tt.input, controlTermInfos(), defPath)
+			if got != tt.want {
+				t.Errorf("cleanupContent()\n got: %q\nwant: %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCleanupLineLinkFiltering(t *testing.T) {
+	const defPath = "../model/02-definitions.html"
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "leaves image link to definitions intact",
+			input: "![Control](/model/02-definitions#control)",
+			want:  "![Control](/model/02-definitions#control)",
+		},
+		{
+			name:  "leaves external host containing 02-definitions intact",
+			input: "See [Control](https://other.example/02-definitions#control).",
+			want:  "See [Control](https://other.example/02-definitions#control).",
+		},
+		{
+			name:  "leaves protocol-relative host containing 02-definitions intact",
+			input: "See [Control](//other.example/model/02-definitions.html#control).",
+			want:  "See [Control](//other.example/model/02-definitions.html#control).",
+		},
+		{
+			name:  "leaves lookalike page name intact",
+			input: "See [Control](../model/not-02-definitions.html#control).",
+			want:  "See [Control](../model/not-02-definitions.html#control).",
+		},
+		{
+			name:  "strips relative generated link",
+			input: "A [Control](../model/02-definitions.html#control).",
+			want:  "A Control.",
+		},
+		{
+			name:  "strips same-directory generated link",
+			input: "A [Control](02-definitions.html#control).",
+			want:  "A Control.",
+		},
+		{
+			name:  "strips root-relative link",
+			input: "A [Control](/model/02-definitions#control).",
+			want:  "A Control.",
+		},
+		{
+			name:  "strips link next to image",
+			input: "![Control](/model/02-definitions#control) and [Control](02-definitions.html#control)",
+			want:  "![Control](/model/02-definitions#control) and Control",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := cleanupLine(tt.input, controlTermInfos(), defPath)
+			if got != tt.want {
+				t.Errorf("cleanupLine()\n got: %q\nwant: %q", got, tt.want)
+			}
+		})
+	}
+}
