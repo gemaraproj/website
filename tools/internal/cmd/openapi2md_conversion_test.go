@@ -116,11 +116,11 @@ pages:
 		t.Fatalf("failed to read generated page 1: %v", err)
 	}
 	p1Content := string(p1)
-	if !strings.Contains(p1Content, "`Derived`") {
-		t.Errorf("model-specs.md missing Derived schema section:\n%s", p1Content)
+	if !strings.Contains(p1Content, "## `Derived`") || !strings.Contains(p1Content, "`own`") {
+		t.Errorf("model-specs.md missing Derived schema section or property row:\n%s", p1Content)
 	}
-	if !strings.Contains(p1Content, "`Metadata`") {
-		t.Errorf("model-specs.md missing Metadata alias block:\n%s", p1Content)
+	if !strings.Contains(p1Content, "## `Metadata`") || !strings.Contains(p1Content, "- **Type**: `string`") {
+		t.Errorf("model-specs.md missing Metadata alias block or type line:\n%s", p1Content)
 	}
 
 	// Verify auto-slug generated file 2 (auto_slug_page -> auto-slug-page.md)
@@ -144,12 +144,21 @@ func TestConvertPerFile(t *testing.T) {
 	}
 
 	// Missing OpenAPI input file
-	goodManifestContent := `{"base.cue": ["Base"], "empty.cue": []}`
+	goodManifestContent := `{"base.cue": ["Base"], "meta.cue": ["Metadata"], "empty.cue": []}`
 	if err := os.WriteFile(manifestPath, []byte(goodManifestContent), 0644); err != nil {
 		t.Fatal(err)
 	}
 	if err := convertPerFile("nonexistent.yaml", outDir, manifestPath); err == nil {
 		t.Error("expected error for missing OpenAPI input file, got nil")
+	}
+
+	// Malformed OpenAPI YAML
+	badYAML := filepath.Join(tempDir, "bad_openapi.yaml")
+	if err := os.WriteFile(badYAML, []byte("invalid: yaml: ["), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := convertPerFile(badYAML, outDir, manifestPath); err == nil {
+		t.Error("expected error for invalid OpenAPI YAML, got nil")
 	}
 
 	// Valid execution
@@ -164,6 +173,15 @@ func TestConvertPerFile(t *testing.T) {
 	}
 	if !strings.Contains(string(baseFile), "`Base`") {
 		t.Errorf("base.md missing Base schema section:\n%s", string(baseFile))
+	}
+
+	// Verify generated file meta.md for alias schema
+	metaFile, err := os.ReadFile(filepath.Join(outDir, "meta.md"))
+	if err != nil {
+		t.Fatalf("failed to read generated meta.md: %v", err)
+	}
+	if !strings.Contains(string(metaFile), "- **Type**: `string`") {
+		t.Errorf("meta.md missing Metadata alias type line:\n%s", string(metaFile))
 	}
 
 	// Empty cue file in manifest should not create a markdown file
