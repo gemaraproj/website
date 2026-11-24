@@ -42,7 +42,7 @@ Declare your control catalog and the catalogs it refers to. The fields that need
 |-------|-------------------|
 | `metadata.type` | `ControlCatalog` |
 | `metadata.gemara-version` | The spec version you validate against, here `"1.6.0"` |
-| `metadata.mapping-references` | One entry per catalog you import from or link to, such as your threat catalog and CCC. The `id` is what `reference-id` uses later. |
+| `metadata.mapping-references` | One entry per catalog you import from or link to, such as your threat catalog and the CCC Core catalogs. The `id` is what `reference-id` uses later. |
 | `metadata.applicability-groups` | The contexts your requirements apply in, such as production or CI/CD. Required once the catalog defines controls; every `applicability` value must be one of these ids. |
 
 **Example (YAML):**
@@ -53,27 +53,30 @@ metadata:
   id: SEC.SLAM.CM
   type: ControlCatalog
   gemara-version: "1.6.0"
-  description: Control catalog for container management tool security; mitigates threats from the SEC.SLAM.CM threat catalog.
+  description: Control catalog for container management tool security; mitigates threats from the SEC.SLAM.CM.THR threat catalog.
   version: 1.0.0
   author:
     id: example
     name: Example
     type: Human
   mapping-references:
-    - id: SEC.SLAM.CM
+    - id: SEC.SLAM.CM.THR
       title: Container Management Tool Security Threat Catalog
       version: "1.0.0"
       url: file://threats.yaml
       description: |
         Threat catalog for the same scope; provides threat IDs referenced from each
         control's threats.
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2025.10
-      url: https://github.com/finos/common-cloud-controls/releases
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
+    - id: CCC.Core.Controls
+      title: CCC Core Controls
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.controls/versions/v2026.11
+      description: Common cloud controls from the FINOS Common Cloud Controls Core catalog.
+    - id: CCC.Core.Threats
+      title: CCC Core Threats
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+      description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
   applicability-groups:
     - id: production
       title: Production
@@ -121,10 +124,10 @@ groups:
 
 ```yaml
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Controls
     entries:
-      - reference-id: CCC.Core.CTL42
-        remarks: Image signing and verification
+      - reference-id: CCC.Core.CN05
+        remarks: Prevent access from untrusted entities
 ```
 
 **Option B — Define your own controls:** For controls specific to your scope, define them under `controls`. Each control needs an `id` (this guide uses `ORG.PROJ.COMPONENT.CTL##`), a `title`, an `objective` stating its intent, a `group` from Step 2, and at least one assessment requirement. The fields that link a control to the rest of your work:
@@ -160,12 +163,12 @@ controls:
           references for production or sensitive workloads where supported.
         applicability: ["production"]
     threats:
-      - reference-id: SEC.SLAM.CM
+      - reference-id: SEC.SLAM.CM.THR
         entries:
           - reference-id: SEC.SLAM.CM.THR01
           - reference-id: SEC.SLAM.CM.THR03
           - reference-id: SEC.SLAM.CM.THR04
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH14
   - id: SEC.SLAM.CM.CTL02
@@ -193,10 +196,10 @@ controls:
         applicability: ["all_deployments"]
         state: Active
     threats:
-      - reference-id: SEC.SLAM.CM
+      - reference-id: SEC.SLAM.CM.THR
         entries:
           - reference-id: SEC.SLAM.CM.THR02
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH02
 ```
@@ -229,27 +232,30 @@ metadata:
   gemara-version: "1.6.0"
   description: |
     Control catalog for container management tool security; mitigates threats
-    from the SEC.SLAM.CM threat catalog.
+    from the SEC.SLAM.CM.THR threat catalog.
   version: 1.0.0
   author:
     id: example
     name: Example
     type: Human
   mapping-references:
-    - id: SEC.SLAM.CM
+    - id: SEC.SLAM.CM.THR
       title: Container Management Tool Security Threat Catalog
       version: "1.0.0"
-      url: https://example.org/catalogs/SEC.SLAM.CM-threats.yaml
+      url: https://gemara.openssf.org/how-to/threat-assessment/threat-catalog.yaml
       description: |
         Threat catalog for the same scope; provides threat IDs referenced from each
         control's threats.
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2025.10
-      url: https://github.com/finos/common-cloud-controls/releases
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
+    - id: CCC.Core.Controls
+      title: CCC Core Controls
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.controls/versions/v2026.11
+      description: Common cloud controls from the FINOS Common Cloud Controls Core catalog.
+    - id: CCC.Core.Threats
+      title: CCC Core Threats
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+      description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
   applicability-groups:
     - id: production
       title: Production
@@ -278,10 +284,10 @@ groups:
       and from trusted sources throughout retrieval and use.
 
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Controls
     entries:
-      - reference-id: CCC.Core.CTL42
-        remarks: Image signing and verification
+      - reference-id: CCC.Core.CN05
+        remarks: Prevent access from untrusted entities
 
 controls:
   - id: SEC.SLAM.CM.CTL01
@@ -305,12 +311,12 @@ controls:
           references for production or sensitive workloads where supported.
         applicability: ["production"]
     threats:
-      - reference-id: SEC.SLAM.CM
+      - reference-id: SEC.SLAM.CM.THR
         entries:
           - reference-id: SEC.SLAM.CM.THR01
           - reference-id: SEC.SLAM.CM.THR03
           - reference-id: SEC.SLAM.CM.THR04
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH14
   - id: SEC.SLAM.CM.CTL02
@@ -347,10 +353,10 @@ controls:
         applicability: ["all_deployments"]
         state: Active
     threats:
-      - reference-id: SEC.SLAM.CM
+      - reference-id: SEC.SLAM.CM.THR
         entries:
           - reference-id: SEC.SLAM.CM.THR02
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH02
 ```
@@ -369,7 +375,7 @@ Fix any reported errors (e.g., missing required fields, invalid `group` referenc
 
 | From threat assessment        | Use in control catalog                                      |
 |-------------------------------|-------------------------------------------------------------|
-| Scope / catalog id (e.g. SEC.SLAM.CM) | Same id in control catalog metadata |
+| Threat catalog id (e.g. SEC.SLAM.CM.THR) | A `mapping-references` entry, and the `reference-id` in each control's `threats` |
 | Threat IDs (e.g. SEC.SLAM.CM.THR01, CCC.Core.TH14) | `threats` on each control that mitigates those threats |
 | Understanding of what goes wrong | Control objectives and assessment requirements that prevent or detect it |
 

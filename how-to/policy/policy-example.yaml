@@ -16,6 +16,7 @@ metadata:
     - id: "SEC.SLAM.CM"
       title: "Container Management Tool Security Control Catalog"
       version: "1.0.0"
+      url: "https://gemara.openssf.org/how-to/control-catalog/control-catalog.yaml"
       description: "Control catalog for container management tool security."
     - id: "org-risk-catalog-001"
       title: "Organization Risk Catalog for Cloud and Container Workloads"

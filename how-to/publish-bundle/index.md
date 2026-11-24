@@ -18,7 +18,7 @@ A bundle is an OCI artifact with type `application/vnd.gemara.bundle.v1`. The [G
   go get github.com/gemaraproj/go-gemara@v0.12.0
   ```
 
-- An artifact that passes `cue vet`. The example YAML files in these guides won't assemble as published: some mapping-references have no `url`, and others point at web pages rather than YAML files.
+- An artifact that passes `cue vet`, for example the [example policy](../policy/policy-example.yaml) from the policy guide. It imports the example control catalog, which imports a control from the FINOS CCC Core catalog on grc.store, so the bundle holds all three.
 - Every artifact it extends or imports listed in `metadata.mapping-references` with a `url` the SDK can fetch (`file://`, `http://`, `https://` or a plain path). The assembler follows those URLs, then the imports of each fetched artifact, until the tree is complete.
 - Push access to a registry.
 

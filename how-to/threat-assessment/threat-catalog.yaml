@@ -6,7 +6,7 @@
 title: Container Management Tool Security Threat Catalog
 
 metadata:
-  id: SEC.SLAM.CM
+  id: SEC.SLAM.CM.THR
   type: ThreatCatalog
   gemara-version: "1.6.0"
   description: Threat catalog for container management tool security assessment
@@ -16,17 +16,20 @@ metadata:
     name: Example
     type: Human
   mapping-references:
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2025.10
-      url: https://github.com/finos/common-cloud-controls/releases
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
+    - id: CCC.Core.Capabilities
+      title: CCC Core Capabilities
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.capabilities/versions/v2026.11
+      description: Common cloud capabilities from the FINOS Common Cloud Controls Core catalog.
+    - id: CCC.Core.Threats
+      title: CCC Core Threats
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+      description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
     - id: SEC.SLAM.CM.CAP
       title: Container Management Tool Security Capability Catalog
       version: "1.0.0"
-      url: https://example.org/catalogs/SEC.SLAM.CM-capabilities.yaml
+      url: https://gemara.openssf.org/how-to/threat-assessment/capabilities.yaml
       description: |
         Scope-specific capabilities (CAP01, CAP02) for this threat assessment.
 
@@ -37,7 +40,7 @@ groups:
       Threats affecting container image retrieval, integrity, and trust.
 
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Capabilities
     entries:
       - reference-id: CCC.Core.CP29
         remarks: Active Ingestion
@@ -45,6 +48,8 @@ imports:
         remarks: Resource Versioning
       - reference-id: CCC.Core.CP01
         remarks: Encryption in Transit Enabled by Default
+  - reference-id: CCC.Core.Threats
+    entries:
       - reference-id: CCC.Core.TH14
         remarks: Older Resource Versions are Used
       - reference-id: CCC.Core.TH02
@@ -60,7 +65,7 @@ threats:
       unauthorized access, data exfiltration, and system compromise.
     group: SEC.SLAM.CM.FAM01
     capabilities:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Capabilities
         entries:
           - reference-id: CCC.Core.CP29
           - reference-id: CCC.Core.CP18
@@ -78,7 +83,7 @@ threats:
       served malware or tampered images.
     group: SEC.SLAM.CM.FAM01
     capabilities:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Capabilities
         entries:
           - reference-id: CCC.Core.CP29
           - reference-id: CCC.Core.CP01
@@ -98,7 +103,7 @@ threats:
       workloads, credential theft, or supply chain poisoning.
     group: SEC.SLAM.CM.FAM01
     capabilities:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Capabilities
         entries:
           - reference-id: CCC.Core.CP29
           - reference-id: CCC.Core.CP18
@@ -117,7 +122,7 @@ threats:
       artifact, introducing malware, backdoors, or credential theft into the supply chain.
     group: SEC.SLAM.CM.FAM01
     capabilities:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Capabilities
         entries:
           - reference-id: CCC.Core.CP29
           - reference-id: CCC.Core.CP18
@@ -135,7 +140,7 @@ threats:
       intended one, leading to malware, credential theft, or backdoors.
     group: SEC.SLAM.CM.FAM01
     capabilities:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Capabilities
         entries:
           - reference-id: CCC.Core.CP29
           - reference-id: CCC.Core.CP18

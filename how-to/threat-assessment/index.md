@@ -28,9 +28,9 @@ Each step explains only the fields it needs. For every field and its type, see t
 
 Select a component or technology to assess (service, API, infrastructure component, or technology stack).
 
-**Leverage existing resources**: Gemara supports importing entries from external catalogs so you don't have to start from scratch. The FINOS Common Cloud Controls (CCC) Core [catalogs](https://github.com/finos/common-cloud-controls/releases/tag/core%2Fccc%2Fv2026.06-rc1) define well-vetted capabilities and threats that apply broadly across cloud services. These pre-built items can help accelerate your assessment.
+**Leverage existing resources**: Gemara supports importing entries from external catalogs so you don't have to start from scratch. The FINOS Common Cloud Controls (CCC) Core [catalogs](https://grc.store/finos-ccc), published on grc.store, define well-vetted capabilities and threats that apply broadly across cloud services. These pre-built items can help accelerate your assessment.
 
-We will explore how this is leveraged below as we dive into our container management tool example (i.e., `SEC.SLAM.CM.CAP` for capabilities and `SEC.SLAM.CM` for threats).
+We will explore how this is leveraged below as we dive into our container management tool example (i.e., `SEC.SLAM.CM.CAP` for capabilities and `SEC.SLAM.CM.THR` for threats).
 
 ### Step 1: Setting Up Metadata
 
@@ -41,7 +41,7 @@ Each artifact declares its own scope and mapping references. The fields that nee
 | `metadata.id` | Identifier for this catalog | Other artifacts point at this catalog by this value |
 | `metadata.type` | `CapabilityCatalog` or `ThreatCatalog` | Identifies the artifact for `#CapabilityCatalog` or `#ThreatCatalog` validation (required) |
 | `metadata.gemara-version` | Spec version the artifact conforms to, here `"1.6.0"` | Lets tooling pick the right schema and migration path (required) |
-| `mapping-references` with `id: CCC` | Pointer to the CCC Core catalog release | Resolves the imported CCC capability and threat IDs used later |
+| `mapping-references` for CCC Core | One entry per CCC Core catalog you import from (`CCC.Core.Capabilities`, `CCC.Core.Threats`), each with the URL of its release | Resolves the imported CCC capability and threat IDs used later |
 | Top-level `imports` (Steps 2 and 3) | List of `#MultiEntryMapping` rows | Pulls in common capabilities and threats without redefining them; requires `mapping-references` |
 | `groups` | Categories that entries in this catalog belong to | Required once a catalog defines capabilities or threats; keeps large catalogs readable |
 
@@ -62,13 +62,11 @@ metadata:
     name: Example
     type: Human
   mapping-references:
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2026.06-rc1
-      url: https://github.com/finos/common-cloud-controls/releases/download/core%2Fccc%2Fv2026.06-rc1/capabilities.yaml
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
+    - id: CCC.Core.Capabilities
+      title: CCC Core Capabilities
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.capabilities/versions/v2026.11
+      description: Common cloud capabilities from the FINOS Common Cloud Controls Core catalog.
 ```
 
 ### Step 2: Identify Capabilities (Capability catalog)
@@ -83,7 +81,7 @@ A container management tool actively reaches out to registries to pull images an
 
 ```yaml
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Capabilities
     entries:
       - reference-id: CCC.Core.CP29
         remarks: Active Ingestion
@@ -118,22 +116,26 @@ capabilities:
 
 ```yaml
 mapping-references:
-  - id: CCC
-    title: Common Cloud Controls Core
-    version: v2026.06-rc1
-    url: https://github.com/finos/common-cloud-controls/releases
-    description: |
-      Foundational repository of reusable security controls, capabilities,
-      and threat models maintained by FINOS.
+  - id: CCC.Core.Capabilities
+    title: CCC Core Capabilities
+    version: v2026.11
+    url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.capabilities/versions/v2026.11
+    description: Common cloud capabilities from the FINOS Common Cloud Controls Core catalog.
+  - id: CCC.Core.Threats
+    title: CCC Core Threats
+    version: v2026.11
+    url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+    description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
   - id: SEC.SLAM.CM.CAP
     title: Container Management Tool Capability Catalog
     version: "1.0.0"
+    url: https://gemara.openssf.org/how-to/threat-assessment/capabilities.yaml
     description: |
       Capabilities defined for the container management tool, exploited by
       the threats in this catalog.
 ```
 
-> **Note:** When a mapping reference has no `url`, its `id` is the referenced artifact's `metadata.id`. That is why the second reference uses `SEC.SLAM.CM.CAP`.
+> **Note:** Give each mapping reference the referenced artifact's `metadata.id` as its `id`. Tools that can't fetch the `url` match references by that id. That is why the capability catalog reference uses `SEC.SLAM.CM.CAP`.
 
 **Check for imported threats first.** As with **[capabilities](../../model/02-definitions.html#capability)**, review the CCC Core catalog for threats linked to the capabilities you imported. If a threat fits your scope, import it. In this example, CCC Core defines **TH14** ("Older Resource Versions are Used") which is linked to **CP18**. It applies because mutable image tags let the tool resolve to a stale or compromised version.
 
@@ -143,7 +145,7 @@ Imported threats and the capabilities you reference from the capability catalog 
 
 ```yaml
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Threats
     entries:
       - reference-id: CCC.Core.TH14
         remarks: Older Resource Versions are Used
@@ -174,7 +176,7 @@ threats:
       unauthorized access, data exfiltration, and system compromise.
     group: image-integrity
     capabilities:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Capabilities
         entries:
           - reference-id: CCC.Core.CP29
           - reference-id: CCC.Core.CP18
@@ -200,15 +202,13 @@ metadata:
     name: Example
     type: Human
   mapping-references:
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2026.06-rc1
-      url: https://github.com/finos/common-cloud-controls/releases/download/core%2Fccc%2Fv2026.06-rc1/capabilities.yaml
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
+    - id: CCC.Core.Capabilities
+      title: CCC Core Capabilities
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.capabilities/versions/v2026.11
+      description: Common cloud capabilities from the FINOS Common Cloud Controls Core catalog.
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Capabilities
     entries:
       - reference-id: CCC.Core.CP29
         remarks: Active Ingestion
@@ -233,7 +233,7 @@ And the final threat catalog like this:
 ```yaml
 title: Container Management Tool Threat Catalog
 metadata:
-  id: SEC.SLAM.CM
+  id: SEC.SLAM.CM.THR
   type: ThreatCatalog
   gemara-version: "1.6.0"
   version: "1.0.0"
@@ -243,21 +243,25 @@ metadata:
     name: Example
     type: Human
   mapping-references:
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2026.06-rc1
-      url: https://github.com/finos/common-cloud-controls/releases
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
+    - id: CCC.Core.Capabilities
+      title: CCC Core Capabilities
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.capabilities/versions/v2026.11
+      description: Common cloud capabilities from the FINOS Common Cloud Controls Core catalog.
+    - id: CCC.Core.Threats
+      title: CCC Core Threats
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+      description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
     - id: SEC.SLAM.CM.CAP
       title: Container Management Tool Capability Catalog
       version: "1.0.0"
+      url: https://gemara.openssf.org/how-to/threat-assessment/capabilities.yaml
       description: |
         Capabilities defined for the container management tool, exploited by
         the threats in this catalog.
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Threats
     entries:
       - reference-id: CCC.Core.TH14
         remarks: Older Resource Versions are Used
@@ -281,7 +285,7 @@ threats:
       unauthorized access, data exfiltration, and system compromise.
     group: image-integrity
     capabilities:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Capabilities
         entries:
           - reference-id: CCC.Core.CP29
           - reference-id: CCC.Core.CP18

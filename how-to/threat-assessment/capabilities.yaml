@@ -10,7 +10,7 @@ metadata:
   gemara-version: "1.6.0"
   description: |
     Capabilities unique to the container management tool scope; referenced by
-    threats in the SEC.SLAM.CM threat catalog.
+    threats in the SEC.SLAM.CM.THR threat catalog.
   version: 1.0.0
   author:
     id: example

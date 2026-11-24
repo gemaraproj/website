@@ -38,24 +38,23 @@ metadata:
   id: "org-risk-catalog-001"
   type: RiskCatalog
   gemara-version: "1.6.0"
-  description: "Risks relevant to cloud and container management; threats linked to CCC Core and SEC.SLAM.CM threat catalog."
+  description: "Risks relevant to cloud and container management; threats linked to CCC Core and the SEC.SLAM.CM.THR threat catalog."
   version: "1.0.0"
   author:
     id: security-team
     name: "Security Team"
     type: Human
   mapping-references:
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2025.10
-      url: https://github.com/finos/common-cloud-controls/releases
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
-    - id: "SEC.SLAM.CM"
+    - id: CCC.Core.Threats
+      title: CCC Core Threats
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+      description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
+    - id: "SEC.SLAM.CM.THR"
       title: "Container Management Tool Security Threat Catalog"
       version: "1.0.0"
-      description: "Threat catalog from the Threat Assessment Guide (SEC.SLAM.CM)."
+      url: "https://gemara.openssf.org/how-to/threat-assessment/threat-catalog.yaml"
+      description: "Threat catalog from the Threat Assessment Guide (SEC.SLAM.CM.THR)."
 ```
 
 
@@ -119,7 +118,7 @@ risks:
         - name: "CISO"
           affiliation: "Security"
     threats:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
@@ -130,11 +129,11 @@ risks:
     severity: "High"
     rank: 1
     threats:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
-      - reference-id: "SEC.SLAM.CM"
+      - reference-id: "SEC.SLAM.CM.THR"
         entries:
           - reference-id: "SEC.SLAM.CM.THR01"
             remarks: "Container Image Tampering or Poisoning"
@@ -167,30 +166,29 @@ A complete, schema-valid example is in [risk-catalog-example.yaml](risk-catalog-
 # Organization Risk Catalog for Cloud and Container Workloads (Layer 3)
 # Conforms to Gemara #RiskCatalog (riskcatalog.cue).
 # gemara-version: v1.6.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.6.0
-# Risks drawn from Threat Assessment Guide: CCC (CCC.Core.TH14) and SEC.SLAM.CM (SEC.SLAM.CM.THR01).
+# Risks drawn from Threat Assessment Guide: CCC Core (CCC.Core.TH14) and SEC.SLAM.CM.THR (SEC.SLAM.CM.THR01).
 title: "Organization Risk Catalog for Cloud and Container Workloads"
 metadata:
   id: "org-risk-catalog-001"
   type: RiskCatalog
   gemara-version: "1.6.0"
-  description: "Risks relevant to cloud and container management; threats linked to CCC Core and SEC.SLAM.CM threat catalog."
+  description: "Risks relevant to cloud and container management; threats linked to CCC Core and the SEC.SLAM.CM.THR threat catalog."
   version: "1.0.0"
   author:
     id: security-team
     name: "Security Team"
     type: Human
   mapping-references:
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2025.10
-      url: https://github.com/finos/common-cloud-controls/releases
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
-    - id: "SEC.SLAM.CM"
+    - id: CCC.Core.Threats
+      title: CCC Core Threats
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+      description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
+    - id: "SEC.SLAM.CM.THR"
       title: "Container Management Tool Security Threat Catalog"
       version: "1.0.0"
-      description: "Threat catalog from the Threat Assessment Guide (SEC.SLAM.CM)."
+      url: "https://gemara.openssf.org/how-to/threat-assessment/threat-catalog.yaml"
+      description: "Threat catalog from the Threat Assessment Guide (SEC.SLAM.CM.THR)."
 
 groups:
   - id: "infrastructure"
@@ -220,7 +218,7 @@ risks:
         - name: "CISO"
           affiliation: "Security"
     threats:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
@@ -231,11 +229,11 @@ risks:
     severity: "High"
     rank: 1
     threats:
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
-      - reference-id: "SEC.SLAM.CM"
+      - reference-id: "SEC.SLAM.CM.THR"
         entries:
           - reference-id: "SEC.SLAM.CM.THR01"
             remarks: "Container Image Tampering or Poisoning"
