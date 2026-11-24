@@ -85,7 +85,7 @@ jobs:
           go test -v ./...
 
       - name: Install CUE
-        run: go install cuelang.org/go/cmd/cue@latest
+        run: go install cuelang.org/go/cmd/cue@v0.17.1
 
       - name: Validate Policy example
         run: |
