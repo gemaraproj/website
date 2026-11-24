@@ -77,15 +77,16 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25'
+          go-version: '1.27'
 
       - name: Test Go tools
         run: |
           cd tools
           go test -v ./...
 
+      # Pinned: a CUE release can require a newer Go than go-version above.
       - name: Install CUE
-        run: go install cuelang.org/go/cmd/cue@latest
+        run: go install cuelang.org/go/cmd/cue@v0.18.0
 
       - name: Validate Policy example
         run: |
