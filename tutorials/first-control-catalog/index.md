@@ -6,7 +6,7 @@ description: "A first Gemara tutorial: write a two-control catalog in YAML, vali
 
 In this tutorial you write a small Gemara control catalog for a web service, check it against the Gemara schema, break it on purpose to see what a validation error looks like, and fix it.
 
-It takes about 15 minutes. You don't need to know Gemara or CUE first.
+It takes about 10 minutes. You don't need to know Gemara or CUE first.
 
 ## Before you start
 

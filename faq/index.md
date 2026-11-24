@@ -13,7 +13,7 @@ Answers to common questions about when and why to use Gemara. For step-by-step g
 
 Start with artifacts in Layers 1 & 2.
 Layer 3 Policies usually import them, and Layer 5-7 logs (Evaluation, Enforcement, Audit) reference the controls they measure.
-However, you do not need artifacts at every layer to get value. A Control Catalog (Layer 2) is immediately useful on its own. To write and validate one in about 15 minutes, follow the tutorial [Write and validate your first control catalog](../tutorials/first-control-catalog/).
+However, you do not need artifacts at every layer to get value. A Control Catalog (Layer 2) is immediately useful on its own. To write and validate one in about 10 minutes, follow the tutorial [Write and validate your first control catalog](../tutorials/first-control-catalog/).
 
 ### Which layer do I start with?
 
