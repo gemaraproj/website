@@ -12,7 +12,7 @@ To ensure that independent implementations, such as the [Go SDK](../sdk/go-sdk.h
 
 ## Specifications
 
-* **[Requirements Resolution](./requirements-resolution.html):** Defines how a Gemara Policy deterministically resolves its imported Guidance and Control Catalogs through artifact acquisition, applicability selection, exclusions, and constraints to generate a derived Effective Requirements set.
+* **[Requirements Resolution](./requirements-resolution.html):** Defines how a Gemara Policy deterministically resolves an imported Control Catalog through artifact acquisition, applicability selection, exclusions, and constraints to generate a derived Effective Requirements set.
 
 ## Conformance & Implementations
 

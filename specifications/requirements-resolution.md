@@ -30,7 +30,7 @@ A conforming resolver accepts:
 ### Schema Validation vs. Tool Resolution Rules
 
 Implementations must recognize the distinction between rules enforced syntactically by CUE schemas versus semantic rules enforced by tool resolvers:
-* **Enforced by CUE:** Schema structure, required types, and field boundaries (e.g., `#CatalogImport` declaring `exclusions?: [...string]`, `#Constraint` requiring `id`, `target-id`, and `text`, `#MappingReference` requiring `id` and `version`).
+* **Enforced by CUE:** Schema structure, required types, and field boundaries (e.g., `#CatalogImport` declaring `exclusions?: [string, ...string]`, `#Constraint` requiring `id`, `target-id`, and `text`, `#MappingReference` requiring `id`, `version`, and `title`).
 * **Enforced by Tool Resolvers:** Operational semantics that CUE schemas do not evaluate across document boundaries. For example:
   * Resolving `policy.imports.catalogs[].reference-id` against `policy.metadata.mapping-references`.
   * Verifying that each ID in `exclusions` actually exists in the acquired catalog.
@@ -42,7 +42,7 @@ Implementations must recognize the distinction between rules enforced syntactica
 
 ## 2. Resolution Workflow (Single Catalog Import)
 
-A Policy is a **profile**: it selects, constrains, and parametrizes; it does not rewrite catalog content ([gemaraproj/gemara#560](https://github.com/gemaraproj/gemara/issues/560)). Resolution follows a deterministic 4-step pipeline: **Acquire ➔ Select ➔ Exclude ➔ Constrain**.
+A Policy is a **profile**: it selects, constrains, and parametrizes; it does not rewrite catalog content ([gemaraproj/gemara#560](https://github.com/gemaraproj/gemara/issues/560)). Resolution follows a deterministic 4-step pipeline: **Acquire ➔ Select & Exclude ➔ Constrain ➔ Output**.
 
 {% include themed-image.html
    light="/assets/diagrams/requirements-resolution-pipeline-light.svg"
@@ -82,9 +82,9 @@ If `constraints` are declared on the import:
 
 ### Step 4: Resolved Output & In-Play Set
 The resulting set represents the effective requirements of the policy import:
-* The resolved set is a strict subset of the source catalog.
-* Every control and assessment requirement retains its source ID, objective, and normative text.
-* When policy `assessment-plans` are declared, they MUST only target requirements that remain in play; referencing an excluded or dropped requirement is a tool validation error.
+* **Strict Requirement Subset:** The resolved set contains only controls and assessment requirements remaining in play. Each in-play control and requirement retains its source identifier, objective, and normative text.
+* **Catalog Metadata & Group Preservation:** The derived catalog preserves the source catalog's `metadata` (including `title`, `description`, `version`, and the full `applicability-groups` list) as well as control `groups`. Preserving the full `applicability-groups` list ensures that in-play requirements carrying multiple tags remain valid against `controlcatalog.cue` and avoids subjective or divergent metadata pruning across resolvers.
+* **Assessment Plan Coverage:** When policy `assessment-plans` are declared, they MUST only target requirements that remain in play; referencing an excluded or dropped requirement is a tool validation error.
 
 ---
 
@@ -259,8 +259,10 @@ The resolved effective requirements set is a strict subset of the source catalog
 * `AR03` is excised by explicit entry in `exclusions`.
 * Policy constraint `CST-CTL02-01` applies to `CTL02` as companion policy metadata (constraints govern evaluation alongside the catalog and do not mutate `#Control` in `controlcatalog.cue`).
 
+> **Note on Derived Identity & Provenance:** In this illustrative test vector, the output retains the source catalog's `metadata.id` and `version` to demonstrate strict content subsetting. In production workflows, resolvers should assign a distinct identity or provenance metadata to avoid reference collisions with the source catalog (see Open Questions).
+
 ```yaml
-title: "Container Management Security Controls (Resolved)"
+title: "Container Management Security Controls"
 metadata:
   id: "SEC.SLAM.CM"
   type: "ControlCatalog"
@@ -275,6 +277,12 @@ metadata:
     - id: "all_deployments"
       title: "All Deployments"
       description: "Requirements that apply to all deployments."
+    - id: "untrusted_networks"
+      title: "Untrusted Networks"
+      description: "Applies when communication traverses untrusted networks."
+    - id: "production"
+      title: "Production"
+      description: "Applies to live production workloads."
 
 groups:
   - id: "SEC.SLAM.CM.FAM01"
@@ -301,3 +309,4 @@ controls:
 
 1. **Exclusion Rationales:** Should `exclusions` support optional rationales (e.g. why a specific requirement was excluded), analogous to how adopted applicability groups carry descriptions? An excluded ID currently carries no explanation in the schema. This would require a separate schema enhancement and depends on concrete industry use cases.
 2. **Constraint Representation in Derived Artifacts:** In `controlcatalog.cue`, `#Control` has no `constraints` field, so derived `ControlCatalog` outputs cannot embed constraints directly while remaining schema-valid. Today, constraints travel alongside the catalog at the Policy layer (`#CatalogImport.constraints`) or within composite packaging (e.g. an OCI bundle or runner manifest). Whether `#Control` should eventually gain an optional `constraints` field in the catalog schema or remain strictly external companion metadata is under maintainer discussion.
+3. **Derived Catalog Identity & Provenance ([gemaraproj/grcli#9](https://github.com/gemaraproj/grcli/issues/9)):** Resolving a catalog produces a derived artifact. Currently, the schema does not define provenance fields (such as which policy generated it or which constraints apply), nor does it prescribe a deterministic naming scheme for the resolved catalog's `metadata.id` and `version`. Reusing the source catalog's ID risks collisions if downstream tools ingest both the baseline and resolved artifacts. Whether resolvers should generate synthetic IDs (e.g. `<catalog-id>-resolved-<policy-id>`) or if Gemara should formalize provenance metadata is tracked in grcli#9.
