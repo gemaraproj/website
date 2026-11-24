@@ -55,16 +55,6 @@ func TestFormatFieldType(t *testing.T) {
 				"CustomActor": map[string]interface{}{
 					"type": "object",
 				},
-				"ResolvedComposite": map[string]interface{}{
-					"allOf": []interface{}{
-						map[string]interface{}{
-							"$ref": "#/components/schemas/CustomActor",
-						},
-						map[string]interface{}{
-							"type": "object",
-						},
-					},
-				},
 			},
 		},
 	}
@@ -134,7 +124,7 @@ func TestFormatFieldType(t *testing.T) {
 			want:         "array[[CustomActor](entities#customactor)]",
 		},
 		{
-			name: "array of composite allOf items resolving to ref from spec",
+			name: "array of composite allOf items resolving to ref",
 			fieldSchema: Schema{
 				Type: "array",
 				Items: map[string]interface{}{
