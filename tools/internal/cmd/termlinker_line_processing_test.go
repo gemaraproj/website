@@ -7,10 +7,10 @@ import (
 
 func TestProcessLineComplexEdgeCases(t *testing.T) {
 	terms := []Term{
-		{ID: "T1", Title: "Control Catalog", Definition: "A catalog containing controls"},
 		{ID: "T2", Title: "Control", Definition: "A single control specification"},
-		{ID: "T3", Title: "Preventive Enforcement", Definition: "Enforcement preventing violation"},
+		{ID: "T1", Title: "Control Catalog", Definition: "A catalog containing controls"},
 		{ID: "T4", Title: "Enforcement", Definition: "General enforcement mechanism"},
+		{ID: "T3", Title: "Preventive Enforcement", Definition: "Enforcement preventing violation"},
 		{ID: "T5", Title: "Risk", Definition: "Potential harm or vulnerability"},
 	}
 	termInfos := buildTermInfos(terms)
@@ -33,12 +33,12 @@ func TestProcessLineComplexEdgeCases(t *testing.T) {
 		},
 		{
 			name:     "cleans up general nested link into outer compound term slug",
-			input:    "Check [[Control](some/path) Catalog](outer/path) now.",
+			input:    "Check [Control [Catalog](some/path)](outer/path) now.",
 			expected: "Check [Control Catalog](../model/02-definitions.md#control-catalog) now.",
 		},
 		{
-			name:     "cleans up long hash fragment matching compound term suffix",
-			input:    "Refer to [Control Catalog](url#unnecessary-prefix-and-extra-long-hash-control-catalog).",
+			name:     "cleans up long hash fragment matching compound term suffix via first word",
+			input:    "Refer to [Control Catalog](url#unnecessary-prefix-and-extra-long-hash-control-control-catalog).",
 			expected: "Refer to [Control Catalog](url#control-catalog).",
 		},
 		{
@@ -53,8 +53,8 @@ func TestProcessLineComplexEdgeCases(t *testing.T) {
 		},
 		{
 			name:     "preserves intentional acronym parenthesized link",
-			input:    "Review the ([Control](url#control)) specification.",
-			expected: "Review the ([Control](url#control)) specification.",
+			input:    "See (note) the ([Control](url#control)) specification.",
+			expected: "See (note) the ([Control](url#control)) specification.",
 		},
 		{
 			name:     "preserves balanced prose parenthesis containing link",
@@ -98,12 +98,12 @@ func TestProcessLineComplexEdgeCases(t *testing.T) {
 	}
 }
 
-func TestProcessLinePluralAndBoundaryMatching(t *testing.T) {
-	terms := []Term{
+func TestProcessLineWordBoundariesAndCasing(t *testing.T) {
+	testTerms := []Term{
 		{ID: "T1", Title: "Control", Definition: "A control specification"},
 		{ID: "T2", Title: "Policy", Definition: "A policy document"},
 	}
-	termInfos := buildTermInfos(terms)
+	termInfos := buildTermInfos(testTerms)
 	defPath := "../model/02-definitions.md"
 
 	// Exact whole-word match
@@ -113,8 +113,15 @@ func TestProcessLinePluralAndBoundaryMatching(t *testing.T) {
 		t.Errorf("expected 'Control' to match slug 'control', got:\n%s", processed)
 	}
 
-	// Word boundary: partial word should not match (e.g. "Controller" or "Subcontrol")
-	partialWord := "The Controller coordinates subcontrols."
+	// Case-insensitive matching: lowercase term should link to proper slug
+	lineWithLowercase := "Every security control must be documented."
+	processedLower := processLine(lineWithLowercase, termInfos, defPath)
+	if !strings.Contains(processedLower, "[control](../model/02-definitions.md#control)") {
+		t.Errorf("expected lowercase 'control' to match slug 'control', got:\n%s", processedLower)
+	}
+
+	// Word boundary: leading/trailing partial words should not match (e.g. "Controller" or "subcontrol")
+	partialWord := "The Controller coordinates subcontrol routines."
 	processedPartial := processLine(partialWord, termInfos, defPath)
 	if strings.Contains(processedPartial, "[") {
 		t.Errorf("partial word should not match term boundary, got:\n%s", processedPartial)
