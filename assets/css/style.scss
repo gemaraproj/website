@@ -828,7 +828,12 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
 
   li {
     margin: 0;
-    padding: 0;
+      padding: 0;
+
+      &.selected a {
+        background: var(--color-bg-tertiary);
+        color: var(--openssf-purple);
+      }
   }
 
   a {
