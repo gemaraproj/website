@@ -13,13 +13,15 @@ Gemara has grown from a single spec repository into an ecosystem with language S
 
 ## Action
 
-All declarative contracts live in the spec repository: the model, CUE schemas, artifact shapes, the bundle contract, and the resolve/lock/analysis formats. The bundle contract lives in its own module with its own release pipeline. Anything that clients and a hub must agree on is defined here before it is implemented anywhere.
+All declarative contracts live in the spec repository: the model, CUE schemas, artifact shapes, and the distribution formats: the bundle contract and the resolve/lock/analysis formats. Distribution formats ship in the main spec module under `distribution/`, as ADR 0026 records. Anything that clients and a hub must agree on is defined here before it is implemented anywhere.
 
 ## Consequences
 
 Positive: one authoritative source for every shape; implementations generate or consume rather than invent; the spec remains the slow, controlled repository.
 
 Negative: defining a format requires spec changes before implementation can start.
+
+Neutral: contracts the project does not own, such as the hub wire format in `grc-store-protocol`, are out of scope until ownership is settled.
 
 ## Alternatives Considered
 

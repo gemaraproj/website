@@ -15,6 +15,8 @@ AI skills and MCP-based agents need deterministic tools to invoke. An earlier id
 
 Skills and agent tooling install and invoke grcli as their deterministic tool. grcli does not manage, fetch, or version skills.
 
+Today gemara-ai's plugin runs gemara-mcp, not grcli. ADR 0027 proposes folding gemara-mcp into grcli as `grcli mcp serve`.
+
 ## Consequences
 
 Positive: grcli stays a workbench CLI rather than a skills package manager; skill content evolves independently of CLI releases.
