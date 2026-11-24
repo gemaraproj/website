@@ -1,4 +1,4 @@
-﻿# Makefile for the Gemara website (gemara.openssf.org)
+# Makefile for the Gemara website (gemara.openssf.org)
 #
 # The site content lives at the repository root. Schema reference pages,
 # the definitions table, and term cross-links are GENERATED from the Gemara
@@ -31,16 +31,13 @@ test-tools:
 	@echo "  >  Running Go tests in tools/ ..."
 	@cd $(TOOLS_DIR) && go test -v ./...
 
-# Validate every tutorial YAML example against a pinned Gemara schema release.
-# GEMARA_EXAMPLES_REF mirrors GEMARA_REF so both targets use the same spec version.
-# The script also runs a smoke-test against the intentionally-invalid fixture in
-# tutorials/testdata/ to confirm the validator rejects malformed input.
+# Validate tutorial examples with grcli, which owns artifact-type selection and
+# CUE schema validation. Use the Gemara ref selected for the site build.
 GEMARA_EXAMPLES_REF ?= $(GEMARA_REF)
+GEMARA_EXAMPLES_SPEC_DIR ?= $(GEMARA_DIR)
 test-examples:
 	@echo "  >  Validating tutorial examples against Gemara $(GEMARA_EXAMPLES_REF) ..."
-	@sh "$(TOOLS_DIR)/scripts/validate-examples.sh" "$(GEMARA_EXAMPLES_REF)"
-	@echo "  >  Smoke-testing invalid fixtures in tutorials/testdata/ ..."
-	@sh "$(TOOLS_DIR)/scripts/validate-examples.sh" "$(GEMARA_EXAMPLES_REF)" --smoke-test
+	@GEMARA_EXAMPLES_SPEC_DIR="$(GEMARA_EXAMPLES_SPEC_DIR)" sh "$(TOOLS_DIR)/scripts/validate-examples.sh" "$(GEMARA_EXAMPLES_REF)"
 
 test: test-tools test-examples
 

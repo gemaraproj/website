@@ -65,6 +65,14 @@ Then open **http://localhost:4000**.
 
 The page reloads on its own when you save a file.
 
+### Run the tests
+
+`make test` also validates every tutorial YAML example with
+[`grcli validate`](https://github.com/gemaraproj/grcli/blob/main/docs/reference/commands.md#validate).
+Install `grcli` and CUE and make both available on `PATH` before running that
+target. The deployment workflow installs a pinned `grcli` revision and the
+required CUE version automatically.
+
 ### Before you commit
 
 ```bash

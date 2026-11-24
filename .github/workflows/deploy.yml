@@ -1,4 +1,4 @@
-﻿name: Build and Deploy Site
+name: Build and Deploy Site
 
 on:
   # Test on pull requests
@@ -84,6 +84,12 @@ jobs:
         with:
           version: 'v0.17.1'
 
+      # Pin the grcli source revision that provides `validate --gemara-version`.
+      - name: Install grcli
+        run: |
+          go install github.com/gemaraproj/grcli@9cc9dd0837cbf9088a0cf29eb0eafb9a63c5f076
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
       - name: Test Go tools
         run: |
           cd tools
@@ -114,7 +120,12 @@ jobs:
       - name: Validate tutorial examples
         env:
           REF: ${{ steps.spec.outputs.ref }}
-        run: make test-examples GEMARA_EXAMPLES_REF=$REF
+        run: |
+          if [ -d .gemara-spec ]; then
+            make test-examples "GEMARA_EXAMPLES_REF=$REF" GEMARA_EXAMPLES_SPEC_DIR=.gemara-spec
+          else
+            make test-examples "GEMARA_EXAMPLES_REF=$REF"
+          fi
 
       - name: Generate documentation
         run: make gendocs
