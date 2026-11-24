@@ -171,8 +171,9 @@ func TestConvertPerFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to read generated base.md: %v", err)
 	}
-	if !strings.Contains(string(baseFile), "`Base`") {
-		t.Errorf("base.md missing Base schema section:\n%s", string(baseFile))
+	baseContent := string(baseFile)
+	if !strings.Contains(baseContent, "## `Base`") || !strings.Contains(baseContent, "`base`") {
+		t.Errorf("base.md missing Base schema section or property row:\n%s", baseContent)
 	}
 
 	// Verify generated file meta.md for alias schema
