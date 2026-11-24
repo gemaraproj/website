@@ -21,6 +21,10 @@ For a system or component → [Threat Assessment Guide](controls/threat-assessme
 
 That mitigate those threats → [Control Catalog Guide](controls/control-catalog-guide) — create a control catalog with assessment requirements and threat-mappings (Layer 2).
 
+### Modeling control inheritance and shared responsibility
+
+Express multi-party responsibility (Native, Configurable, Inherited, Shared, Custom) across upstream cloud platforms and downstream policies → [Control Inheritance Guide](controls/control-inheritance-guide) (Layer 2 & Layer 3).
+
 ### Understanding what threats and controls exist
 
 Before writing policy → [Threat Assessment Guide](controls/threat-assessment-guide) for threats and capabilities, and [Control Catalog Guide](controls/control-catalog-guide) for threat-informed controls and assessment requirements (Layer 2).
@@ -57,6 +61,7 @@ When you need a structured inventory of organizational or system risks—**risk 
 |-------|----------|-------|
 | **Layer 1** — Guidance | Guidance Catalog (guidelines, groups, mapping-references); [Principle Catalog](https://gemara.openssf.org/schema/principlecatalog.html) (principles, groups) | [Guidance Catalog Guide](guidance/guidance-guide) |
 | **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threats) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
+| **Layer 2 / 3** — Inheritance | Control Catalog + Policy (shared responsibility, decoupled validation) | [Control Inheritance Guide](controls/control-inheritance-guide) |
 | **Layer 3** — Policy   | Policy Document (scope, imports, adherence)                  | [Policy Guide](policy/policy-guide) |
 | **Layer 3** — Risks    | Risk Catalog (risk categories, appetite, risks, optional rank and threat mappings) | [Risk Catalog Guide](policy/risk-catalog-guide) |
 | **Cross-artifact**     | Mapping Document (typed `source`/`target` references, `targets` per mapping, relationship types; entry types per schema include guidelines, controls, Principle, threats, risks, and others) | [Mapping Document Guide](mapping/mapping-document-guide) |
