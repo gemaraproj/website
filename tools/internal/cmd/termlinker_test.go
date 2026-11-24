@@ -267,6 +267,78 @@ func TestProcessLineTermLinking(t *testing.T) {
 	}
 }
 
+func TestProcessLineSkipsDottedNames(t *testing.T) {
+	termInfos := buildTermInfos([]Term{{ID: "grc", Title: "GRC"}})
+	defPath := "../model/02-definitions.html"
+	link := "[GRC](../model/02-definitions.html#grc)"
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "hostname starting with term",
+			input: "Publish to grc.store today.",
+			want:  "Publish to grc.store today.",
+		},
+		{
+			name:  "hostname ending with term",
+			input: "See hub.grc for details.",
+			want:  "See hub.grc for details.",
+		},
+		{
+			name:  "term in the middle of a dotted name",
+			input: "Fetch from api.grc.store now.",
+			want:  "Fetch from api.grc.store now.",
+		},
+		{
+			name:  "sentence-ending period still links",
+			input: "This is GRC. It matters.",
+			want:  "This is " + link + ". It matters.",
+		},
+		{
+			name:  "period at end of line still links",
+			input: "This is GRC.",
+			want:  "This is " + link + ".",
+		},
+		{
+			name:  "missing space before a capitalized sentence still links",
+			input: "Teams need GRC.This is common.",
+			want:  "Teams need " + link + ".This is common.",
+		},
+		{
+			name:  "missing space before a lowercase word still links an uppercase term",
+			input: "Teams need GRC.then they ship.",
+			want:  "Teams need " + link + ".then they ship.",
+		},
+		{
+			name:  "missing space after a capitalized sentence still links",
+			input: "It is common.GRC teams agree.",
+			want:  "It is common." + link + " teams agree.",
+		},
+		{
+			name:  "term after an abbreviation period still links",
+			input: "Many domains, e.g. GRC, need this.",
+			want:  "Many domains, e.g. " + link + ", need this.",
+		},
+		{
+			name:  "dotted name and plain term on one line",
+			input: "GRC teams use grc.store.",
+			want:  link + " teams use grc.store.",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := processLine(tt.input, termInfos, defPath)
+			if got != tt.want {
+				t.Errorf("processLine(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestProcessFileAndCleanupFile(t *testing.T) {
 	tempDir := t.TempDir()
 	testFile := filepath.Join(tempDir, "test.md")
