@@ -1,23 +1,34 @@
 // SPDX-License-Identifier: Apache-2.0
 
 (function () {
-  const input = document.getElementById('search-input');
-  const results = document.getElementById('search-results');
+  'use strict';
+
+  const form = document.querySelector('.sidebar-search');
+  if (!form) return;
+  const input = form.querySelector('.sidebar-search-input');
+  const results = form.querySelector('.sidebar-search-results');
   if (!input || !results) return;
 
   const indexUrl = input.dataset.index || '/search.json';
   let index = null;
   let pending = null;
+  let selectedIndex = -1;
 
   function loadIndex() {
     if (index) return Promise.resolve();
     if (pending) return pending;
     pending = fetch(indexUrl)
-      .then(function (r) { return r.json(); })
-      .then(function (data) { index = data; })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        index = data;
+        pending = null;
+      })
       .catch(function (err) {
-        console.error('Search index failed to load', err);
-        index = [];
+        pending = null;
+        console.error('Failed to load search index:', err);
       });
     return pending;
   }
@@ -27,7 +38,8 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function search(query) {
@@ -50,7 +62,20 @@
     return matches.slice(0, 10).map(function (m) { return m.entry; });
   }
 
+  function updateSelected() {
+    const items = results.querySelectorAll('li:not(.search-empty)');
+    for (let i = 0; i < items.length; i++) {
+      if (i === selectedIndex) {
+        items[i].classList.add('selected');
+        items[i].scrollIntoView({ block: 'nearest' });
+      } else {
+        items[i].classList.remove('selected');
+      }
+    }
+  }
+
   function render(matches, query) {
+    selectedIndex = -1;
     if (!query) {
       results.innerHTML = '';
       results.hidden = true;
@@ -88,14 +113,49 @@
     setTimeout(function () {
       if (!results.contains(document.activeElement)) {
         results.hidden = true;
+        selectedIndex = -1;
       }
     }, 150);
   });
 
   input.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
+    if (results.hidden) {
+      if (e.key === 'Escape') {
+        input.value = '';
+        input.blur();
+      }
+      return;
+    }
+
+    const items = results.querySelectorAll('li:not(.search-empty)');
+    const count = items.length;
+
+    if (e.key === 'ArrowDown') {
+      if (count === 0) return;
+      e.preventDefault();
+      selectedIndex = (selectedIndex + 1) % count;
+      updateSelected();
+    } else if (e.key === 'ArrowUp') {
+      if (count === 0) return;
+      e.preventDefault();
+      if (selectedIndex === -1) {
+        selectedIndex = count - 1;
+      } else {
+        selectedIndex = (selectedIndex - 1 + count) % count;
+      }
+      updateSelected();
+    } else if (e.key === 'Enter') {
+      if (selectedIndex >= 0 && selectedIndex < count) {
+        e.preventDefault();
+        const link = items[selectedIndex].querySelector('a');
+        if (link) {
+          link.click();
+        }
+      }
+    } else if (e.key === 'Escape') {
       input.value = '';
       results.hidden = true;
+      selectedIndex = -1;
       input.blur();
     }
   });

@@ -22,6 +22,33 @@ the idea:
 - **Slack:** [#gemara](https://openssf.slack.com/archives/C09A9PP765Q) on OpenSSF Slack
 - **Meetings:** every other Thursday — see the [OpenSSF calendar](https://calendar.google.com/calendar/u/0?cid=czYzdm9lZmhwNWk5cGZsdGI1cTY3bmdwZXNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ)
 
+## Start with an issue
+
+Every non-trivial change starts with an issue. New issues arrive labeled
+`maintainer-triage`, which means no maintainer has responded yet. Wait for a
+maintainer to remove the label before opening a pull request, that's the
+signal that the scope is agreed and the work is ready to start. Pull requests
+for changes whose issue still carries the label are moved to draft
+automatically, so no one's work is closed, just paused until the scope
+conversation happens. Typo fixes and similar small corrections don't need an
+issue first.
+
+Opening the issue first provides a chance to shape the idea together 
+before time is spent on it, and to catch scope or design questions early, 
+when they're cheap to fix and review.
+
+## Pull request limits
+
+GitHub moderation limits apply to users without write access, at most five
+open pull requests per user, with additional restrictions on recently created
+accounts. The caps keep each of those reviews thorough rather than rushed. 
+Focusing on a handful of pull requests at a time also tends to produce reviews 
+that are easier to act on, for contributor and reviewer alike. We lift the 
+limits when submission volume returns to a level the team can keep pace with. 
+
+Bundling related changes, specifically when they are changes to improve test coverage, is 
+fine to keep contributions under the cap.
+
 ## DCO
 
 Gemara uses the [Developer Certificate of Origin](https://developercertificate.org/),
