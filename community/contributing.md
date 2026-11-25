@@ -27,28 +27,31 @@ the idea:
 
 Every non-trivial change starts with an issue. New issues arrive labeled
 `maintainer-triage`, which means no maintainer has responded yet. Wait for a
-maintainer to remove the label before opening a pull request, that's the
-signal that the scope is agreed and the work is ready to start. Pull requests
-for changes whose issue still carries the label are moved to draft
-automatically, so no one's work is closed, just paused until the scope
-conversation happens. Typo fixes and similar small corrections don't need an
-issue first.
+maintainer to remove the label before opening a pull request. That's the
+signal that the scope is agreed and the work is ready to start. This applies
+to issues you open yourself too. Pull requests for changes whose issue still
+carries the label are moved to draft automatically, so no one's work is
+closed, just paused until the scope conversation happens. Typo fixes, small
+documentation corrections, and test-only changes don't need an issue first.
 
-Opening the issue first provides a chance to shape the idea together 
-before time is spent on it, and to catch scope or design questions early, 
+Opening the issue first provides a chance to shape the idea together
+before time is spent on it, and to catch scope or design questions early,
 when they're cheap to fix and review.
 
 ## Pull request limits
 
-GitHub moderation limits apply to users without write access, at most five
-open pull requests per user, with additional restrictions on recently created
-accounts. The caps keep each of those reviews thorough rather than rushed. 
-Focusing on a handful of pull requests at a time also tends to produce reviews 
-that are easier to act on, for contributor and reviewer alike. We lift the 
-limits when submission volume returns to a level the team can keep pace with. 
+A small team reviews every pull request personally. While submission volume
+is high, GitHub moderation limits apply to users without write access: at
+most five open pull requests per user, with additional restrictions on
+recently created accounts. Once you have five open, you can open another when
+one is merged or closed. The limits keep each review thorough rather than
+rushed. Focusing on a handful of pull requests at a time also tends to
+produce reviews that are easier to act on, for contributor and reviewer
+alike. We lift the limits when volume returns to a level the team can keep
+pace with.
 
-Bundling related changes, specifically when they are changes to improve test coverage, is 
-fine to keep contributions under the cap.
+If you're adding test coverage, bundle related tests into one pull request;
+it counts once toward the limit.
 
 ## DCO
 
