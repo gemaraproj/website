@@ -273,15 +273,62 @@ type contentState struct {
 	inHTMLBlock     bool
 	htmlTagStack    int
 	inJekyllInclude bool
+	lineCount       int
+}
+
+// frontMatterDelimiter is the exact line that opens and closes Jekyll front matter.
+const frontMatterDelimiter = "---"
+
+// updateFrontMatter reports whether a line is inside front matter after it is seen.
+// Front matter only opens on the first line of a file and closes at the next
+// line that is exactly "---", so horizontal rules in the body never affect it.
+func updateFrontMatter(inFrontMatter bool, lineIndex int, trimmed string) bool {
+	if trimmed != frontMatterDelimiter {
+		return inFrontMatter
+	}
+	// The first line opens front matter; any later delimiter closes it or is a rule.
+	return lineIndex == 0
+}
+
+var (
+	// htmlTagPattern matches anything shaped like an HTML tag on a line.
+	htmlTagPattern = regexp.MustCompile(`<[^>]+>`)
+	// htmlOpenTagNamePattern extracts the element name from an opening tag.
+	htmlOpenTagNamePattern = regexp.MustCompile(`^<([a-zA-Z][a-zA-Z0-9-]*)`)
+	// autolinkPattern matches CommonMark autolinks such as <https://...> and <mailto:...>.
+	autolinkPattern = regexp.MustCompile(`^<[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*>$`)
+	// emailAutolinkPattern matches CommonMark email autolinks such as <user@example.com>.
+	emailAutolinkPattern = regexp.MustCompile(`^<[a-zA-Z0-9.!#$%&'*+/=?^_` + "`" + `{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>$`)
+)
+
+// htmlVoidElements never have a closing tag, so they must not open an HTML block.
+var htmlVoidElements = map[string]bool{
+	"area": true, "base": true, "br": true, "col": true, "embed": true,
+	"hr": true, "img": true, "input": true, "link": true, "meta": true,
+	"source": true, "track": true, "wbr": true,
+}
+
+// isOpeningHTMLTag reports whether tag opens an element that needs a matching close.
+func isOpeningHTMLTag(tag string) bool {
+	if strings.HasPrefix(tag, "</") || strings.HasPrefix(tag, "<!") || strings.HasPrefix(tag, "<?") {
+		return false
+	}
+	if strings.HasSuffix(tag, "/>") || autolinkPattern.MatchString(tag) || emailAutolinkPattern.MatchString(tag) {
+		return false
+	}
+	m := htmlOpenTagNamePattern.FindStringSubmatch(tag)
+	if m == nil {
+		return false
+	}
+	return !htmlVoidElements[strings.ToLower(m[1])]
 }
 
 func (s *contentState) update(line string) {
 	trimmed := strings.TrimSpace(line)
 
-	// Track front matter - (fenced with ---)
-	if strings.HasPrefix(trimmed, "---") {
-		s.inFrontMatter = !s.inFrontMatter
-	}
+	// Track front matter - only a leading block fenced with exact "---" lines
+	s.inFrontMatter = updateFrontMatter(s.inFrontMatter, s.lineCount, trimmed)
+	s.lineCount++
 
 	// Track code blocks (fenced with ```)
 	if strings.HasPrefix(trimmed, "```") {
@@ -296,14 +343,20 @@ func (s *contentState) update(line string) {
 		s.inJekyllInclude = false
 	}
 
+	// Fenced code is literal text, so tag-like content there never opens or
+	// closes an HTML block.
+	if s.inCodeBlock {
+		return
+	}
+
 	// Track HTML blocks - check for opening and closing HTML tags
 	// This handles multi-line HTML blocks like <div>...</div>
-	htmlTagPattern := regexp.MustCompile(`<[^>]+>`)
+	// Void elements, self-closing tags, autolinks, comments, and doctypes never close,
+	// so they are not counted as opening tags.
 	htmlTags := htmlTagPattern.FindAllString(line, -1)
 	for _, tag := range htmlTags {
 		tagLower := strings.ToLower(strings.TrimSpace(tag))
-		// Check for opening tags (not self-closing and not closing tags)
-		if !strings.HasPrefix(tagLower, "</") && !strings.HasSuffix(tagLower, "/>") {
+		if isOpeningHTMLTag(tagLower) {
 			s.htmlTagStack++
 			s.inHTMLBlock = true
 		}
@@ -355,9 +408,7 @@ func processLine(line string, termInfos []TermInfo, defPath string) string {
 	linkPattern := regexp.MustCompile(`\[([^\]]+)\]\([^\)]+\)`)
 	inlineCodePattern := regexp.MustCompile("`[^`]+`")
 	liquidPattern := regexp.MustCompile(`\{\{.*?\}\}|\{%.*?%\}`)
-	// Match HTML tags: <tag>, </tag>, <tag/>, <tag attr="value">, etc.
-	// This regex matches opening tags, closing tags, and self-closing tags
-	htmlTagPattern := regexp.MustCompile(`<[^>]+>`)
+	// HTML tags (<tag>, </tag>, <tag/>, <tag attr="value">) use the package-level htmlTagPattern.
 
 	// First, clean up any existing nested links (e.g., [Term [Subterm](...)](...))
 	// Replace them with just the outer link, using the proper slug for the compound term
@@ -753,23 +804,12 @@ func cleanupContent(content string, termInfos []TermInfo, defPath string) string
 
 	inCodeBlock := false
 	inFrontMatter := false
-	frontMatterCount := 0
 
 	for i, line := range lines {
 		originalLine := line
 
-		// Track front matter
-		if strings.HasPrefix(strings.TrimSpace(line), "---") {
-			if !inFrontMatter {
-				inFrontMatter = true
-				frontMatterCount = 1
-			} else {
-				frontMatterCount++
-				if frontMatterCount == 2 {
-					inFrontMatter = false
-				}
-			}
-		}
+		// Track front matter - only a leading block fenced with exact "---" lines
+		inFrontMatter = updateFrontMatter(inFrontMatter, i, strings.TrimSpace(line))
 
 		// Skip processing in front matter
 		if inFrontMatter {
@@ -806,6 +846,22 @@ func cleanupContent(content string, termInfos []TermInfo, defPath string) string
 	return result.String()
 }
 
+// isDefinitionsPageURL reports whether linkURL points at this site's definitions page
+// via a relative or root-relative path, the way processLine writes term links
+// (see calculateRelativePath). URLs with a scheme or host are never site-local.
+func isDefinitionsPageURL(linkURL string) bool {
+	path, _, _ := strings.Cut(linkURL, "#")
+	if strings.HasPrefix(path, "//") || strings.Contains(path, ":") {
+		return false
+	}
+	for _, page := range []string{"02-definitions.html", "02-definitions"} {
+		if path == page || strings.HasSuffix(path, "/"+page) {
+			return true
+		}
+	}
+	return false
+}
+
 func cleanupLine(line string, termInfos []TermInfo, defPath string) string {
 	// Create a map of term text to term info for quick lookup
 	termMap := make(map[string]TermInfo)
@@ -818,8 +874,8 @@ func cleanupLine(line string, termInfos []TermInfo, defPath string) string {
 	var result strings.Builder
 	i := 0
 	for i < len(line) {
-		// Look for the start of a markdown link: [
-		if line[i] == '[' {
+		// Look for the start of a markdown link: [ (but not an image: ![)
+		if line[i] == '[' && (i == 0 || line[i-1] != '!') {
 			// Find the matching closing bracket ]
 			bracketStart := i
 			bracketEnd := -1
@@ -856,7 +912,7 @@ func cleanupLine(line string, termInfos []TermInfo, defPath string) string {
 					linkURL := line[parenStart+1 : parenEnd]
 
 					// Check if this link points to the definitions page
-					if strings.Contains(linkURL, "02-definitions") {
+					if isDefinitionsPageURL(linkURL) {
 						// Extract the slug from the URL (part after #)
 						hashIndex := strings.Index(linkURL, "#")
 						if hashIndex != -1 {
