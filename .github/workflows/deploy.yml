@@ -77,16 +77,17 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25'
+          go-version: '1.27'
 
       - name: Test Go tools
         run: |
           cd tools
           go test -v ./...
 
+      # Pinned: a CUE release can require a newer Go than go-version above.
       - name: Install CUE
-        run: go install cuelang.org/go/cmd/cue@v0.17.1
-
+        run: go install cuelang.org/go/cmd/cue@v0.18.0
+        
       - name: Validate Policy example
         run: |
           "$(go env GOPATH)/bin/cue" vet -c -d '#Policy' github.com/gemaraproj/gemara@v1.6.0 how-to/policy/policy-example.yaml
