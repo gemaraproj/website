@@ -79,6 +79,17 @@ jobs:
         with:
           go-version: '1.27'
 
+      - name: Setup CUE
+        uses: cue-lang/setup-cue@b0e30e540a2dae47304ebf16586a5b2db023b61c # v2.0.0
+        with:
+          version: 'v0.17.1'
+
+      # Pin the grcli source revision that provides `validate --gemara-version`.
+      - name: Install grcli
+        run: |
+          go install github.com/gemaraproj/grcli@9cc9dd0837cbf9088a0cf29eb0eafb9a63c5f076
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
       - name: Test Go tools
         run: |
           cd tools
@@ -112,6 +123,16 @@ jobs:
             (cd .gemara-spec/cmd && go run . cue2openapi \
               --schema .. \
               --output "$GITHUB_WORKSPACE/generated/openapi.yaml")
+          fi
+
+      - name: Validate tutorial examples
+        env:
+          REF: ${{ steps.spec.outputs.ref }}
+        run: |
+          if [ -d .gemara-spec ]; then
+            make test-examples "GEMARA_EXAMPLES_REF=$REF" GEMARA_EXAMPLES_SPEC_DIR=.gemara-spec
+          else
+            make test-examples "GEMARA_EXAMPLES_REF=$REF"
           fi
 
       - name: Generate documentation

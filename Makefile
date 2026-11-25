@@ -23,7 +23,7 @@ SPEC_MD_DIR   := $(GENERATED_DIR)/spec
 SCHEMA_DIR    := schema
 SCHEMA_NAV    := schema-nav.yml
 
-.PHONY: all fetch-openapi genmd gendocs serve build test test-tools test-links cleanup cleanup-links check-jekyll deps
+.PHONY: all fetch-openapi genmd gendocs serve build test test-tools test-examples test-links cleanup cleanup-links check-jekyll deps
 
 all: test gendocs test-links cleanup
 
@@ -31,7 +31,15 @@ test-tools:
 	@echo "  >  Running Go tests in tools/ ..."
 	@cd $(TOOLS_DIR) && go test -v ./...
 
-test: test-tools
+# Validate tutorial examples with grcli, which owns artifact-type selection and
+# CUE schema validation. Use the Gemara ref selected for the site build.
+GEMARA_EXAMPLES_REF ?= $(GEMARA_REF)
+GEMARA_EXAMPLES_SPEC_DIR ?= $(GEMARA_DIR)
+test-examples:
+	@echo "  >  Validating tutorial examples against Gemara $(GEMARA_EXAMPLES_REF) ..."
+	@GEMARA_EXAMPLES_SPEC_DIR="$(GEMARA_EXAMPLES_SPEC_DIR)" sh "$(TOOLS_DIR)/scripts/validate-examples.sh" "$(GEMARA_EXAMPLES_REF)"
+
+test: test-tools test-examples
 
 deps:
 	@echo "  >  Running bundle install..."

@@ -1,0 +1,27 @@
+# Intentionally invalid GuidanceCatalog used to smoke-test grcli's CUE validation.
+# The artifact type and required metadata are valid; the guideline references an
+# undeclared group, which #GuidanceCatalog must reject.
+# DO NOT update this fixture to pass validation.
+title: Invalid Guidance Catalog Fixture
+metadata:
+  id: BAD.EXAMPLE.001
+  type: GuidanceCatalog
+  gemara-version: "1.6.0"
+  description: Intentionally invalid fixture for the tutorial validation smoke test.
+  version: 1.0.0
+  author:
+    id: example
+    name: Example
+    type: Human
+groups:
+  - id: TEST.GROUP
+    title: Test Group
+    description: Group declared in this fixture.
+guidelines:
+  - id: BAD.GL01
+    title: A guideline with an undeclared group
+    objective: This should not validate.
+    group: MISSING.GROUP
+    state: Active
+    recommendations:
+      - Use a declared group.
