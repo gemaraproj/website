@@ -2,11 +2,13 @@
 layout: page
 title: Control Catalog Guide
 description: Step-by-step guide to creating Gemara-compatible control catalogs
+redirect_from:
+  - /tutorials/controls/control-catalog-guide.html
 ---
 
 ## What This Is
 
-This guide walks through creating a **control catalog** using the [Gemara](https://gemara.openssf.org/) project, building on the threats and scope you identified in the [Threat Assessment Guide](threat-assessment-guide).
+This guide walks through creating a **control catalog** using the [Gemara](https://gemara.openssf.org/) project, building on the threats and scope you identified in the [Threat Assessment Guide](../threat-assessment/).
 
 In technical terms:
 * **[Controls](../../model/02-definitions.html#control)** are safeguards with a stated **objective** and a list of **[assessment requirements](../../model/02-definitions.html#assessment-requirement)**.
@@ -17,10 +19,12 @@ This exercise produces a structured way to develop control objectives and corres
 
 ## Optional Workflow
 
-Complete the [Threat Assessment Guide](threat-assessment-guide) for your scope (e.g., the container management tool **SEC.SLAM.CM**). You can reference the linked `threats` and `guidelines` to support the intent of Controls in the catalog. 
+Complete the [Threat Assessment Guide](../threat-assessment/) for your scope (e.g., the container management tool **SEC.SLAM.CM**). You can reference the linked `threats` and `guidelines` to support the intent of Controls in the catalog. 
 
 
 ## Walkthrough
+
+Each step explains only the fields it needs. For every field and its type, see the [Control Catalog schema](../../schema/controlcatalog.html).
 
 ### Step 0: Define Scope and References
 
@@ -32,17 +36,14 @@ We continue with the container management tool example (SEC.SLAM.CM) and assume 
 
 ### Step 1: Setting Up Metadata
 
-Declare your control catalog and mapping references. Key fields:
+Declare your control catalog and the catalogs it refers to. The fields that need a decision:
 
-| Field                               | What It Is                                                   | Why                                                                                       |
-|-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `title`                             | Display name for the control catalog (top-level field)       | Human-readable label used in reports and tooling output                                   |
-| `metadata.type`                     | Must be `ControlCatalog`                                     | Identifies the artifact kind for validation             |
-| `metadata.gemara-version`           | String (e.g. `1.2.0`)                                   | Declares which Gemara specification version the file conforms to (required in current schema) |
-| `mapping-references` with `id: CCC` | Optional pointer to CCC or another control/threat catalog   | Resolve imported capability and control IDs from the referenced catalog                  |
-| `applicability-groups`          | List of groups (id, title, description) for when controls apply | Scope assessment requirements by context (e.g., production, CI/CD) so evaluators know when each requirement applies |
-
-> **Note:** Applicability groups **must** be defined to assign applicability to controls.
+| Field | What to put there |
+|-------|-------------------|
+| `metadata.type` | `ControlCatalog` |
+| `metadata.gemara-version` | The spec version you validate against, here `"1.6.0"` |
+| `metadata.mapping-references` | One entry per catalog you import from or link to, such as your threat catalog and the CCC Core catalogs. The `id` is what `reference-id` uses later. |
+| `metadata.applicability-groups` | The contexts your requirements apply in, such as production or CI/CD. Required once the catalog defines controls; every `applicability` value must be one of these ids. |
 
 **Example (YAML):**
 
@@ -51,28 +52,31 @@ title: Container Management Tool Security Control Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ControlCatalog
-  gemara-version: "1.2.0"
-  description: Control catalog for container management tool security; mitigates threats from the SEC.SLAM.CM threat catalog.
+  gemara-version: "1.6.0"
+  description: Control catalog for container management tool security; mitigates threats from the SEC.SLAM.CM.THR threat catalog.
   version: 1.0.0
   author:
     id: example
     name: Example
     type: Human
   mapping-references:
-    - id: SEC.SLAM.CM
+    - id: SEC.SLAM.CM.THR
       title: Container Management Tool Security Threat Catalog
       version: "1.0.0"
       url: file://threats.yaml
       description: |
         Threat catalog for the same scope; provides threat IDs referenced from each
         control's threats.
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2025.10
-      url: https://github.com/finos/common-cloud-controls/releases
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
+    - id: CCC.Core.Controls
+      title: CCC Core Controls
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.controls/versions/v2026.11
+      description: Common cloud controls from the FINOS Common Cloud Controls Core catalog.
+    - id: CCC.Core.Threats
+      title: CCC Core Threats
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+      description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
   applicability-groups:
     - id: production
       title: Production
@@ -96,15 +100,7 @@ metadata:
 
 ### Step 2: Define Control Groups
 
-**Groups** group controls by theme. The Layer 2 schema requires at least one group when the catalog defines its own `controls`. Each control's `group` field must match the `id` of one of these groups.
-
-Required fields for each group:
-
-| Field         | Required | Description                                  |
-|---------------|----------|----------------------------------------------|
-| `id`          | Yes      | Unique identifier referenced by controls     |
-| `title`       | Yes      | Short name for the group                    |
-| `description` | Yes      | Explanation of what controls in this group address |
+**Groups** group controls by theme. The schema requires at least one group when the catalog defines its own `controls`. Each group needs an `id`, a `title` and a `description`, and each control's `group` field must match the `id` of one of them.
 
 **Example (YAML):**
 
@@ -128,31 +124,19 @@ groups:
 
 ```yaml
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Controls
     entries:
-      - reference-id: CCC.Core.CTL42
-        remarks: Image signing and verification
+      - reference-id: CCC.Core.CN05
+        remarks: Prevent access from untrusted entities
 ```
 
-**Option B — Define your own controls:** For controls specific to your scope, define them under `controls`. Required and common fields (see `controlcatalog.cue`):
+**Option B — Define your own controls:** For controls specific to your scope, define them under `controls`. Each control needs an `id` (this guide uses `ORG.PROJ.COMPONENT.CTL##`), a `title`, an `objective` stating its intent, a `group` from Step 2, and at least one assessment requirement. The fields that link a control to the rest of your work:
 
-| Field                    | Required | Description                                                                 |
-|--------------------------|----------|-----------------------------------------------------------------------------|
-| `id`                     | Yes      | Unique identifier (e.g., `ORG.PROJ.COMPONENT.CTL##`)                        |
-| `title`                  | Yes      | Short name describing the control                                           |
-| `objective`              | Yes      | Unified statement of intent for the control                                 |
-| `group`                  | Yes      | `id` of a group in this catalog (or in a referenced catalog for imports)  |
-| `assessment-requirements`| Yes      | List of verifiable conditions; each has `id`, `text`, `applicability`      |
-| `threats`        | No       | Links to threat catalog(s) and threat IDs this control mitigates |
-| `state`                  | No       | Lifecycle: `Active`, `Draft`, `Deprecated`, `Retired`; omitted is treated as `Active`. |
-
-Each **assessment requirement** must have:
-
-| Field           | Required | Description                                                                 |
-|-----------------|----------|-----------------------------------------------------------------------------|
-| `id`            | Yes      | Unique within the control (e.g., `SEC.SLAM.CM.CTL01.AR01`)                 |
-| `text`          | Yes      | Verifiable condition (typically a MUST statement)                           |
-| `applicability` | Yes      | List of strings describing when this requirement applies                    |
+| Field | What to put there |
+|-------|-------------------|
+| `assessment-requirements` | Verifiable conditions, each with an `id`, a `text` (usually a MUST statement) and an `applicability` list of ids from `metadata.applicability-groups` |
+| `threats` | Optional. The threats this control mitigates, as a `reference-id` from `mapping-references` plus the threat ids under `entries` |
+| `state` | Optional. `Active` (the default), `Draft`, `Deprecated` or `Retired` |
 
 **Example (YAML):**
 
@@ -179,12 +163,12 @@ controls:
           references for production or sensitive workloads where supported.
         applicability: ["production"]
     threats:
-      - reference-id: SEC.SLAM.CM
+      - reference-id: SEC.SLAM.CM.THR
         entries:
           - reference-id: SEC.SLAM.CM.THR01
           - reference-id: SEC.SLAM.CM.THR03
           - reference-id: SEC.SLAM.CM.THR04
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH14
   - id: SEC.SLAM.CM.CTL02
@@ -212,10 +196,10 @@ controls:
         applicability: ["all_deployments"]
         state: Active
     threats:
-      - reference-id: SEC.SLAM.CM
+      - reference-id: SEC.SLAM.CM.THR
         entries:
           - reference-id: SEC.SLAM.CM.THR02
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH02
 ```
@@ -228,7 +212,7 @@ Validate the final catalog with CUE:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1 your-control-catalog.yaml
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1.6.0 your-control-catalog.yaml
 ```
 
 Fix any reported errors (e.g., missing required fields, invalid `group` reference, or malformed `threats`) so the catalog is schema-consistent.
@@ -245,30 +229,33 @@ title: Container Management Tool Security Control Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ControlCatalog
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: |
     Control catalog for container management tool security; mitigates threats
-    from the SEC.SLAM.CM threat catalog.
+    from the SEC.SLAM.CM.THR threat catalog.
   version: 1.0.0
   author:
     id: example
     name: Example
     type: Human
   mapping-references:
-    - id: SEC.SLAM.CM
+    - id: SEC.SLAM.CM.THR
       title: Container Management Tool Security Threat Catalog
       version: "1.0.0"
-      url: https://example.org/catalogs/SEC.SLAM.CM-threats.yaml
+      url: https://gemara.openssf.org/how-to/threat-assessment/threat-catalog.yaml
       description: |
         Threat catalog for the same scope; provides threat IDs referenced from each
         control's threats.
-    - id: CCC
-      title: Common Cloud Controls Core
-      version: v2025.10
-      url: https://github.com/finos/common-cloud-controls/releases
-      description: |
-        Foundational repository of reusable security controls, capabilities,
-        and threat models maintained by FINOS.
+    - id: CCC.Core.Controls
+      title: CCC Core Controls
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.controls/versions/v2026.11
+      description: Common cloud controls from the FINOS Common Cloud Controls Core catalog.
+    - id: CCC.Core.Threats
+      title: CCC Core Threats
+      version: v2026.11
+      url: https://hub.grc.store/v1/catalogs/finos-ccc/ccc.core.threats/versions/v2026.11
+      description: Common cloud threats from the FINOS Common Cloud Controls Core catalog.
   applicability-groups:
     - id: production
       title: Production
@@ -297,10 +284,10 @@ groups:
       and from trusted sources throughout retrieval and use.
 
 imports:
-  - reference-id: CCC
+  - reference-id: CCC.Core.Controls
     entries:
-      - reference-id: CCC.Core.CTL42
-        remarks: Image signing and verification
+      - reference-id: CCC.Core.CN05
+        remarks: Prevent access from untrusted entities
 
 controls:
   - id: SEC.SLAM.CM.CTL01
@@ -324,12 +311,12 @@ controls:
           references for production or sensitive workloads where supported.
         applicability: ["production"]
     threats:
-      - reference-id: SEC.SLAM.CM
+      - reference-id: SEC.SLAM.CM.THR
         entries:
           - reference-id: SEC.SLAM.CM.THR01
           - reference-id: SEC.SLAM.CM.THR03
           - reference-id: SEC.SLAM.CM.THR04
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH14
   - id: SEC.SLAM.CM.CTL02
@@ -366,10 +353,10 @@ controls:
         applicability: ["all_deployments"]
         state: Active
     threats:
-      - reference-id: SEC.SLAM.CM
+      - reference-id: SEC.SLAM.CM.THR
         entries:
           - reference-id: SEC.SLAM.CM.THR02
-      - reference-id: CCC
+      - reference-id: CCC.Core.Threats
         entries:
           - reference-id: CCC.Core.TH02
 ```
@@ -379,7 +366,7 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1 your-control-catalog.yaml
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1.6.0 your-control-catalog.yaml
 ```
 
 Fix any reported errors (e.g., missing required fields, invalid `group` reference, or malformed `threats`) so the catalog is schema-consistent.
@@ -388,7 +375,7 @@ Fix any reported errors (e.g., missing required fields, invalid `group` referenc
 
 | From threat assessment        | Use in control catalog                                      |
 |-------------------------------|-------------------------------------------------------------|
-| Scope / catalog id (e.g. SEC.SLAM.CM) | Same id in control catalog metadata |
+| Threat catalog id (e.g. SEC.SLAM.CM.THR) | A `mapping-references` entry, and the `reference-id` in each control's `threats` |
 | Threat IDs (e.g. SEC.SLAM.CM.THR01, CCC.Core.TH14) | `threats` on each control that mitigates those threats |
 | Understanding of what goes wrong | Control objectives and assessment requirements that prevent or detect it |
 

@@ -1,6 +1,7 @@
 ---
 layout: page
 title: New schema for Lexicon artifacts
+description: "ADR-0021: add a Lexicon schema for documents that define the terms other Gemara artifacts use."
 ---
 
 - **ADR:** 0021

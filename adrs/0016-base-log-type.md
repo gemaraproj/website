@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Base Log Type
+description: "ADR-0016: introduce a #Log base definition with the fields common to all Gemara log artifacts."
 ---
 
 - **ADR:** 0016

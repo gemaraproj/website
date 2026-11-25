@@ -1,5 +1,6 @@
 ---
 layout: page
+description: "Architecture decision records for Gemara: the context, decision and consequences behind each structural choice."
 ---
 
 # Architecture Decision Records

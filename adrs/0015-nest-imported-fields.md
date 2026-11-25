@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Nest Imported Fields Under imports Struct
+description: "ADR-0015: replace top-level imported-* fields with a nested imports struct on each catalog type."
 ---
 
 - **ADR:** 0015

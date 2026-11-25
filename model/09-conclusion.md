@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Conclusion
+description: "Conclusion of the Gemara model and how the OpenSSF Gemara project maintains its schemas and lexicon."
 ---
 
 This model provides a clear, actionable, and extensible framework for engineering modern Governance, Risk, and Compliance programs. By establishing a common vocabulary and a logical, layered architecture, it demystifies the complex interactions between high-level Guidance, technical Controls, organizational Policy, and automated Enforcement.

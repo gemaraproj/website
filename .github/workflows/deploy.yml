@@ -87,10 +87,10 @@ jobs:
       # Pinned: a CUE release can require a newer Go than go-version above.
       - name: Install CUE
         run: go install cuelang.org/go/cmd/cue@v0.18.0
-
+        
       - name: Validate Policy example
         run: |
-          "$(go env GOPATH)/bin/cue" vet -c -d '#Policy' github.com/gemaraproj/gemara@v1.2.0 tutorials/policy/policy-example.yaml
+          "$(go env GOPATH)/bin/cue" vet -c -d '#Policy' github.com/gemaraproj/gemara@v1.6.0 how-to/policy/policy-example.yaml
 
       - name: Fetch spec OpenAPI
         env:

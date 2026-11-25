@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Create Go SDK to Support "Layer 2" Authors and Consumers
+description: "ADR-0003: create a Go SDK for Layer 2 documents, built from the CCC and OSPS Baseline tooling."
 ---
 
 - **ADR:** 0003

@@ -2,11 +2,13 @@
 layout: page
 title: Mapping Document Guide
 description: Step-by-step guide to creating Gemara-compatible mapping documents
+redirect_from:
+  - /tutorials/mapping/mapping-document-guide.html
 ---
 
 ## What This Is
 
-This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance/guidance-guide). Examples use `gemara-version: "1.2.0"` to match the [v1.2.0](https://github.com/gemaraproj/gemara/releases/tag/v1.2.0) specification release candidate; adjust if you target a different Gemara version.
+This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance-catalog/). Examples use `gemara-version: "1.6.0"` to match the [v1.6.0](https://github.com/gemaraproj/gemara/releases/tag/v1.6.0) specification release; adjust if you target a different Gemara version.
 
 A mapping document captures the user's intent for how entries in a **source** artifact relate to entries in a **target** artifact. It is the place to express alignment between independently authored catalogs (e.g., your guidance to OWASP, or controls to regulations) in a single, directed way.
 
@@ -23,16 +25,18 @@ In technical terms:
 * **Target reference** is the artifact you map *to* (e.g., OWASP Top 10). Its `reference-id` must also match an id in `metadata.mapping-references`. **`entry-type`** on `target-reference` applies to every **target** row in `targets`.
 * **Mappings** are one or more atomic relationships: each links a **source** entry id (string) to one or more **targets** (`#MappingTarget` objects with `entry-id` and optional per-target fields). For `no-match`, the source has no counterpart in the target and **`targets` must be omitted**.
 * **Relationship types** (see `#RelationshipType` in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue)): `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match`, `relates-to`.
-* **Entry type** for both sides is declared once on **`source-reference`** and **`target-reference`** via `#TypedMapping`. Allowed values are `#EntryType` in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue): `Guideline`, `Statement`, `Control`, `AssessmentRequirement`, `Capability`, `Threat`, `Risk`, or `Vector`.
+* **Entry type** for both sides is declared once on **`source-reference`** and **`target-reference`** via `#TypedMapping`. Allowed values are `#EntryType` in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue): `Guideline`, `Statement`, `Control`, `AssessmentRequirement`, `Capability`, `Threat`, `Risk`, `Vector`, or `Principle`.
 * **Mapping references** in metadata use `#MappingReference` from [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue) (shared with other layers); see also [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue) for `#Metadata`.
 
 This exercise produces a mapping document that downstream tools and policies can use to understand how two artifacts align.
 
 ## Optional Workflow
 
-Complete the [Guidance Catalog Guide](../guidance/guidance-guide) and have a guidance catalog (e.g., [guidance-example.yaml](../guidance/guidance-example.yaml)) with `mapping-references` that include the target framework you want to map to (e.g., OWASP). You will reference that guidance catalog as the source and the external framework as the target.
+Complete the [Guidance Catalog Guide](../guidance-catalog/) and have a guidance catalog (e.g., [guidance-example.yaml](../guidance-catalog/guidance-example.yaml)) with `mapping-references` that include the target framework you want to map to (e.g., OWASP). You will reference that guidance catalog as the source and the external framework as the target.
 
 ## Walkthrough
+
+Each step explains only the fields it needs. For every field and its type, see the [Mapping Document schema](../../schema/mappingdocument.html).
 
 We use the **Secure Software Development Guidance** (`ORG.SSD.001`) from the guidance tutorial and map its guidelines to **OWASP Top 10**. The same pattern applies when mapping controls to regulations or other frameworks.
 
@@ -46,17 +50,7 @@ We continue with the Secure Software Development Guidance as source and OWASP To
 
 ### Step 1: Setting Up Metadata
 
-Declare your mapping document and mapping references. Key fields:
-
-| Field                               | What It Is                                                   | Why                                                                                       |
-|-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `title`                             | Display name for the mapping document (top-level)            | Human-readable label in reports and tooling                                               |
-| `metadata.id`                       | Unique identifier for this mapping document                  | Used when other documents or tools reference this mapping                                 |
-| `metadata.type`                     | `MappingDocument`                                           | Required by schema; identifies the Gemara artifact type                                   |
-| `metadata.description`              | High-level summary of what is being mapped and why           | Required by schema; clarifies intent                                                      |
-| `metadata.mapping-references`       | List of source and target artifacts (by id)                 | **Required** for MappingDocument; `source-reference` and `target-reference` must match ids here |
-
-> **Note:** Both `source-reference.reference-id` and `target-reference.reference-id` must appear in `metadata.mapping-references`.
+Declare your mapping document and mapping references. Set `metadata.type` to `MappingDocument`, and list **both** artifacts, source and target, in `metadata.mapping-references`: a mapping document requires it, and `source-reference.reference-id` and `target-reference.reference-id` must each match one of its ids.
 
 **Example (YAML):**
 
@@ -66,7 +60,7 @@ metadata:
   id: SSD-OWASP-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
@@ -78,7 +72,7 @@ metadata:
     - id: ORG.SSD.001
       title: Secure Software Development Guidance
       version: "1.0.0"
-      url: "file://../guidance/guidance-example.yaml"
+      url: "file://../guidance-catalog/guidance-example.yaml"
     - id: OWASP
       title: OWASP Top 10
       version: "2021"
@@ -88,12 +82,6 @@ metadata:
 ### Step 2: Source and Target References (`#TypedMapping`)
 
 Set **`source-reference`** and **`target-reference`**. Each is a **typed mapping**: `reference-id` (must match `metadata.mapping-references`) plus **`entry-type`** for all entries on that side of the document. Optionally add top-level **remarks** to describe the mapping.
-
-| Field               | What It Is                                                                 |
-|---------------------|----------------------------------------------------------------------------|
-| `source-reference`  | Artifact you map *from*; `reference-id` and required `entry-type`          |
-| `target-reference`  | Artifact you map *to*; `reference-id` and required `entry-type`            |
-| `remarks`           | Optional prose about this mapping document as a whole                      |
 
 **Example (YAML):**
 
@@ -111,13 +99,7 @@ remarks: Guidance guidelines ORG.SSD.GL01–GL03 mapped to OWASP for tutorial us
 
 Define one or more **mappings**. Each mapping has a **source** string (the source entry’s id) and, unless `relationship` is `no-match`, a non-empty **`targets`** list. Each list element is a **`#MappingTarget`**: at minimum `entry-id`, plus optional `strength`, `confidence-level`, `applicability`, `rationale`, and `remarks` for that target (see [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue)).
 
-| Field                 | Required | Description                                                                 |
-|-----------------------|----------|-----------------------------------------------------------------------------|
-| `id`                  | Yes      | Unique identifier for this mapping                                         |
-| `source`              | Yes      | Source entry id (string), matching an entry in the source artifact        |
-| `targets`             | Yes*     | Non-empty list of `{ entry-id: ... }` (and optional per-target fields). Omit only when `relationship` is `no-match` |
-| `relationship`        | Yes      | One of `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match`, `relates-to` |
-| `remarks`             | No       | General prose regarding this mapping                                      |
+Each mapping also needs an `id`, and a **`relationship`**: one of `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match` or `relates-to`. `remarks` is optional.
 
 **Example (YAML):** Map the three guidelines from the Secure Software Development Guidance (`ORG.SSD.GL01`, `GL02`, `GL03`) to OWASP Top 10 categories (`A06`, `A01`, `A02`):
 
@@ -158,14 +140,10 @@ Validate with CUE:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@latest your-mapping-document-example.yaml
+cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@v1.6.0 your-mapping-document-example.yaml
 ```
 
-From a **clone of this repository** (run from the repo root; replace the placeholder with your file path):
-
-```bash
-cue vet -c -d '#MappingDocument' . your-mapping-document-example.yaml
-```
+No output means the artifact is valid. Swap `@v1.6.0` for `@latest` to validate against the newest published schema.
 
 A reference copy is [mapping-document.yaml](mapping-document.yaml) in this directory.
 
@@ -176,15 +154,15 @@ Combine metadata, source-reference, target-reference, remarks, and mappings into
 ```yaml
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
 # Conforms to Gemara #MappingDocument (mappingdocument.cue).
-# gemara-version: v1.2.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.2.0
-# Source guidance catalog: ../guidance/guidance-example.yaml (metadata.id ORG.SSD.001)
+# gemara-version: v1.6.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.6.0
+# Source guidance catalog: ../guidance-catalog/guidance-example.yaml (metadata.id ORG.SSD.001)
 # entry-type on source-reference / target-reference applies to all entries on that side (#TypedMapping).
 title: Secure Software Development Guidance to OWASP Top 10
 metadata:
   id: SSD-OWASP-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "1.2.0"
+  gemara-version: "1.6.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
@@ -196,7 +174,7 @@ metadata:
     - id: ORG.SSD.001
       title: Secure Software Development Guidance
       version: "1.0.0"
-      url: "file://../guidance/guidance-example.yaml"
+      url: "file://../guidance-catalog/guidance-example.yaml"
     - id: OWASP
       title: OWASP Top 10
       version: "2021"
@@ -236,10 +214,10 @@ mappings:
         rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
 ```
 
-**Validate** from the repo root against the checked-in example:
+**Validate** the assembled document:
 
 ```bash
-cue vet -c -d '#MappingDocument' . docs/tutorials/mapping/mapping-document.yaml
+cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@v1.6.0 mapping-document.yaml
 ```
 
 Fix any errors (e.g. missing `mapping-references`, invalid relationship type, missing **`targets`** when relationship is not `no-match`, missing **`entry-type`** on `source-reference` / `target-reference`, or `entry-type` not in the allowed set) so the document is schema-valid.

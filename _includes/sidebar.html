@@ -14,89 +14,40 @@
       <ul id="search-results" class="sidebar-search-results" hidden></ul>
     </form>
 
-    <h3 class="sidebar-title">Quick Links</h3>
-    <nav class="sidebar-nav">
-      {%- for item in site.data.sidebar -%}
-        {%- if item.children -%}
-          <details class="sidebar-details">
-            <summary class="sidebar-summary">
-              <a href="{{ item.url | relative_url }}" class="sidebar-summary-link" onclick="event.stopPropagation();">{{ item.title | escape }}</a>
-            </summary>
-            <div class="sidebar-nested">
-              {%- for child in item.children -%}
-                {%- if child.children -%}
-                  <details class="sidebar-details sidebar-details-nested">
-                    <summary class="sidebar-summary sidebar-nested-link">
-                      {{ child.title | escape }}
-                    </summary>
-                    <div class="sidebar-nested">
-                      {%- for grandchild in child.children -%}
-                        <a href="{{ grandchild.url | relative_url }}" class="sidebar-link sidebar-nested-link">{{ grandchild.title | escape }}</a>
-                      {%- endfor -%}
-                    </div>
-                  </details>
-                {%- else -%}
-                  <a href="{{ child.url | relative_url }}" class="sidebar-link sidebar-nested-link">{{ child.title | escape }}</a>
-                {%- endif -%}
-              {%- endfor -%}
-            </div>
-          </details>
-        {%- else -%}
-          {%- assign is_index_page = false -%}
-          {%- assign dir_name = "" -%}
-          {%- if item.url != "/" -%}
-            {%- assign url_normalized = item.url | remove: "/index.html" -%}
-            {%- if url_normalized != "/" -%}
-              {%- assign url_parts = url_normalized | split: "/" -%}
-              {%- assign dir_name = "" -%}
-              {%- for part in url_parts -%}
-                {%- if part != "" -%}
-                  {%- if dir_name == "" -%}
-                    {%- assign dir_name = part -%}
-                  {%- else -%}
-                    {%- assign dir_name = dir_name | append: "/" | append: part -%}
-                  {%- endif -%}
-                {%- endif -%}
-              {%- endfor -%}
-              {%- if dir_name != "" -%}
-                {%- assign is_index_page = true -%}
-              {%- endif -%}
-            {%- endif -%}
-          {%- endif -%}
-          {%- if is_index_page -%}
-            {%- assign dir_path = dir_name | append: "/" -%}
-            {%- assign index_file = dir_name | append: "/index.md" -%}
-            {%- assign has_children = false -%}
-            {%- assign child_pages = site.pages | sort: "path" -%}
-            {%- for child_page in child_pages -%}
-              {%- unless child_page.path contains ".template" -%}
-                {%- if child_page.path contains dir_path and child_page.path contains ".md" and child_page.path != index_file -%}
-                  {%- assign has_children = true -%}
-                {%- endif -%}
-              {%- endunless -%}
-            {%- endfor -%}
-            {%- if has_children -%}
-              <details class="sidebar-details">
-                <summary class="sidebar-summary">
-                  <a href="{{ item.url | relative_url }}" class="sidebar-summary-link" onclick="event.stopPropagation();">{{ item.title | escape }}</a>
-                </summary>
-                <div class="sidebar-nested">
-                  {%- for child_page in child_pages -%}
-                    {%- unless child_page.path contains ".template" -%}
-                      {%- if child_page.path contains dir_path and child_page.path contains ".md" and child_page.path != index_file -%}
-                        <a href="{{ child_page.url | relative_url }}" class="sidebar-link sidebar-nested-link">{{ child_page.title | default: child_page.name | escape }}</a>
-                      {%- endif -%}
-                    {%- endunless -%}
-                  {%- endfor -%}
-                </div>
-              </details>
-            {%- else -%}
-              <a href="{{ item.url | relative_url }}" class="sidebar-link">{{ item.title | escape }}</a>
-            {%- endif -%}
+    {%- comment -%} Sidebar URLs are written without ".html"; page.url has it. {%- endcomment -%}
+    {%- assign current = page.url | remove: ".html" -%}
+    <nav class="sidebar-nav" aria-label="Documentation">
+      {%- for section in site.data.sidebar -%}
+        <h3 class="sidebar-title">
+          {%- if section.url -%}
+            <a href="{{ section.url | relative_url }}" class="sidebar-summary-link"{% if section.url == current %} aria-current="page"{% endif %}>{{ section.title | escape }}</a>
           {%- else -%}
-            <a href="{{ item.url | relative_url }}" class="sidebar-link">{{ item.title | escape }}</a>
+            {{ section.title | escape }}
           {%- endif -%}
-        {%- endif -%}
+        </h3>
+        {%- for item in section.children -%}
+          {%- if item.children -%}
+            {%- assign open = false -%}
+            {%- if item.url == current -%}{%- assign open = true -%}{%- endif -%}
+            {%- for child in item.children -%}
+              {%- if child.url == current -%}{%- assign open = true -%}{%- endif -%}
+            {%- endfor -%}
+            <details class="sidebar-details"{% if open %} open{% endif %}>
+              <summary class="sidebar-summary">
+                <a href="{{ item.url | relative_url }}" class="sidebar-summary-link" onclick="event.stopPropagation();"{% if item.url == current %} aria-current="page"{% endif %}>{{ item.title | escape }}</a>
+              </summary>
+              <div class="sidebar-nested">
+                {%- for child in item.children -%}
+                  <a href="{{ child.url | relative_url }}" class="sidebar-link sidebar-nested-link"{% if child.url == current %} aria-current="page"{% endif %}>{{ child.title | escape }}</a>
+                {%- endfor -%}
+              </div>
+            </details>
+          {%- else -%}
+            {%- comment -%} match: prefix marks the entry on its unlisted child pages too. {%- endcomment -%}
+            {%- assign prefix = current | slice: 0, item.url.size -%}
+            <a href="{{ item.url | relative_url }}" class="sidebar-link"{% if item.url == current %} aria-current="page"{% elsif item.match == "prefix" and prefix == item.url %} aria-current="location"{% endif %}>{{ item.title | escape }}</a>
+          {%- endif -%}
+        {%- endfor -%}
       {%- endfor -%}
     </nav>
   </div>

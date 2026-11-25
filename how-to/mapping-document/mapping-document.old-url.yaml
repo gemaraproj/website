@@ -1,0 +1,8 @@
+---
+# Serves mapping-document.yaml at its old /tutorials/ URL too. GitHub Pages cannot redirect a
+# non-HTML file, so this copies the file's content at build time instead.
+permalink: /tutorials/mapping/mapping-document.yaml
+layout: null
+sitemap: false
+---
+{% include_relative mapping-document.yaml %}

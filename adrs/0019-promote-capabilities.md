@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Promote Capabilities to a First-class Catalog
+description: "ADR-0019: define capabilities as a first-class catalog artifact, #CapabilityCatalog."
 ---
 
 - **ADR:** 0019

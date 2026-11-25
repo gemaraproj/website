@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Create Schemas for Each Layer in the Logical Model
+description: "ADR-0002: create CUE schemas for each layer of the Gemara model, OSCAL-compatible and optimized for automation."
 ---
 
 - **ADR:** 0002

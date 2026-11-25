@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Contributing
+description: "How to contribute to Gemara: getting started, signing off commits (DCO), and working with AI tools."
 nav-title: Contributing
 ---
 

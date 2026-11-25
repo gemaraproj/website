@@ -1,6 +1,9 @@
 ---
 layout: page
 title: Roadmap
+description: "Gemara's strategic priorities for 2026, planned tool specifications and completed milestones."
+redirect_from:
+  - /specifications/
 ---
 
 This document outlines the strategic priorities ("big rocks") for Gemara in 2026 and beyond. This roadmap is a living document and is subject to change based on community feedback and evolving industry requirements.
@@ -28,6 +31,12 @@ Moving the Gemara project to a stable ecosystem providing the technical foundati
 * **Publish Model Whitepaper**: Formalize and publish Gemara model for community adoption and standards-track consideration. *Why: Formal documentation enables standards-track discussions and broader industry adoption.*
 
 * **Create MCP Tooling**: Integrate and standardize the Model Context Protocol (MCP) server to support authoring Gemara artifacts via Agentic AI workflows. *Why: AI-assisted authoring lowers the barrier to creating Gemara-compliant artifacts and explores new use cases.*
+
+## Planned Specifications
+
+Tool specifications will define how tools and SDKs that implement Gemara must ingest, resolve and exchange artifacts, so that independent implementations reach the same results from the same inputs. None has been published yet. The first one planned is:
+
+* **Requirements Resolution**: how a Gemara Policy resolves its imported Guidance and Control Catalogs, applies assessment-requirement modifications (`Add`, `Modify`, `Remove`, `Replace`, `Override`), and produces the set of effective requirements.
 
 ## Completed Milestones
 

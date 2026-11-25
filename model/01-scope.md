@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Scope
+description: "The scope of the Gemara model: what it covers in governance, risk and compliance, and what it leaves to implementations."
 ---
 
 The purpose of this model is to provide a common basis for approaching activities and topics related to Governance, Risk, and Compliance (GRC), while leaving room for specific implementation details to grow and mature over time.

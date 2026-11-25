@@ -1,6 +1,7 @@
 ---
 layout: page
 title: "Sensitive Activities (Layer 4)"
+description: "Layer 4 of the Gemara model: sensitive activities, the actions that introduce risk and create the need for governance."
 ---
 
 **Sensitive Activities** are any type of action that might introduce risk to the organization, creating the need for governance. They are at the heart of the Gemara Model, and the entire reason GRC has existed in myriad forms throughout history.

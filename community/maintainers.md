@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Maintainers
+description: "The current and emeritus maintainers of the Gemara project and the organizations they work for."
 nav-title: Maintainers
 ---
 

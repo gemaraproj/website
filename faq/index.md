@@ -1,18 +1,19 @@
 ---
 layout: page
 title: Frequently Asked Questions
+description: "Answers to common questions about when and why to use Gemara, its artifacts, OSCAL, adoption and publishing."
 nav-title: FAQ
 ---
 
-Answers to common questions about when and why to use Gemara. For hands-on creation guides, see the [Tutorials](../tutorials/).
+Answers to common questions about when and why to use Gemara. For step-by-step guides, see the [tutorials](../tutorials/) and [how-to guides](../how-to/).
 
 ## Getting Started
 
 ### What's the minimum I need to do something useful?
 
 Start with artifacts in Layers 1 & 2.
-Those are required imports into Layer 3 artifacts (Policy) and Layers 5-7 (Evaluation, Enforcement, Audit).
-However, you do not need artifacts at every layer to get value. A Control Catalog (Layer 2) is immediately useful on its own.
+Layer 3 Policies usually import them, and Layer 5-7 logs (Evaluation, Enforcement, Audit) reference the controls they measure.
+However, you do not need artifacts at every layer to get value. A Control Catalog (Layer 2) is immediately useful on its own. To write and validate one in about 10 minutes, follow the tutorial [Write and validate your first control catalog](../tutorials/first-control-catalog/).
 
 ### Which layer do I start with?
 
@@ -30,7 +31,7 @@ Layers are separated by activity or job to be done, not sequential steps. Below 
 No. As a user, you write YAML and validate it. The CUE schemas are the source of truth for validation, but you don't need to author CUE.
 
 ```bash
-cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@latest your-controls.yaml
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@v1.6.0 your-controls.yaml
 ```
 
 If you use an AI code assistant, Gemara provides MCP tools to help your agent validate artifacts directly.
@@ -51,7 +52,7 @@ Who does what in this scenario:
 - Standards bodies and industry groups publish Layer 1 artifacts. You consume them.
 - The OSPS Baseline SIG publishes the Layer 2 Control Catalog. You consume it.
 - Your governance body writes the Layer 3 Policy importing OSPS Baseline.
-- Your project is Layer 4. It exists as-is.
+- Building and running your project are the Layer 4 [sensitive activities](../model/06-sensitive-activities.html). They exist as-is.
 - A scanner from the [awesome-gemara](https://github.com/gemaraproj/awesome-gemara) ecosystem evaluates your repo and produces Layer 5-6 artifacts.
 - An auditor reviews the full chain at Layer 7.
 
@@ -81,9 +82,9 @@ Mapping Documents are a separate artifact where anyone (author or consumer) can 
 
 ### What is Layer 4 and why is there no schema?
 
-Layer 4 is symbolic. It represents the actual deployment and operation of systems, covered by existing ecosystems (Kubernetes, CI/CD pipelines, SBOM generators).
+Layer 4 is [Sensitive Activities](../model/06-sensitive-activities.html): actions that might introduce risk, such as deploying and operating systems. Existing ecosystems (Kubernetes, CI/CD pipelines, SBOM generators) already carry out and describe these activities.
 
-Layer 4 takes inputs from the Definition Layers (1-3), introduces risk, and produces measurable data (like SBOMs) that become inputs to Layers 5-7. Gemara doesn't schema this because the ecosystem itself *is* Layer 4.
+Layer 4 takes inputs from the Definition Layers (1-3) and produces measurable data (like SBOMs) that become inputs to Layers 5-7. Gemara has no schema for it because those ecosystems already describe the activities themselves.
 
 ### Are Evaluation/Enforcement/Audit Logs hand-authored or tool-produced?
 
@@ -95,7 +96,7 @@ Some controls are procedural, so those logs can be human-authored. Audit Logs ar
 
 ### How does Gemara relate to OSCAL?
 
-OSCAL is a mature standard for machine-readable compliance documents, adopted in programs like FedRAMP. Gemara builds on lessons from the OSCAL community and optimizes for a specific workflow: lean YAML authoring, machine-generated artifacts at scale, and first-class threat-to-control traceability. The Gemara SDK converts Gemara artifacts to OSCAL, starting with Control Catalogs and Guidance Catalogs, so organizations can use Gemara for authoring and automation while producing OSCAL artifacts for exchange.
+OSCAL is a mature standard for machine-readable compliance documents, adopted in programs like FedRAMP. Gemara builds on lessons from the OSCAL community and optimizes for a specific workflow: lean YAML authoring, machine-generated artifacts at scale, and first-class threat-to-control traceability. The [Go SDK](../how-to/export-oscal/) converts Control Catalogs, Guidance Catalogs and Evaluation Logs to OSCAL, so organizations can use Gemara for authoring and automation while producing OSCAL artifacts for exchange.
 
 ### When should I use OSCAL vs Gemara?
 
@@ -115,13 +116,7 @@ If you're exchanging compliance data between organizations or submitting to a re
 
 ### How do I get from Gemara to OSCAL?
 
-The SDK converts Control Catalogs and Guidance Catalogs to their OSCAL equivalents, and Evaluation Logs to OSCAL Assessment Results. It handles OSCAL-specific requirements like UUID generation. Your source YAML stays lean; the SDK produces the OSCAL output.
-
-```go
-oscalCatalog, _ := gemaraconv.ControlCatalog(catalog).ToOSCAL()
-```
-
-Conversions for other artifact types are tracked in [go-gemara#29](https://github.com/gemaraproj/go-gemara/issues/29).
+Use the Go SDK. It converts Control Catalogs and Guidance Catalogs to their OSCAL equivalents, and Evaluation Logs to OSCAL Assessment Results, so your source YAML stays lean. See [Export to OSCAL](../how-to/export-oscal/).
 
 ## Adopting Gemara
 
@@ -146,7 +141,7 @@ Yes. Policy scoping handles this. Your high-sensitivity systems (payments, auth)
 
 You're still writing prose, just structured and in YAML. A 20-page Word policy becomes a Gemara Policy document with defined scope, imports, and adherence sections. The substance is the same; the structure makes it machine-readable.
 
-AI tooling can help. The Gemara MCP Server assists agents with migrations.
+AI tooling can help. The Gemara MCP Server assists agents with migrations. To write the result, follow [Write an organizational policy](../how-to/policy/).
 
 ## Working Across Teams
 
@@ -158,7 +153,7 @@ A common ownership pattern:
 |:--|:--|:--|
 | GRC / Compliance | Policy, framework mappings, risk appetite | 3 |
 | Security Engineering | Controls, threat models, evaluation checks | 2, 5 |
-| Platform / DevOps | The systems under assessment (existing tooling) | 4 |
+| Platform / DevOps | The sensitive activities under assessment: building and running systems with existing tooling | 4 |
 | Auditor | Interpretation of evidence against criteria | 7 |
 
 Your organization may divide this differently. The key principle: the GRC team owns the "why" and "what maps where," engineering owns the "how to prove it." Neither needs to be an expert in the other's domain.
@@ -183,4 +178,4 @@ Each evaluation result references an assessment requirement ID from the imported
 
 ### How do I publish my artifacts?
 
-You can publish artifacts as release artifacts in your repository. The project is also standardizing on a Gemara bundle spec based on OCI artifacts to make scaled consumption and publishing easier.
+You can publish artifacts as release artifacts in your repository. To ship an artifact together with everything it imports, package it as an OCI bundle and push it to a registry: see [Publish artifacts as an OCI bundle](../how-to/publish-bundle/).

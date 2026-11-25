@@ -1,0 +1,8 @@
+---
+# Serves control-catalog.yaml at its old /tutorials/ URL too. GitHub Pages cannot redirect a
+# non-HTML file, so this copies the file's content at build time instead.
+permalink: /tutorials/controls/control-catalog.yaml
+layout: null
+sitemap: false
+---
+{% include_relative control-catalog.yaml %}

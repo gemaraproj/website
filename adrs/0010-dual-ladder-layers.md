@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Dual-ladders Within Each Layer
+description: "ADR-0010: allow two primary artifacts within each layer of the Gemara model."
 ---
 
 - **ADR:** 0010

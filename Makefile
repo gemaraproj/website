@@ -91,6 +91,7 @@ gendocs: genmd
 				echo "---"; \
 				echo "layout: page"; \
 				echo "title: $$title"; \
+				echo "description: \"Gemara schema reference for $$title: fields, types and constraints.\""; \
 				echo "---"; \
 				echo ""; \
 				cat "$(SPEC_MD_DIR)/$$filename.md"; \

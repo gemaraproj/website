@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Isolate Concepts from Code
+description: "ADR-0007: keep SDK code in separate repositories from the Gemara model and schemas."
 ---
 
 - **ADR:** 0007
