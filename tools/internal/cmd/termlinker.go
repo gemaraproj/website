@@ -350,6 +350,25 @@ func (s *contentState) skipLine(line string) bool {
 	return false
 }
 
+// isPartOfDottedName reports whether s[start:end] is one segment of a dotted
+// name such as a hostname (grc.store, hub.grc). A period joins a dotted name
+// only when the characters on both sides are lowercase letters, digits, or
+// underscores. Sentence-ending periods, and sentences run together by a
+// missing space ("Enforcement.This"), therefore still allow a link.
+func isPartOfDottedName(s string, start, end int) bool {
+	if end+1 < len(s) && s[end] == '.' && isDottedNameChar(s[end-1]) && isDottedNameChar(s[end+1]) {
+		return true
+	}
+	if start >= 2 && s[start-1] == '.' && isDottedNameChar(s[start-2]) && isDottedNameChar(s[start]) {
+		return true
+	}
+	return false
+}
+
+func isDottedNameChar(c byte) bool {
+	return c == '_' || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z')
+}
+
 func processLine(line string, termInfos []TermInfo, defPath string) string {
 	// Find all existing markdown links, inline code, and HTML tags to skip
 	linkPattern := regexp.MustCompile(`\[([^\]]+)\]\([^\)]+\)`)
@@ -589,6 +608,12 @@ func processLine(line string, termInfos []TermInfo, defPath string) string {
 			}
 
 			if shouldSkip {
+				continue
+			}
+
+			// `\b` treats '.' as a word boundary, so hostnames and dotted
+			// identifiers (grc.store, hub.grc) would otherwise get a link.
+			if isPartOfDottedName(result, start, end) {
 				continue
 			}
 
