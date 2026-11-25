@@ -454,6 +454,16 @@ func TestProcessContentStateTracking(t *testing.T) {
 			want:  "Mail <mailto:a@x.io>.\nB " + link + ".",
 		},
 		{
+			name:  "email autolink does not disable later lines",
+			input: "Mail <user@example.com>.\nB Control.",
+			want:  "Mail <user@example.com>.\nB " + link + ".",
+		},
+		{
+			name:  "tag-like text in a fenced block does not disable later lines",
+			input: "```\nAssisted-by: Claude Code <noreply@anthropic.com>\n<div>\n```\nB Control.",
+			want:  "```\nAssisted-by: Claude Code <noreply@anthropic.com>\n<div>\n```\nB " + link + ".",
+		},
+		{
 			name:  "html comment does not disable later lines",
 			input: "<!-- c -->\nB Control.",
 			want:  "<!-- c -->\nB " + link + ".",
@@ -496,6 +506,9 @@ func TestContentStateUpdateHTMLTags(t *testing.T) {
 		{"https autolink", "See <https://x.io>.", false},
 		{"http autolink", "See <http://x.io>.", false},
 		{"mailto autolink", "<mailto:a@x.io>", false},
+		{"email autolink", "Mail <user@example.com>.", false},
+		{"email autolink with plus and subdomain", "<first.last+tag@mail.example.co.uk>", false},
+		{"tag with @ in an attribute still opens", `<a href="mailto:a@x.io">`, true},
 		{"html comment", "<!-- c -->", false},
 		{"doctype", "<!DOCTYPE html>", false},
 		{"processing instruction", `<?xml version="1.0"?>`, false},

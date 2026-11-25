@@ -297,6 +297,8 @@ var (
 	htmlOpenTagNamePattern = regexp.MustCompile(`^<([a-zA-Z][a-zA-Z0-9-]*)`)
 	// autolinkPattern matches CommonMark autolinks such as <https://...> and <mailto:...>.
 	autolinkPattern = regexp.MustCompile(`^<[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*>$`)
+	// emailAutolinkPattern matches CommonMark email autolinks such as <user@example.com>.
+	emailAutolinkPattern = regexp.MustCompile(`^<[a-zA-Z0-9.!#$%&'*+/=?^_` + "`" + `{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>$`)
 )
 
 // htmlVoidElements never have a closing tag, so they must not open an HTML block.
@@ -311,7 +313,7 @@ func isOpeningHTMLTag(tag string) bool {
 	if strings.HasPrefix(tag, "</") || strings.HasPrefix(tag, "<!") || strings.HasPrefix(tag, "<?") {
 		return false
 	}
-	if strings.HasSuffix(tag, "/>") || autolinkPattern.MatchString(tag) {
+	if strings.HasSuffix(tag, "/>") || autolinkPattern.MatchString(tag) || emailAutolinkPattern.MatchString(tag) {
 		return false
 	}
 	m := htmlOpenTagNamePattern.FindStringSubmatch(tag)
@@ -339,6 +341,12 @@ func (s *contentState) update(line string) {
 	}
 	if s.inJekyllInclude && strings.Contains(trimmed, "%}") {
 		s.inJekyllInclude = false
+	}
+
+	// Fenced code is literal text, so tag-like content there never opens or
+	// closes an HTML block.
+	if s.inCodeBlock {
+		return
 	}
 
 	// Track HTML blocks - check for opening and closing HTML tags
